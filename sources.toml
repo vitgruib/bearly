@@ -15,11 +15,57 @@ categories = ["cat-ai", "cat-tech", "cat-climate", "cat-AzVAf6VmE9JEre4"]
 calendars = [
   # Campus clubs
   "calmsa", "nucleate", "berkeleygatewayaccelerator",
+  # Campus orgs and programs with a Luma calendar active since Sep 2026 (checked 2026-10-28).
+  # By api_id: many short slugs belong to unrelated calendars elsewhere.
+  "cal-zkDNpjkeOUbcOcF",  # MTC Berkeley
+  "cal-MFfNVPXHux11fWV",  # Design Field Notes (Jacobs)
+  "cal-VCDq4BBX0vUcrMf",  # Jacobs Institute
+  "cal-E1V58RSTl66yFPu",  # SoCo (2170 Dwight)
+  "cal-cz9wmwV3tU1Ko5B",  # AI for Science Seminar (BIDMaP)
+  "cal-JydsiJW5nz0LPG1",  # Deep Tech Innovation Lab
+  "cal-AGquAZ1RooYiuls",  # Alumni-Student Coffee Chats
+  "cal-fFSkiSE6xmZa4zi",  # University Digital Asset Xcelerator
+  "cal-pGk9zFXmC8Khedf",  # Berkeley Quantum
+  "cal-NVAu6mibtGOgYXK",  # OpenAI Student Collective
+  "cal-Gk9yywXiip6U1KG",  # Master of Climate Solutions
+  "cal-QFKgU4dhxFeZ8QS",  # Berkeley Supper Club
+  "cal-i6phep5ra7PFMAW",  # Berkeley Pharma Tech
+  "cal-QzSyFbecenFng8a",  # SkyDeck
+  "cal-ZPnzq9XWV5QEoFK",  # Berkeley EA
+  "cal-DwuI0Ag5qXLqxNA",  # DiversaTech
+  "cal-Jy0GoSr2AYYJ5Ts",  # Life Science Entrepreneurs
+  "cal-JWo5727CtI11bov", "cal-mdqhaWl5FZPkfqv",  # Haas Blockchain Club
+  "cal-7Cm0UUCq1jePIon",  # Product Club
+  "cal-fE1FWRgbFIiLxLI",  # Figma @ UC Berkeley
+  "cal-n7ACmNBVboxCC8r",  # The House Fund
+  "cal-gINV7gyDozAG9wG",  # Berkeley Abundance
+  "cal-I1txDD8RUmcAAqt",  # Girls into VC
+  "cal-OJnfOpxupHUmL1x",  # NixOS (meets at OCF)
   # Bay Area tech, startup and hackathon communities (checked 2026-10-27)
   "genai-sf", "build-with-ai-club", "foundersbay", "ai-sf", "9zero", "thesanfranciscotechscene",
   "Big-Brain-Bay", "sf-hackersquad", "aisafety-sf", "southparkcommons-events", "grayarea",
   "sf-hardware-meetup", "ls", "ycombinator-official", "fdotinc", "bases26_27", "tiat",
   "anyscale", "kindredventuresevents", "cal-kiKh3eJNLvQQRk6",
+]
+# Orgs that post from a Luma profile instead of a calendar (user api_ids).
+hosts = [
+  "usr-n3Zdqni2NzHWl6F",  # SCET
+  "usr-la8sSx7Rvm8gLtQ",  # Berkeley StEP
+  "usr-DBnAWoLttwkyOYi",  # Haas Entrepreneurship Program
+  "usr-Dt5uUDywXkCnKC8",  # Biotech at Berkeley
+  "usr-xpbhQPloDlvRYZZ",  # CalPSA
+  "usr-C0OJUThDIxyHD7W",  # SSWANA
+  "usr-s6IdnlWXVHZytEH",  # Cal MSA
+  "usr-A7bd32AZTCc4X8n",  # Haas Tech Club
+  "usr-NuVkQph0xfUH2r4",  # BERC
+  "usr-sKv9ORk6j2R6HRr",  # CITRIS
+  "usr-qfWkswflIlKsnnP",  # Berkeley Risk and Security Lab
+  "usr-HElScZihb8h3jYK",  # SkyDeck
+  "usr-Nbuvj3Egogb1CRP",  # BGA
+  "usr-I406XgUXXCvlSDr",  # Blockchain at Berkeley
+  "usr-MRhjVBSNKfxkECd",  # Product Space
+  "usr-9TOpeSoGHYlngxe",  # BETA at Berkeley
+  "usr-pyeOvqZfL6R5XYH",  # ACE Berkeley
 ]
 
 [eventbrite]
@@ -109,6 +155,92 @@ name = "Graduate Assembly"
 type = "ics"
 url = "https://calendar.google.com/calendar/ical/berkeley.edu_u7u87h8t91v03rgas6hnb76b1s%40group.calendar.google.com/public/basic.ics"
 campus = true
+
+[[feeds.list]]
+name = "Haas clubs (CampusGroups)"
+type = "ics"
+url = "https://haas.campusgroups.com/ical/haas/ical_haas.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "UC Rally Committee"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/dojkra9e5t4mq087thdl4kksng%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+exclude = "^CAL @ |maybe\\?"  # away games and tentative plans
+
+[[feeds.list]]
+name = "FAST of Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/fastofberkeley%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Biotech @ Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/biotechgroup%40berkeley.edu/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Rubik's Cube Club"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_430864972c5e3b199881a27bacdd2e18c825c0ad8db921cfe2ad8d7ed0b5dad7%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Quantum Computing at Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/quantumcomputingberkeley%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+
+[[feeds.list]]
+name = "Blood Pressure Project"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_a4f46145cef72ee71bee7cdf14f9768ea55985afc77f0423bad270f6e1e7ceff%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Photobears"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_cah8uuik2fgguprmt8g33v4bn8%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Gender Equity Resource Center"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/3u3cr1tupod0icptitb6ekt7p1o5lpgn%40import.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "UAVs@Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_775f2cb50aa691b7adba378e0e5fe84a96e95fbd8d865bb401c5d686be8d03bf%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "IP Law Society"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/ipls.berkeleylaw%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "MSA"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_5ub63m118v3el3jv78ejcjak7g%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
 
 # --- City and community ---
 

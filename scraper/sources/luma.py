@@ -114,4 +114,10 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
             events += calendar_events(cal, days)
         except (httpx.HTTPError, KeyError) as exc:  # a deleted calendar must not sink the rest
             ctx.warn(f"luma calendar {cal}: {exc}")
+    for user in cfg.get("hosts", []):
+        try:
+            events += [parse_entry(e) for e in _page("/user/profile/events-hosting", horizon, 2,
+                                                     user_api_id=user)]
+        except httpx.HTTPError as exc:
+            ctx.warn(f"luma host {user}: {exc}")
     return events

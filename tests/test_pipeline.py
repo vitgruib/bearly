@@ -128,3 +128,10 @@ def test_a_title_repeating_all_month_is_listed_once_with_its_count():
     [e] = build(daily, 30, NOW)
 
     assert e.start == NOW + timedelta(days=1, hours=2) and e.repeats == 5
+
+
+def test_cancelled_anywhere_in_title_is_dropped_and_venue_placeholders_cleared():
+    events = build([ev("Sorry, canceled again... pls pencil in 11/12"),
+                    ev("Careers Panel", venue="Sign in to download the location")], 30, NOW)
+
+    assert [(e.title, e.venue) for e in events] == [("Careers Panel", None)]

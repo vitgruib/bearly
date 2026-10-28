@@ -24,7 +24,9 @@ from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
 log = logging.getLogger("scraper")
 PACIFIC = ZoneInfo("America/Los_Angeles")
 # "FULL | Bird Walk", "POSTPONED ...", and Google Calendar's free/busy-only "Busy" blocks.
-PLACEHOLDER = re.compile(r"^(?:full|postponed|cancel+ed|sold out)\b|^busy$", re.IGNORECASE)
+PLACEHOLDER = re.compile(r"^(?:full|postponed|sold out)\b|\bcancel+ed\b|^busy$", re.IGNORECASE)
+# CampusGroups hides locations from signed-out readers behind this text.
+NO_VENUE = re.compile(r"^(?:sign in to|tbd$|tba$)", re.IGNORECASE)
 
 
 def _run_one(name: str, cfg: dict, ctx: Context) -> tuple[list[Event] | None, str | None]:
@@ -47,6 +49,8 @@ def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
             continue
         if PLACEHOLDER.search(e.title):
             continue
+        if e.venue and NO_VENUE.search(e.venue):
+            e.venue = None
         local = e.start.astimezone(PACIFIC)
         if not e.all_day and local.hour == local.minute == 0 and e.end is None:
             e.all_day = True  # a date with no time, stored as midnight
