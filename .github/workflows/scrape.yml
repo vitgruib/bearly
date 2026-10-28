@@ -1,16 +1,24 @@
 name: Scrape and publish
 
+# Each source has its own schedule (registry.py / sources.toml); this cron just wakes the
+# scraper up, and sources that aren't due reuse their last results without any requests.
 on:
   schedule:
-    - cron: "17 */3 * * *"  # every 3 hours
+    - cron: "23 */3 * * *"
   workflow_dispatch:
+    inputs:
+      sources:
+        description: "Force these sources (space-separated), e.g. 'luma ics'. Empty = whatever is due."
+        required: false
   push:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
+  issues: write
+  actions: write
 
 concurrency:
   group: scrape
@@ -19,31 +27,58 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - run: uv sync
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
       - run: uv run pytest -q
+
+      - id: pages
+        uses: actions/configure-pages@v5
+      # The live site is the database: start from what was last published.
+      - name: Restore last published data
+        run: |
+          mkdir -p site/data
+          for f in events.json state.json; do
+            curl -fsSL "${{ steps.pages.outputs.base_url }}/data/$f" -o "site/data/$f" || echo "no previous $f"
+          done
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: http-${{ github.run_id }}
+          restore-keys: http-
+
       - name: Scrape
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           IMAP_USER: ${{ secrets.IMAP_USER }}
           IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
           IMAP_HOST: ${{ secrets.IMAP_HOST }}
           SLACK_TOKENS: ${{ secrets.SLACK_TOKENS }}
-        run: uv run python -m scraper.run
-      - name: Commit fresh data
-        run: |
-          git config user.name "bearly-bot"
-          git config user.email "bearly-bot@users.noreply.github.com"
-          git add site/data/events.json data/llm_cache.json
-          git diff --cached --quiet || (git commit -m "data: refresh events" && git pull --rebase && git push)
-      - uses: actions/configure-pages@v5
+          FORCE_SOURCES: ${{ github.event.inputs.sources }}
+        # Unquoted on purpose: one argument per source name. run.py rejects unknown names.
+        run: uv run python -m scraper.run $FORCE_SOURCES
+
+      - name: Open or close source-health issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run python -m scraper.alerts
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
       - id: deploy
         uses: actions/deploy-pages@v4
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+
+      # GitHub disables scheduled workflows after 60 days without repo activity; since this
+      # job never commits, re-enabling itself each run keeps the schedule alive.
+      - name: Keep schedule alive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/scrape.yml/enable"

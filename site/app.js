@@ -299,10 +299,11 @@ async function boot() {
       .join(" ").toLowerCase();
   }
 
-  const live = data.sources.filter((s) => s.ok).map((s) => s.name);
+  const live = data.sources.filter((s) => s.count > 0).map((s) => `${s.name} (${s.count})`);
   $("#updated").textContent = `Updated ${relTime(data.generated_at)} · ${data.events.length.toLocaleString()} upcoming events from ${live.join(", ")}.`;
-  const off = data.sources.filter((s) => !s.ok).map((s) => `${s.name} (${s.skipped ? "not connected" : "temporarily unavailable"})`);
-  $("#status").textContent = off.length ? `Not included right now: ${off.join(", ")}.` : "";
+  const notes = data.sources.filter((s) => s.health !== "ok" && !(s.health === "off" && s.count)).map((s) =>
+    `${s.name} (${s.health === "off" ? "not connected" : `having trouble; showing results from ${s.last_ok ? relTime(s.last_ok) : "earlier"}`})`);
+  $("#status").textContent = notes.length ? `Also: ${notes.join(", ")}.` : "";
 
   const ro = new ResizeObserver(() =>
     document.documentElement.style.setProperty("--controls-h", `${$("#controls").offsetHeight}px`));

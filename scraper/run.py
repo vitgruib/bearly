@@ -55,6 +55,8 @@ def main(argv: list[str]) -> None:
     now = now_utc()
 
     enabled = [n for n in SOURCES if config.get(n, {}).get("enabled", True)]
+    if unknown := set(argv) - set(SOURCES):
+        raise SystemExit(f"unknown sources: {', '.join(sorted(unknown))}")
     if argv:
         to_run = argv
     else:
