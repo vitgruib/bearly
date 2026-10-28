@@ -609,6 +609,14 @@ max_run_usd = 0.5
 folder = "events"  # Gmail label your listserv filter applies
 days_back = 14
 
+[reports]
+# "Missing an event?" on the site. form_url is the Google Form's share link; sheet_csv is its
+# response sheet via File > Share > Publish to web > CSV. Reported links go up automatically.
+form_url = ""
+sheet_csv = ""
+days_back = 60
+block = []  # event or report URLs that should never be listed
+
 [slack]
 days_back = 14
 channels = []  # empty = every channel the bot has been added to

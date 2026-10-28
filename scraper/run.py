@@ -119,6 +119,7 @@ def main(argv: list[str]) -> None:
     state.save()
     EVENTS.write_text(json.dumps({
         "generated_at": now.isoformat(timespec="seconds"),
+        "report_url": config.get("reports", {}).get("form_url") or None,
         "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
                      "last_ok": state.source(n).get("last_ok"), **statuses[n]}
                     for n in enabled],

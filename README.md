@@ -21,6 +21,7 @@ Live: https://vitgruib.github.io/bearly/
 | Partiful | Bay Area "trending" on `/explore`, plus any `partiful.com/e/…` link seen elsewhere | nothing |
 | Instagram | ~850 student-org accounts (`clubs/instagram.txt`, from CalLink) via Apify; captions parsed for date/time/place | `APIFY_TOKEN` |
 | Mailing lists | IMAP inbox subscribed to listservs | `IMAP_USER`, `IMAP_PASSWORD` |
+| Student reports | "Missing an event?" Google Form on the site; any event link in a report goes up on the next run | `[reports]` URLs in `sources.toml` |
 | Slack | channels the bot is in, across any number of workspaces | `SLACK_TOKENS` |
 
 Emails, Slack posts, RSS items and Instagram captions go through two passes, both free.

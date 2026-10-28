@@ -15,6 +15,7 @@ from .sources import (
     instagram,
     luma,
     partiful,
+    reports,
     slack,
     venues,
 )
@@ -39,4 +40,5 @@ SOURCES = {
     "hackathons": Source("Hackathons", hackathons, 24),
     "venues": Source("Music & venues", venues, 12),
     "instagram": Source("Instagram", instagram, 24),
+    "reports": Source("Reported by students", reports, 3),
 }

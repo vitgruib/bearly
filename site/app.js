@@ -232,7 +232,7 @@ function update() {
   rendered = 0;
   lastDay = null;
   if (!filtered.length) {
-    $("#list").innerHTML = `<div class="empty"><strong>Nothing here — yet.</strong>Try a wider date range or fewer filters.</div>`;
+    $("#list").innerHTML = `<div class="empty"><strong>Nothing here — yet.</strong>Try a wider date range or fewer filters.${data.report_url ? ` Know of one we missed? <a href="${data.report_url}" target="_blank" rel="noopener">Tell us</a>.` : ""}</div>`;
     return;
   }
   renderMore();
@@ -305,6 +305,10 @@ async function boot() {
   const notes = data.sources.filter((s) => s.health !== "ok" && !(s.health === "off" && s.count)).map((s) =>
     `${s.name} (${s.health === "off" ? "not connected" : `having trouble; showing results from ${s.last_ok ? relTime(s.last_ok) : "earlier"}`})`);
   $("#status").textContent = notes.length ? `Also: ${notes.join(", ")}.` : "";
+  if (data.report_url) {
+    $("#report a").href = data.report_url;
+    $("#report").hidden = false;
+  }
 
   const ro = new ResizeObserver(() =>
     document.documentElement.style.setProperty("--controls-h", `${$("#controls").offsetHeight}px`));

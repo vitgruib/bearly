@@ -189,6 +189,8 @@ body {
 
 .footer { color: var(--muted); font-size: 12.5px; padding-bottom: 50px; border-top: 1px solid var(--faint); padding-top: 18px; }
 .footer p { margin: 4px 0; }
+.report { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
+.report a, .empty a { color: var(--accent); }
 
 @media (max-width: 600px) {
   /* Four rows of filters would eat half a phone screen if they stayed pinned. */
