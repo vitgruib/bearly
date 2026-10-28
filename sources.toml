@@ -7,15 +7,27 @@ days_ahead = 30  # how far ahead the site lists events
 [luma]
 center = [37.8715, -122.2730]  # Luma's "discover" feed is ordered by distance from here
 max_pages = 12
-# Club / org calendars on Luma: the slug from luma.com/<slug>, or a cal-... id.
-calendars = ["calmsa", "nucleate"]
+# Luma discover categories, sorted by distance from `center` (cat-ai, cat-tech, cat-climate,
+# cat-crypto, cat-AzVAf6VmE9JEre4 = arts, cat-fooddrink, cat-books, cat-games, ...).
+categories = ["cat-ai", "cat-tech", "cat-climate", "cat-AzVAf6VmE9JEre4"]
+# Calendars always followed: the slug from luma.com/<slug>, or a cal-... id. Org calendars
+# that host near campus are discovered automatically and need not be listed.
+calendars = [
+  # Campus clubs
+  "calmsa", "nucleate", "berkeleygatewayaccelerator",
+  # Bay Area tech, startup and hackathon communities (checked 2026-10-27)
+  "genai-sf", "build-with-ai-club", "foundersbay", "ai-sf", "9zero", "thesanfranciscotechscene",
+  "Big-Brain-Bay", "sf-hackersquad", "aisafety-sf", "southparkcommons-events", "grayarea",
+  "sf-hardware-meetup", "ls", "ycombinator-official", "fdotinc", "bases26_27", "tiat",
+  "anyscale", "kindredventuresevents", "cal-kiKh3eJNLvQQRk6",
+]
 
 [eventbrite]
 places = ["ca--berkeley", "ca--oakland"]
 pages = 4
 
 [cerebral_valley]
-pages = ["/events"]
+location = "BAY_AREA"
 
 [partiful]
 # Public partiful.com/e/<id> links to always include (links in emails/Slack are found

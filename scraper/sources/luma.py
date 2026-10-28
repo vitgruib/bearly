@@ -98,6 +98,14 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
     lat, lng = cfg.get("center", [37.8715, -122.2730])
     entries = _page("/discover/get-paginated-events", horizon, cfg.get("max_pages", 12),
                     latitude=lat, longitude=lng)
+    # Category feeds reach further than the plain distance-sorted feed for busy topics.
+    for cat in cfg.get("categories", []):
+        try:
+            entries += _page("/discover/get-paginated-events", horizon,
+                             cfg.get("category_pages", 3), discover_category_api_id=cat,
+                             latitude=lat, longitude=lng)
+        except httpx.HTTPStatusError as exc:  # extra reach, not the core feed
+            ctx.warn(f"luma category {cat}: {exc.response.status_code}")
     events = [parse_entry(e) for e in entries]
     calendars = dict.fromkeys(cfg.get("calendars", []))
     calendars.update(dict.fromkeys(discover_calendars(entries, ctx.memory, ctx.now)))
