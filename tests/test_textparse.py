@@ -112,3 +112,40 @@ def test_untitled_post_falls_back_to_the_host_not_a_fragment():
     [e] = parse_announcement(text, TUESDAY, "instagram", host="American Red Cross at Cal")
 
     assert e.title == "American Red Cross at Cal event"
+
+
+def test_date_and_time_in_separate_paragraphs_are_one_event():
+    text = ("Come get in the Halloween spirit with us!\n\nDate: Friday, October 30th\n\n"
+            "Time: 6:00-8:00 pm\n\nLocation: Grimes 202")
+
+    [e] = parse_announcement(text, TUESDAY, "instagram")
+
+    assert e.start == datetime(2026, 10, 30, 18, 0, tzinfo=PT)
+    assert e.venue == "Grimes 202"
+
+
+def test_a_closure_from_midnight_is_not_an_event():
+    text = "The lockers will shut down from 12:00 am November 1st until sundown of November 8th."
+
+    assert parse_announcement(text, TUESDAY, "instagram") == []
+
+
+def test_title_from_a_hosted_or_possessive_name_not_from_a_room():
+    hosting = "CSK is excited to be hosting IBM Networking Night!\n📅 Tuesday, October 27\n⏰ 6:30 PM"
+    possessive = "Come to MEDLIFE’s Winter SLT Info Session TOMORROW, 7–8 PM!"
+    room = ("We will be holding a course planning workshop on Thurs. October 29th from "
+            "1:30–4:00pm in the 1420 Gateway Social Kitchen!")
+
+    titles = [parse_announcement(t, TUESDAY, "instagram")[0].title
+              for t in (hosting, possessive, room)]
+
+    assert titles == ["IBM Networking Night", "Winter SLT Info Session", "Course Planning Workshop"]
+
+
+def test_off_campus_city_named_in_the_post_wins_over_the_berkeley_default():
+    text = ("We'll be at the Bay Area Science Festival this Saturday, October 31! Find our table "
+            "in Fisher Banquet Hall at UCSF Mission Bay, 11 AM to 4 PM.")
+
+    [e] = parse_announcement(text, TUESDAY, "instagram")
+
+    assert e.city == "San Francisco"

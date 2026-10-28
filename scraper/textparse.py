@@ -52,6 +52,14 @@ FREE_FOOD = re.compile(
     r"free (?:food|pizza|boba|lunch|dinner|snacks|drinks)|(?:pizza|boba|food|snacks|lunch|"
     r"dinner|refreshments|drinks)\s+(?:will be\s+)?(?:provided|served)", re.IGNORECASE)
 URL = re.compile(r"https?://\S+")
+# Club posts default to Berkeley downstream; these say otherwise.
+OTHER_CITIES = [(re.compile(p, re.IGNORECASE), city) for p, city in [
+    (r"\bsan francisco\b|\bUCSF\b|\bmission bay\b|\bSF\b(?!\s*state)", "San Francisco"),
+    (r"\boakland\b|\blake merritt\b", "Oakland"),
+    (r"\bstanford\b|\bpalo alto\b", "Palo Alto"),
+    (r"\bemeryville\b", "Emeryville"),
+    (r"\bsan jose\b", "San Jose"),
+]]
 
 
 def _year_for(month: int, day: int, sent: date) -> int:
@@ -146,14 +154,18 @@ def _has_words(s: str) -> bool:
 
 # "Join us for our Photocard Decorating Event", "at its weekly editing workshop"
 _EVENT_NOUN = (r"workshop|social|gm|general meeting|meeting|night|fest(?:ival)?|drive|fundraiser|"
-               r"fireside chat|chat|mixer|info session|session|party|tour|sale|talk|panel|lecture|"
-               r"hackathon|showcase|tournament|retreat|conference|open house|screening|"
-               r"celebration|potluck|kickoff|banquet|gala|concert|performance|show|meetup|event")
+               r"fireside chat|chat|mixer|info ?session|session|party|tour|sale|talk|panel|lecture|"
+               r"hackathon|cadathon|showcase|tournament|retreat|conference|open house|screening|"
+               r"celebration|potluck|kickoff|banquet|gala|concert|performance|show|meetup|forum|"
+               r"summit|symposium|fair|expo|clean-?up|hike|competition|contest|premiere|event")
 NAMED_EVENT = re.compile(
-    rf"\b(?:our|an?|the|its|their|this)\s+((?:[\w'’&@-]+\s+){{0,5}}?(?:{_EVENT_NOUN}))\b",
+    r"\b(?:our|an?|the|its|their|this|hosting|presents|presenting|"
+    r"(?!(?:it|that|what|there|here|let|he|she|who)['’]s)[\w@.&-]+['’]s)\s+"
+    rf"((?:[\w'’&@-]+\s+){{0,5}}?(?:{_EVENT_NOUN}))\b(?-i:(?!\s+[A-Z][a-z]))",  # not "...Social Kitchen"
     re.IGNORECASE)
-GENERIC_NAME = re.compile(rf"^(?:(?:first|next|second|weekly|annual|this)\s+)?(?:{_EVENT_NOUN})$",
-                          re.IGNORECASE)
+GENERIC_NAME = re.compile(
+    r"^(?:(?:first|next|second|weekly|annual|this|great|fun|cozy|amazing|awesome|spooky|lovely|"
+    rf"exciting|exclusive|special)\s+)*(?:{_EVENT_NOUN})$", re.IGNORECASE)
 LABEL_LINE = re.compile(r"^\W*(?:when|where|date|dates|time|location|rsvp|link)\b", re.IGNORECASE)
 GREETING = re.compile(r"^\W*(?:hi|hey|hello|bello|happy|good morning|dear)\b", re.IGNORECASE)
 # Deadlines look like events (a date and a time) but nobody attends them.
@@ -230,20 +242,31 @@ def parse_announcement(text: str, sent: datetime, source: str, url: str = "",
     events, seen = [], set()
     if SHIFT_SIGNUP.search(text):  # "volunteers needed, pick a slot": shifts, not events
         return []
-    for block in _blocks(text):
+    blocks = _blocks(text)
+    for i, block in enumerate(blocks):
         if DEADLINE.search(block):
             continue
         day = find_date(block, today)
         if day is None:
             continue
         start_t, end_t = find_times(block)
+        # "Date: Fri Oct 30" / "Time: 6-8 pm" / "Location: ..." as separate paragraphs
+        for nxt in blocks[i + 1:i + 4]:
+            if find_date(nxt, today) or DEADLINE.search(nxt):
+                break
+            if start_t is not None:  # time found; take a following "Location: ..." too
+                if find_location(nxt) and not find_location(block):
+                    block += "\n" + nxt
+                break
+            block += "\n" + nxt
+            start_t, end_t = find_times(nxt)
         if start_t is None:
             continue  # a bare date is usually a deadline, not an event
         if not (today <= day <= today + timedelta(days=horizon_days)):
             continue
         start = datetime.combine(day, start_t, PACIFIC)
-        if start < sent_local - timedelta(hours=1):
-            continue
+        if start < sent_local - timedelta(hours=1) or start.hour < 6:
+            continue  # past, or "closed from 12:00 am": events don't start before dawn
         end = datetime.combine(day, end_t, PACIFIC) if end_t else None
         if end and end <= start:
             end += timedelta(days=1)
@@ -254,6 +277,7 @@ def parse_announcement(text: str, sent: datetime, source: str, url: str = "",
         seen.add(key)
         place = find_location(block)
         on_campus = bool(place and CAMPUS_PLACES.search(place))
+        elsewhere = next((c for rx, c in OTHER_CITIES if rx.search(block)), None)
         desc = clean_text(URL.sub("", block))
         events.append(Event(
             title=clean_text(title, 120),
@@ -263,7 +287,7 @@ def parse_announcement(text: str, sent: datetime, source: str, url: str = "",
             source=source,
             host=host,
             venue=place,
-            city="Berkeley" if on_campus else None,
+            city="Berkeley" if on_campus else elsewhere,
             lat=37.8719 if on_campus else None,
             lng=-122.2585 if on_campus else None,
             online=bool(re.search(r"\bzoom\b|\bonline\b|\bvirtual\b", block, re.IGNORECASE)) and not place,
