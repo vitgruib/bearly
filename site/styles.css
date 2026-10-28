@@ -192,6 +192,24 @@ body {
 .report { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
 .report a, .empty a { color: var(--accent); }
 
+/* About page */
+a.wordmark { display: inline-block; text-decoration: none; }
+.prose { max-width: 680px; padding-bottom: 30px; }
+.prose p, .prose li { font-size: 15.5px; }
+.prose a { color: var(--accent); }
+.prose h2 { font: 400 32px "Instrument Serif", Georgia, serif; margin: 36px 0 8px; }
+.prose ul { padding-left: 20px; }
+.prose li { margin: 8px 0; }
+.prose code { font-size: 13.5px; background: var(--chip); padding: 1px 5px; border-radius: 5px; }
+.note { color: var(--muted); }
+.source {
+  background: var(--surface); border: 1px solid var(--faint); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 10px;
+}
+.source h3 { margin: 0; font-size: 16px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.source p { margin: 4px 0 0; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); }
+.live { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+
 @media (max-width: 600px) {
   /* Four rows of filters would eat half a phone screen if they stayed pinned. */
   .controls { position: static; }

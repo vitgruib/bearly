@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bearly Missed · Sources</title>
+  <meta name="description" content="Where Bearly Missed gets its Berkeley events, how it merges them, and its source code.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐻</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <a class="wordmark" href="./">Bearly Missed<span class="dot">.</span></a>
+      <p class="tagline">Where the events come from, <em>and how</em>.</p>
+    </div>
+  </header>
+
+  <main class="wrap prose">
+    <p>Bearly Missed is a scraper that runs every few hours. It reads every place Berkeley
+      events get posted, merges the duplicates, tags each event by topic and area, and publishes
+      the result as one list. Nobody types events in by hand, and nothing here is paid
+      placement. The whole thing is <a href="https://github.com/vitgruib/bearly">open source on GitHub</a>.</p>
+
+    <h2>Sources</h2>
+    <p class="note" id="updated"></p>
+
+    <section class="source" data-source="instagram">
+      <h3>Club Instagram</h3>
+      <p>About 880 student-org accounts, taken from CalLink, the official club directory. Each
+        club's recent posts are read, and the caption's date, time and room are pulled out by
+        a rule-based parser ("GBM Thursday 10/29 7pm in Soda 306"). All clubs are read about
+        every 9 days.</p>
+    </section>
+
+    <section class="source" data-source="feeds">
+      <h3>Club &amp; department calendars</h3>
+      <p>About 60 public calendar feeds: student-org Google Calendars found through CalLink
+        and club websites, the Haas clubs calendar (around 40 business-school clubs), and
+        departments and nearby institutions such as Berkeley Law, the iSchool, the Simons
+        Institute, BAMPFA, the Botanical Garden and the Berkeley Public Library.</p>
+    </section>
+
+    <section class="source" data-source="berkeley_calendar">
+      <h3>UC Berkeley Events</h3>
+      <p>The campus calendar at <a href="https://events.berkeley.edu">events.berkeley.edu</a>:
+        talks, info sessions, performances and home games. Gym hours, daily exhibits and away
+        games are left out.</p>
+    </section>
+
+    <section class="source" data-source="luma">
+      <h3>Luma</h3>
+      <p>Luma's discover feed around campus; about 25 campus-org calendars and Bay Area tech
+        calendars; organizers who post from personal accounts; and any other Luma calendar
+        found hosting near campus, which is added automatically.</p>
+    </section>
+
+    <section class="source" data-source="cerebral_valley">
+      <h3>Cerebral Valley</h3>
+      <p>The Bay Area AI community calendar at
+        <a href="https://cerebralvalley.ai/events">cerebralvalley.ai</a>.</p>
+    </section>
+
+    <section class="source" data-source="hackathons">
+      <h3>Hackathons</h3>
+      <p>Devpost, Y Combinator events, MLH and AGI House, kept to in-person Bay Area
+        hackathons. Month-long online submission windows are skipped.</p>
+    </section>
+
+    <section class="source" data-source="venues">
+      <h3>Music &amp; venues</h3>
+      <p>Concert calendars for Ashkenaz, the Ivy Room, the Fox, the Greek, the UC Theatre and
+        more East Bay venues, plus Resident Advisor and DoTheBay.</p>
+    </section>
+
+    <section class="source" data-source="partiful">
+      <h3>Partiful</h3>
+      <p>Bay Area trending events, plus any Partiful link that turns up in another source.</p>
+    </section>
+
+    <section class="source" data-source="reports">
+      <h3>Reported by students</h3>
+      <p>Links sent through the <a class="report-link" href="#">missing-event form</a>. A
+        Luma, Partiful, Meetup or Cerebral Valley link goes up on the next run; a Luma calendar
+        link brings in every event on that calendar.</p>
+    </section>
+
+    <section class="source" data-source="email">
+      <h3>Mailing lists</h3>
+      <p>Department and club listservs such as eecs-ugrads, read from an inbox subscribed to
+        them. Event links in emails are fetched as full events, and announcements without a
+        link go through the same parser as Instagram captions.</p>
+    </section>
+
+    <h2>How it fits together</h2>
+    <ul>
+      <li><strong>Duplicates are merged.</strong> The same event reached from several places,
+        even under slightly different titles, becomes one card. The most complete listing wins,
+        and the card shows every source it came from.</li>
+      <li><strong>Only what's nearby.</strong> Events are tagged Campus, Berkeley, East Bay, San
+        Francisco and so on; anything outside the Bay Area is dropped.</li>
+      <li><strong>Polite scraping.</strong> Each source has its own schedule (from every 3
+        hours to once a day), requests to a site are spaced out, and unchanged calendars cost a
+        single "not modified" check.</li>
+      <li><strong>Nothing breaks silently.</strong> A source that fails keeps showing its last
+        good events, and a broken source opens a GitHub issue automatically.</li>
+    </ul>
+
+    <h2>Source code</h2>
+    <p>Everything is at <a href="https://github.com/vitgruib/bearly">github.com/vitgruib/bearly</a>:
+      the scrapers in <code>scraper/sources/</code>, every calendar and club in
+      <code>sources.toml</code> and <code>clubs/instagram.txt</code>, and this site in
+      <code>site/</code>. The current data is public too:
+      <a href="data/events.json">events.json</a>. To add a club calendar, open a pull request
+      or use the <a class="report-link" href="#">missing-event form</a>.</p>
+  </main>
+
+  <footer class="wrap footer">
+    <p><a href="./">← Back to events</a></p>
+  </footer>
+
+  <script>
+    fetch("data/events.json", { cache: "no-cache" }).then((r) => r.json()).then((data) => {
+      for (const s of data.sources) {
+        const el = document.querySelector(`.source[data-source="${s.id}"] h3`);
+        if (!el) continue;
+        const tag = document.createElement("span");
+        tag.className = "live";
+        tag.textContent = s.health === "off" ? "not connected yet" : `${s.count.toLocaleString()} upcoming`;
+        el.append(tag);
+      }
+      document.getElementById("updated").textContent =
+        `${data.events.length.toLocaleString()} upcoming events right now, from the sources below.`;
+      if (data.report_url) for (const a of document.querySelectorAll(".report-link")) a.href = data.report_url;
+    }).catch(() => {});
+  </script>
+</body>
+</html>
