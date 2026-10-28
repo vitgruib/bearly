@@ -258,13 +258,6 @@ url = "https://museumca.org/wp-json/tribe/events/v1/events"
 city = "Oakland"
 
 [[feeds.list]]
-name = "Chabot Space & Science Center"
-type = "tribe"
-url = "https://chabotspace.org/wp-json/tribe/events/v1/events"
-city = "Oakland"
-max_repeats = 2
-
-[[feeds.list]]
 name = "Funcheap (Berkeley)"
 type = "jsonld"
 url = "https://sf.funcheap.com/region/berkeley/"
@@ -353,13 +346,6 @@ max_repeats = 5
 name = "Computer Science Undergraduate Association"
 type = "ics"
 url = "https://calendar.google.com/calendar/ical/berkeley.edu_rv641pmt9o13qnh1ss4uib78bs%40group.calendar.google.com/public/basic.ics"
-campus = true
-max_repeats = 5
-
-[[feeds.list]]
-name = "Data Science Society at Berkeley"
-type = "ics"
-url = "https://calendar.google.com/calendar/ical/c_9crnfpiudugdctfhkrq2abdttc%40group.calendar.google.com/public/basic.ics"
 campus = true
 max_repeats = 5
 

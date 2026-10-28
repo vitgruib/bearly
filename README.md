@@ -13,7 +13,7 @@ Live: https://vitgruib.github.io/bearly/
 | --- | --- | --- |
 | Luma | discover feed and AI/Tech/Climate/Arts category feeds around campus; ~25 Bay Area tech calendars, ~25 campus org calendars and ~17 org profiles that post from a personal account; plus every org calendar that hosts near campus, **found automatically** | nothing |
 | UC Berkeley Events | events.berkeley.edu LiveWhale JSON API (gym hours and daily exhibits filtered out) | nothing |
-| Calendar feeds | ~67 feeds in `sources.toml` `[[feeds.list]]`: Law, Haas, Botanical Garden, Simons, iSchool, Cal Athletics home games, ASUC, Graduate Assembly, BAMPFA, Berkeley Public Library, OMCA, Chabot, Funcheap, the Haas clubs CampusGroups feed (~40 clubs), and ~48 public student-org Google Calendars found through CalLink and OCF club sites. Types: ics, rss, jsonld, tribe, localist, fullcalendar | nothing |
+| Calendar feeds | ~62 feeds in `sources.toml` `[[feeds.list]]`: Law, Haas, Botanical Garden, Simons, iSchool, Cal Athletics home games, ASUC, Graduate Assembly, BAMPFA, Berkeley Public Library, OMCA, Funcheap, the Haas clubs CampusGroups feed (~40 clubs), and ~48 public student-org Google Calendars found through CalLink and OCF club sites. Types: ics, rss, jsonld, tribe, localist, fullcalendar | nothing |
 | Cerebral Valley | its public API, every approved Bay Area event | nothing |
 | Hackathons | Devpost (only hackathons whose window is the event itself, not a month-long submission period), YC events, MLH, AGI House; Bay Area in-person only | nothing |
 | Music & venues | Ashkenaz, Ivy Room (VenuePilot), Fox, Greek, UC Theatre, Resident Advisor, and 17 East Bay venues on DoTheBay | nothing |
