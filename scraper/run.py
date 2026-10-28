@@ -62,7 +62,7 @@ def main(argv: list[str]) -> None:
     else:
         to_run = [n for n in enabled
                   if state.due(n, config.get(n, {}).get("every_hours", SOURCES[n].every_hours),
-                               now)]
+                               now, config.get(n, {}))]
     contexts = {n: Context(state.memory(n), now) for n in to_run}
 
     def run(name: str):
@@ -84,7 +84,7 @@ def main(argv: list[str]) -> None:
             statuses[name] = {"health": "off"}
             continue
         health = state.record(name, now, len(found) if found is not None else None, error,
-                              contexts[name].warnings)
+                              contexts[name].warnings, config.get(name, {}))
         if found is None:
             found = state.previous_events(name)  # one flaky scrape never empties the site
         events += found

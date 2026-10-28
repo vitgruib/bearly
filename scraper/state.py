@@ -4,8 +4,9 @@ The deployed site *is* the database: each CI run first downloads the last publis
 events.json and state.json, so nothing is ever committed back to the repo. State holds
 per-source health (for alerting), when each source last ran (for per-source schedules),
 and a free-form `memory` dict each source can use: discovered Luma calendars, the
-Instagram high-water mark, Apify spend this month."""
+Instagram rotation cursor, Apify spend this month."""
 
+import hashlib
 import json
 import logging
 import statistics
@@ -29,6 +30,10 @@ def _read(path: Path) -> dict:
         return {}
 
 
+def _fingerprint(cfg: dict) -> str:
+    return hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:12]
+
+
 class State:
     def __init__(self) -> None:
         self.data = _read(STATE)
@@ -41,8 +46,11 @@ class State:
     def memory(self, name: str) -> dict:
         return self.source(name).setdefault("memory", {})
 
-    def due(self, name: str, every_hours: float, now: datetime) -> bool:
-        last = self.source(name).get("last_run")
+    def due(self, name: str, every_hours: float, now: datetime, cfg: dict) -> bool:
+        s = self.source(name)
+        if s.get("config") != _fingerprint(cfg):  # edited in sources.toml: refresh now
+            return True
+        last = s.get("last_run")
         # 15 min slack so a cron that fires a little early still counts.
         return not last or now - parse_dt(last) >= timedelta(hours=every_hours, minutes=-15)
 
@@ -58,10 +66,11 @@ class State:
         return out
 
     def record(self, name: str, now: datetime, count: int | None, error: str | None,
-               warnings: list[str]) -> str:
+               warnings: list[str], cfg: dict) -> str:
         """Store one run's outcome and return the source's health label."""
         s = self.source(name)
         s["last_run"] = now.isoformat(timespec="seconds")
+        s["config"] = _fingerprint(cfg)
         s["warnings"] = warnings[-10:]
         if error is None:
             s["last_ok"] = s["last_run"]
