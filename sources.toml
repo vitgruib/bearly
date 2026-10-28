@@ -1,0 +1,40 @@
+# What the scraper pulls from. Every source runs unless `enabled = false`.
+# Sources that need credentials (email, slack) skip themselves quietly until the
+# env vars in README.md are set.
+
+days_ahead = 30  # how far ahead the site lists events
+
+[luma]
+center = [37.8715, -122.2730]  # Luma's "discover" feed is ordered by distance from here
+max_pages = 12
+# Club / org calendars on Luma: the slug from luma.com/<slug>, or a cal-... id.
+calendars = ["calmsa", "nucleate"]
+
+[eventbrite]
+places = ["ca--berkeley", "ca--oakland"]
+pages = 4
+
+[cerebral_valley]
+pages = ["/events"]
+
+[partiful]
+# Public partiful.com/e/<id> links to always include (links in emails/Slack are found
+# automatically).
+events = []
+
+[berkeley_calendar]
+days_ahead = 21
+
+[ics]
+# Public iCal feeds, e.g. a club's Google Calendar ("Public address in iCal format").
+feeds = [
+  # { name = "Example Club", url = "https://calendar.google.com/calendar/ical/.../public/basic.ics" },
+]
+
+[email]
+folder = "events"  # Gmail label your listserv filter applies
+days_back = 14
+
+[slack]
+days_back = 14
+channels = []  # empty = every channel the bot has been added to

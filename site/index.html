@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>bearly · Berkeley events</title>
+  <meta name="description" content="Everything happening around Berkeley — talks, parties, hackathons, free food — from Luma, Eventbrite, Partiful, Cerebral Valley, the campus calendar, mailing lists and Slack.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐻</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <h1 class="wordmark">bearly<span class="dot">.</span></h1>
+      <p class="tagline">Everything happening around Berkeley, <em>in one place</em>.</p>
+    </div>
+  </header>
+
+  <div class="controls" id="controls">
+    <div class="wrap">
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search talks, parties, hackathons, clubs…" autocomplete="off">
+      </label>
+      <div class="row" id="when" role="radiogroup" aria-label="When"></div>
+      <div class="row chips" id="topics" aria-label="Topics"></div>
+      <div class="row chips" id="regions" aria-label="Where"></div>
+      <div class="row meta-row">
+        <div class="toggles">
+          <button class="toggle" id="free" aria-pressed="false">Free only</button>
+          <details class="sources-menu">
+            <summary>Sources</summary>
+            <div class="menu" id="sources"></div>
+          </details>
+        </div>
+        <span class="count" id="count"></span>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap" id="list" aria-live="polite"></main>
+  <div id="sentinel"></div>
+
+  <footer class="wrap footer">
+    <p id="updated"></p>
+    <p id="status"></p>
+  </footer>
+
+  <template id="card">
+    <article class="card">
+      <div class="time"></div>
+      <div class="body">
+        <a class="title" target="_blank" rel="noopener"></a>
+        <p class="where"></p>
+        <p class="desc"></p>
+        <div class="foot">
+          <span class="badges"></span>
+          <button class="ical" type="button" title="Add to calendar">+ Calendar</button>
+        </div>
+      </div>
+      <img class="thumb" alt="" loading="lazy" decoding="async">
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
