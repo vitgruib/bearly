@@ -208,6 +208,24 @@ a.wordmark { display: inline-block; text-decoration: none; }
 }
 .source h3 { margin: 0; font-size: 16px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .source p { margin: 4px 0 0; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); }
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+.tree { margin: 14px 0 10px; }
+.tree ul { margin-left: 14px; padding-left: 16px; border-left: 1px solid var(--faint); }
+.tree li { position: relative; margin: 0; padding: 5px 0; }
+.tree ul > li::before {
+  content: ""; position: absolute; left: -16px; top: 18px; width: 12px;
+  border-top: 1px solid var(--faint);
+}
+.tree ul > li:last-child::after {
+  content: ""; position: absolute; left: -17px; top: 19px; bottom: 0; width: 3px; background: var(--bg);
+}
+.node {
+  display: inline-block; padding: 5px 11px; border-radius: 9px; font-size: 14px; font-weight: 500;
+  background: var(--surface); border: 1px solid var(--faint);
+}
+.node.root { background: var(--blue); color: #fff; border-color: var(--blue); font: 400 20px "Instrument Serif", Georgia, serif; }
+.node.leaf { font-weight: 400; background: var(--chip); border-color: transparent; }
+.node b { font-weight: 600; color: var(--accent); }
 .live { font-size: 12.5px; font-weight: 500; color: var(--muted); }
 .source .status { margin-top: 8px; font-size: 12.5px; color: var(--muted); display: flex; gap: 7px; align-items: baseline; }
 .status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transform: translateY(-1px); }
