@@ -14,6 +14,7 @@ from email.utils import parsedate_to_datetime
 
 from ..messages import events_from_message
 from ..models import clean_text
+from ..state import Context, NotConfigured
 
 
 def message_text(msg: email.message.Message) -> str:
@@ -32,10 +33,10 @@ def message_text(msg: email.message.Message) -> str:
     return clean_text(joined, 50000) + "\n" + hrefs
 
 
-def fetch(cfg: dict) -> list:
+def fetch(cfg: dict, ctx: Context) -> list:
     user, password = os.environ.get("IMAP_USER"), os.environ.get("IMAP_PASSWORD")
     if not (user and password):
-        raise RuntimeError("not configured: set IMAP_USER and IMAP_PASSWORD")
+        raise NotConfigured("set IMAP_USER and IMAP_PASSWORD")
     since = (datetime.now(UTC) - timedelta(days=cfg.get("days_back", 14))).strftime("%d-%b-%Y")
     events = []
     with imaplib.IMAP4_SSL(os.environ.get("IMAP_HOST", "imap.gmail.com")) as imap:
@@ -47,6 +48,7 @@ def fetch(cfg: dict) -> list:
             msg = email.message_from_bytes(data[0][1])
             subject = str(make_header(decode_header(msg.get("Subject", ""))))
             sent = parsedate_to_datetime(msg["Date"]) if msg["Date"] else datetime.now(UTC)
-            events += events_from_message(f"Subject: {subject}\n\n{message_text(msg)}",
-                                          sent, "email")
+            sender = str(make_header(decode_header(msg.get("From", "")))).split("<")[0]
+            events += events_from_message(f"{subject}\n\n{message_text(msg)}", sent, "email",
+                                          subject=subject, host=sender.strip(' "') or None)
     return events

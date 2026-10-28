@@ -7,14 +7,15 @@ channel the token's bot is a member of, so adding the bot to a channel opts it i
 import os
 from datetime import UTC, datetime, timedelta
 
-from ..http import client
+from ..http import request
 from ..messages import events_from_message
+from ..state import Context, NotConfigured
 
 API = "https://slack.com/api"
 
 
 def _call(token: str, method: str, **params) -> dict:
-    r = client.get(f"{API}/{method}", params=params,
+    r = request("GET", f"{API}/{method}", params=params,
                    headers={"Authorization": f"Bearer {token}"})
     r.raise_for_status()
     data = r.json()
@@ -23,10 +24,10 @@ def _call(token: str, method: str, **params) -> dict:
     return data
 
 
-def fetch(cfg: dict) -> list:
+def fetch(cfg: dict, ctx: Context) -> list:
     tokens = [t.strip() for t in os.environ.get("SLACK_TOKENS", "").split(",") if t.strip()]
     if not tokens:
-        raise RuntimeError("not configured: set SLACK_TOKENS")
+        raise NotConfigured("set SLACK_TOKENS")
     oldest = (datetime.now(UTC) - timedelta(days=cfg.get("days_back", 14))).timestamp()
     events = []
     for token in tokens:

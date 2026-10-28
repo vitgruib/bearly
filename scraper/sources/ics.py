@@ -9,6 +9,7 @@ import recurring_ical_events
 
 from ..http import get_text
 from ..models import Event, clean_text
+from ..state import Context
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
 
@@ -44,8 +45,9 @@ def parse_feed(text: str, host: str, days_ahead: int, now: datetime | None = Non
     return events
 
 
-def fetch(cfg: dict) -> list:
+def fetch(cfg: dict, ctx: Context) -> list:
     events = []
     for feed in cfg.get("feeds", []):
-        events += parse_feed(get_text(feed["url"]), feed["name"], cfg.get("days_ahead", 30))
+        events += parse_feed(get_text(feed["url"], conditional=True), feed["name"],
+                             cfg.get("days_ahead", 30))
     return events

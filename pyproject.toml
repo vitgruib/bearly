@@ -3,10 +3,8 @@ name = "berkeley-events"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "anthropic>=2.3.0",
     "httpx>=0.28.1",
     "icalendar>=7.3.0",
-    "pydantic>=2.14.1",
     "recurring-ical-events>=3.8.2",
 ]
 

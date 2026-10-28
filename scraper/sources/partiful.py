@@ -3,6 +3,7 @@ resolve individual partiful.com/e/<id> links that show up in emails and Slack.""
 
 from ..http import get_text, next_data
 from ..models import Event, clean_text, parse_dt
+from ..state import Context
 
 
 def parse_event(ev: dict) -> Event | None:
@@ -49,7 +50,7 @@ def resolve(url: str) -> Event | None:
     return parse_event(ev)
 
 
-def fetch(cfg: dict) -> list[Event]:
+def fetch(cfg: dict, ctx: Context) -> list[Event]:
     events = parse_explore(get_text("https://partiful.com/explore"))
     for url in cfg.get("events", []):
         if e := resolve(url):

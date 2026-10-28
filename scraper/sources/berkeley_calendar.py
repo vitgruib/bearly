@@ -6,6 +6,7 @@ from datetime import date, timedelta
 
 from ..http import get_json
 from ..models import Event, clean_text, parse_dt
+from ..state import Context
 
 BASE = "https://events.berkeley.edu/live/json/v2/events"
 FIELDS = "location,tags,summary,image,event_types,group_title,cost"
@@ -44,7 +45,7 @@ def parse_item(it: dict) -> Event | None:
     )
 
 
-def fetch(cfg: dict) -> list[Event]:
+def fetch(cfg: dict, ctx: Context) -> list[Event]:
     events = []
     today = date.today()
     for i in range(cfg.get("days_ahead", 21)):

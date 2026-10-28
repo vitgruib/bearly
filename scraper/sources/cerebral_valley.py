@@ -2,9 +2,10 @@
 
 from ..http import get_text
 from ..schema_org import events_from_html
+from ..state import Context
 
 
-def fetch(cfg: dict) -> list:
+def fetch(cfg: dict, ctx: Context) -> list:
     events = []
     for path in cfg.get("pages", ["/events"]):
         events += events_from_html(get_text(f"https://cerebralvalley.ai{path}"),

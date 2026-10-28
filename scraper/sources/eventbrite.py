@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from ..http import get_text
 from ..models import Event, clean_text
+from ..state import Context
 
 MARKER = "window.__SERVER_DATA__ = "
 
@@ -49,7 +50,7 @@ def parse_page(html: str) -> list[Event]:
     return events
 
 
-def fetch(cfg: dict) -> list[Event]:
+def fetch(cfg: dict, ctx: Context) -> list[Event]:
     events = []
     for place in cfg.get("places", ["ca--berkeley"]):
         for page in range(1, cfg.get("pages", 4) + 1):

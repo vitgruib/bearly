@@ -1,7 +1,7 @@
-"""Scrape every enabled source, normalize, dedupe, and write site/data/events.json.
+"""Scrape every due source, normalize, dedupe, and write site/data/events.json + state.json.
 
-    uv run python -m scraper.run            # all sources in sources.toml
-    uv run python -m scraper.run luma ics   # just these
+    uv run python -m scraper.run            # every source that is due per its schedule
+    uv run python -m scraper.run luma ics   # force just these; the rest keep last results
 """
 
 import json
@@ -10,68 +10,26 @@ import sys
 import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
-from datetime import UTC, datetime, timedelta
-from pathlib import Path
+from datetime import datetime, timedelta
 
-from . import extract
+from . import http
 from .dedupe import dedupe
 from .enrich import REGIONS, TOPICS, enrich
-from .models import Event, parse_dt
-from .sources import (
-    berkeley_calendar,
-    cerebral_valley,
-    email_inbox,
-    eventbrite,
-    ics,
-    luma,
-    partiful,
-    slack,
-)
+from .models import Event
+from .registry import SOURCES
+from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
 
-ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "site" / "data" / "events.json"
 log = logging.getLogger("scraper")
 
-SOURCES = {
-    "luma": ("Luma", luma),
-    "eventbrite": ("Eventbrite", eventbrite),
-    "cerebral_valley": ("Cerebral Valley", cerebral_valley),
-    "partiful": ("Partiful", partiful),
-    "berkeley_calendar": ("UC Berkeley Events", berkeley_calendar),
-    "ics": ("Club calendars", ics),
-    "email": ("Mailing lists", email_inbox),
-    "slack": ("Slack", slack),
-}
 
-
-def _run_one(name: str, cfg: dict) -> tuple[str, list[Event], dict]:
-    t0 = time.monotonic()
+def _run_one(name: str, cfg: dict, ctx: Context) -> tuple[list[Event] | None, str | None]:
     try:
-        events = SOURCES[name][1].fetch(cfg)
-        status = {"ok": True, "count": len(events)}
-    except Exception as exc:  # noqa: BLE001 -- a broken source is reported, not fatal
-        msg = str(exc)
-        skipped = msg.startswith("not configured")
-        (log.info if skipped else log.exception)("%s: %s", name, msg)
-        events, status = [], {"ok": False, "skipped": skipped, "error": msg[:200]}
-    status["seconds"] = round(time.monotonic() - t0, 1)
-    return name, events, status
-
-
-def _previous(name: str) -> list[Event]:
-    """Last run's events from a source, so one flaky scrape doesn't empty the site."""
-    try:
-        old = json.loads(OUT.read_text())["events"]
-    except (FileNotFoundError, KeyError, json.JSONDecodeError):
-        return []
-    keep = []
-    for d in old:
-        if d["source"] != name:
-            continue
-        keep.append(Event(**{k: v for k, v in d.items() if k not in ("id", "start", "end")},
-                          start=parse_dt(d["start"]),
-                          end=parse_dt(d["end"]) if d.get("end") else None))
-    return keep
+        return SOURCES[name].module.fetch(cfg, ctx), None
+    except NotConfigured:
+        raise
+    except Exception as exc:  # a broken source is reported, not fatal
+        log.exception("%s failed", name)
+        return None, f"{type(exc).__name__}: {exc}"
 
 
 def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
@@ -91,41 +49,68 @@ def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
 
 def main(argv: list[str]) -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     config = tomllib.loads((ROOT / "sources.toml").read_text())
-    wanted = argv or [n for n in SOURCES if config.get(n, {}).get("enabled", True)]
-    with ThreadPoolExecutor(max_workers=len(wanted)) as pool:
-        results = list(pool.map(lambda n: _run_one(n, config.get(n, {})), wanted))
+    state = State()
+    now = now_utc()
 
-    events, statuses = [], []
-    for name, found, status in results:
-        if not status["ok"] and not status.get("skipped"):
-            found = _previous(name)
-            status["stale"] = len(found)
-        events += found
-        statuses.append({"id": name, "name": SOURCES[name][0], **status})
-        log.info("%-18s %s", name, status)
-    if argv:  # a partial run keeps everything else from the last full run
+    enabled = [n for n in SOURCES if config.get(n, {}).get("enabled", True)]
+    if argv:
+        to_run = argv
+    else:
+        to_run = [n for n in enabled
+                  if state.due(n, config.get(n, {}).get("every_hours", SOURCES[n].every_hours),
+                               now)]
+    contexts = {n: Context(state.memory(n), now) for n in to_run}
+
+    def run(name: str):
+        t0 = time.monotonic()
         try:
-            old_statuses = json.loads(OUT.read_text())["sources"]
-        except (FileNotFoundError, KeyError, json.JSONDecodeError):
-            old_statuses = []
-        for old in old_statuses:
-            if old["id"] not in wanted:
-                events += _previous(old["id"])
-                statuses.append(old)
+            found, error = _run_one(name, config.get(name, {}), contexts[name])
+            return name, found, error, False, time.monotonic() - t0
+        except NotConfigured as exc:
+            log.info("%s: not configured (%s)", name, exc)
+            return name, None, None, True, 0.0
 
-    now = datetime.now(UTC)
+    with ThreadPoolExecutor(max_workers=max(len(to_run), 1)) as pool:
+        results = list(pool.map(run, to_run))
+
+    events, statuses = [], {}
+    for name, found, error, off, seconds in results:
+        if off:
+            state.source(name)["health"] = "off"
+            statuses[name] = {"health": "off"}
+            continue
+        health = state.record(name, now, len(found) if found is not None else None, error,
+                              contexts[name].warnings)
+        if found is None:
+            found = state.previous_events(name)  # one flaky scrape never empties the site
+        events += found
+        statuses[name] = {"health": health, "seconds": round(seconds, 1)}
+        log.info("%-18s %-8s %4d events %5.1fs%s", name, health, len(found), seconds,
+                 f"  ({error})" if error else "")
+    for name in enabled:
+        if name not in statuses:  # not due this run: reuse what it found last time
+            events += state.previous_events(name)
+            statuses[name] = {"health": state.source(name).get("health", "ok"), "cached": True}
+
     final = build(events, config.get("days_ahead", 30), now)
-    extract.save_cache()
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({
+    counts: dict[str, int] = {}
+    for e in final:
+        counts[e.source] = counts.get(e.source, 0) + 1
+    state.data["last_run"] = now.isoformat(timespec="seconds")
+    state.data["http"] = http.stats
+    state.save()
+    EVENTS.write_text(json.dumps({
         "generated_at": now.isoformat(timespec="seconds"),
-        "sources": statuses,
+        "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
+                     "last_ok": state.source(n).get("last_ok"), **statuses[n]}
+                    for n in enabled],
         "regions": REGIONS,
         "topics": list(TOPICS),
         "events": [e.to_json() for e in final],
     }, ensure_ascii=False, separators=(",", ":")))
-    log.info("wrote %d events (from %d raw) to %s", len(final), len(events), OUT)
+    log.info("wrote %d events (from %d raw); http %s", len(final), len(events), http.stats)
 
 
 if __name__ == "__main__":
