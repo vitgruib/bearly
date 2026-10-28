@@ -15,7 +15,6 @@ Live: https://vitgruib.github.io/bearly/
 | UC Berkeley Events | events.berkeley.edu LiveWhale JSON API (gym hours and daily exhibits filtered out) | nothing |
 | Calendar feeds | ~67 feeds in `sources.toml` `[[feeds.list]]`: Law, Haas, Botanical Garden, Simons, iSchool, Cal Athletics home games, ASUC, Graduate Assembly, BAMPFA, Berkeley Public Library, OMCA, Chabot, Funcheap, the Haas clubs CampusGroups feed (~40 clubs), and ~48 public student-org Google Calendars found through CalLink and OCF club sites. Types: ics, rss, jsonld, tribe, localist, fullcalendar | nothing |
 | Cerebral Valley | its public API, every approved Bay Area event | nothing |
-| Eventbrite | search pages for Berkeley and Oakland | nothing |
 | Hackathons | Devpost (only hackathons whose window is the event itself, not a month-long submission period), YC events, MLH, AGI House; Bay Area in-person only | nothing |
 | Music & venues | Ashkenaz, Ivy Room (VenuePilot), Fox, Greek, UC Theatre, Resident Advisor, and 17 East Bay venues on DoTheBay | nothing |
 | Partiful | Bay Area "trending" on `/explore`, plus any `partiful.com/e/…` link seen elsewhere | nothing |
@@ -80,11 +79,6 @@ its secret skips itself quietly.
   `channels:read` and `channels:history` scopes. Invite the bot to a channel to start
   reading it.
 
-- `PROXY_URL` (optional): an HTTP proxy for sources with `proxy = true` in
-  `sources.toml`. Eventbrite refuses GitHub's runner IPs, so it needs one in CI. A Bright
-  Data Web Unlocker or residential zone works, e.g.
-  `http://brd-customer-…-zone-…:PASSWORD@brd.superproxy.io:33335`. Add its CA certificate
-  (PEM text) as `PROXY_CA_CERT` so TLS is still verified.
 
 ## Adding a source
 

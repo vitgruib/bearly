@@ -10,7 +10,7 @@ class Event:
     title: str
     start: datetime  # timezone-aware
     url: str
-    source: str  # which scraper found it: "luma", "eventbrite", ...
+    source: str  # which scraper found it: "luma", "feeds", ...
     end: datetime | None = None
     all_day: bool = False
     host: str | None = None

@@ -6,7 +6,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from scraper.schema_org import events_from_html
-from scraper.sources import berkeley_calendar, eventbrite, feeds, luma, partiful
+from scraper.sources import berkeley_calendar, feeds, luma, partiful
 
 FIX = Path(__file__).parent / "fixtures"
 PT = ZoneInfo("America/Los_Angeles")
@@ -23,17 +23,6 @@ def test_luma_entry_keeps_location_price_and_link():
     assert unprompted.url == "https://luma.com/pywdcwal"
     assert unprompted.free is False
     assert unprompted.lat is not None and unprompted.lng is not None
-
-
-def test_eventbrite_reads_embedded_results_in_local_time():
-    events = eventbrite.parse_page((FIX / "eventbrite.html").read_text())
-
-    assert [e.title for e in events][:2] == [
-        "San Francisco Halloween Pub Crawl: Crawloween",
-        "Downtown First Thursdays with Big Freedia | Nov. 5, 2026",
-    ]
-    assert events[0].start == datetime(2026, 10, 31, 14, tzinfo=PT)
-    assert events[0].city == "San Francisco"
 
 
 def test_cerebral_valley_json_ld_marks_online_and_free():

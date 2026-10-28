@@ -9,7 +9,6 @@ from .sources import (
     berkeley_calendar,
     cerebral_valley,
     email_inbox,
-    eventbrite,
     feeds,
     hackathons,
     instagram,
@@ -30,7 +29,6 @@ class Source:
 
 SOURCES = {
     "luma": Source("Luma", luma, 3),
-    "eventbrite": Source("Eventbrite", eventbrite, 6),
     "cerebral_valley": Source("Cerebral Valley", cerebral_valley, 6),
     "partiful": Source("Partiful", partiful, 6),
     "berkeley_calendar": Source("UC Berkeley Events", berkeley_calendar, 6),

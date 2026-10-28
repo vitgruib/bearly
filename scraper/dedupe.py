@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from .models import Event, dedupe_key
 
 # Platform listings carry structured data; message-derived records are best-effort.
-PRIORITY = {"luma": 0, "partiful": 0, "eventbrite": 1, "cerebral_valley": 1,
+PRIORITY = {"luma": 0, "partiful": 0, "cerebral_valley": 1,
             "berkeley_calendar": 1, "hackathons": 1, "venues": 1, "feeds": 2, "instagram": 3, "email": 3, "slack": 3}
 
 

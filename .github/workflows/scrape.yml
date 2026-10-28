@@ -61,8 +61,6 @@ jobs:
           IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
           IMAP_HOST: ${{ secrets.IMAP_HOST }}
           SLACK_TOKENS: ${{ secrets.SLACK_TOKENS }}
-          PROXY_URL: ${{ secrets.PROXY_URL }}
-          PROXY_CA_CERT: ${{ secrets.PROXY_CA_CERT }}
           FORCE_SOURCES: ${{ github.event.inputs.sources }}
         # Unquoted on purpose: one argument per source name. run.py rejects unknown names.
         run: uv run python -m scraper.run $FORCE_SOURCES

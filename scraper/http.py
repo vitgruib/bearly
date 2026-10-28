@@ -4,15 +4,12 @@ are fetched conditionally (ETag / Last-Modified) so an unchanged feed costs a 30
 
 import hashlib
 import json
-import os
 import re
-import ssl
 import threading
 import time
 from pathlib import Path
 from urllib.parse import urlparse
 
-import certifi
 import httpx
 
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -30,21 +27,6 @@ client = httpx.Client(
 )
 
 
-
-def _proxied_client() -> httpx.Client | None:
-    """Some sites refuse cloud IPs (Eventbrite answers GitHub runners with 405). Sources that
-    set `proxy = true` go through PROXY_URL, e.g. a Bright Data zone; without it, direct.
-    Unblocking proxies re-sign TLS with their own CA, so PROXY_CA_CERT (PEM) is trusted too."""
-    if not os.environ.get("PROXY_URL"):
-        return None
-    tls = ssl.create_default_context(cafile=certifi.where())
-    if os.environ.get("PROXY_CA_CERT"):
-        tls.load_verify_locations(cadata=os.environ["PROXY_CA_CERT"])
-    return httpx.Client(headers=client.headers, timeout=60, follow_redirects=True,
-                        proxy=os.environ["PROXY_URL"], verify=tls)
-
-
-_proxied = _proxied_client()
 _host_locks: dict[str, threading.Lock] = {}
 _host_next: dict[str, float] = {}
 _registry_lock = threading.Lock()
@@ -61,13 +43,12 @@ def _wait_turn(host: str) -> None:
         _host_next[host] = time.monotonic() + FAST_HOSTS.get(host, MIN_INTERVAL)
 
 
-def request(method: str, url: str, proxy: bool = False, **kw) -> httpx.Response:
+def request(method: str, url: str, **kw) -> httpx.Response:
     host = urlparse(url).netloc
-    via = _proxied if proxy and _proxied else client
     for attempt in range(4):
         _wait_turn(host)
         stats["requests"] += 1
-        r = via.request(method, url, **kw)
+        r = client.request(method, url, **kw)
         if r.status_code not in RETRY_STATUS or attempt == 3:
             return r
         stats["retries"] += 1
@@ -82,10 +63,10 @@ def get_json(endpoint: str, **params) -> dict:
     return r.json()
 
 
-def get_text(endpoint: str, conditional: bool = False, proxy: bool = False, **params) -> str:
+def get_text(endpoint: str, conditional: bool = False, **params) -> str:
     """conditional=True keeps a validator + body on disk and revalidates with the server."""
     if not conditional:
-        r = request("GET", endpoint, proxy=proxy, params=params or None)
+        r = request("GET", endpoint, params=params or None)
         r.raise_for_status()
         return r.text
     key = hashlib.sha1(f"{endpoint}?{sorted(params.items())}".encode()).hexdigest()
@@ -97,7 +78,7 @@ def get_text(endpoint: str, conditional: bool = False, proxy: bool = False, **pa
             headers["If-None-Match"] = cached["etag"]
         if cached.get("last_modified"):
             headers["If-Modified-Since"] = cached["last_modified"]
-    r = request("GET", endpoint, proxy=proxy, params=params or None, headers=headers)
+    r = request("GET", endpoint, params=params or None, headers=headers)
     if r.status_code == 304 and cached:
         stats["not_modified"] += 1
         return cached["body"]
