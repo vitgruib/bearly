@@ -7,11 +7,14 @@
 - jsonld: any page that embeds schema.org Event data (most venue and ticketing sites).
 - tribe: WordPress sites running The Events Calendar (/wp-json/tribe/events/v1/events).
 - localist: Localist calendars (/api/2/events).
+- fullcalendar: FullCalendar JSON endpoints (a list of {title, start, end, url}).
 
 A feed that fails is reported as a warning; the others still count."""
 
+import re
 from datetime import UTC, date, datetime, timedelta
 from email.utils import parsedate_to_datetime
+from urllib.parse import urljoin
 from xml.etree import ElementTree
 from zoneinfo import ZoneInfo
 
@@ -126,6 +129,34 @@ def parse_localist(data: dict, host: str) -> list[Event]:
     return events
 
 
+def parse_fullcalendar(items: list, base_url: str, host: str) -> list[Event]:
+    """FullCalendar JSON feeds (a flat list of {title, start, end, url}). Naive times are
+    Pacific; Simons, for one, sends `start` in UTC but `end` as naive local time."""
+    def when(v: str | None) -> datetime | None:
+        if not v:
+            return None
+        dt = datetime.fromisoformat(v)
+        return dt if dt.tzinfo else dt.replace(tzinfo=PACIFIC)
+
+    events = []
+    for it in items:
+        start = when(it.get("start"))
+        if not start or not (it.get("title") or "").strip():
+            continue
+        events.append(Event(
+            title=clean_text(it["title"], 200),
+            start=start,
+            end=when(it.get("end")),
+            url=urljoin(base_url, it.get("url") or ""),
+            source="feeds",
+            host=host,
+            venue=clean_text(it.get("location")) or None,
+            description=clean_text(" · ".join(x for x in (it.get("event_type"),
+                                                          it.get("speakers")) if x)),
+        ))
+    return events
+
+
 def fetch_feed(feed: dict, days_ahead: int, now: datetime) -> list[Event]:
     kind, url, host = feed.get("type", "ics"), feed["url"], feed["name"]
     if kind == "ics":
@@ -138,7 +169,17 @@ def fetch_feed(feed: dict, days_ahead: int, now: datetime) -> list[Event]:
             e.host = e.host or host
         return events
     if kind == "tribe":
-        return parse_tribe(get_json(url, per_page=50, start_date=now.date().isoformat()), host)
+        data = get_json(url, per_page=50, start_date=now.date().isoformat())
+        events = parse_tribe(data, host)
+        for _ in range(5):  # Tribe pages via next_rest_url; 5 x 50 covers any campus site
+            if not data.get("next_rest_url"):
+                break
+            data = get_json(data["next_rest_url"])
+            events += parse_tribe(data, host)
+        return events
+    if kind == "fullcalendar":
+        end = (now + timedelta(days=days_ahead)).date().isoformat()
+        return parse_fullcalendar(get_json(url, start=now.date().isoformat(), end=end), url, host)
     if kind == "localist":
         return parse_localist(get_json(url, days=min(days_ahead, 90), pp=100), host)
     raise ValueError(f"unknown feed type {kind!r}")
@@ -152,6 +193,12 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
         except (httpx.HTTPError, ValueError, KeyError, ElementTree.ParseError) as exc:
             ctx.warn(f"{feed['name']}: {type(exc).__name__}: {exc}")
             continue
+        if feed.get("match"):  # e.g. only home games from an athletics calendar
+            rx = re.compile(feed["match"], re.IGNORECASE)
+            found = [e for e in found if rx.search(f"{e.title} {e.venue or ''}")]
+        if feed.get("exclude"):
+            rx = re.compile(feed["exclude"], re.IGNORECASE)
+            found = [e for e in found if not rx.search(f"{e.title} {e.description}")]
         if feed.get("campus"):  # department calendars that never say "Berkeley"
             for e in found:
                 e.city = e.city or "Berkeley"

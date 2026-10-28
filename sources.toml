@@ -26,11 +26,73 @@ events = []
 days_ahead = 21
 
 [feeds]
-# One entry per calendar: type = ics | rss | jsonld | tribe | localist.
-# campus = true marks department calendars whose events never mention a city.
-list = [
-  # { name = "Example Club", type = "ics", url = "https://calendar.google.com/calendar/ical/.../public/basic.ics" },
-]
+# Calendars in standard formats. Each [[feeds.list]] entry:
+#   type    = ics | rss | jsonld | tribe | localist | fullcalendar
+#   campus  = true for department calendars whose events never mention a city
+#   match   = regex an event's title/venue must match (e.g. only home games)
+#   exclude = regex that drops an event by title/description
+
+# --- Campus calendars not (fully) mirrored on events.berkeley.edu ---
+
+[[feeds.list]]
+name = "Berkeley Law"
+type = "tribe"
+url = "https://www.law.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Haas School of Business"
+type = "tribe"
+url = "https://haas.berkeley.edu/wp-json/tribe/events/v1/events"
+
+[[feeds.list]]
+name = "UC Botanical Garden"
+type = "tribe"
+url = "https://botanicalgarden.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "CITRIS"
+type = "tribe"
+url = "https://citris-uc.org/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Center for Long-Term Cybersecurity"
+type = "tribe"
+url = "https://cltc.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Simons Institute"
+type = "fullcalendar"
+url = "https://simons.berkeley.edu/api/events"
+campus = true
+exclude = "Long-term visitor event"
+
+[[feeds.list]]
+name = "School of Information"
+type = "ics"
+url = "https://www.ischool.berkeley.edu/events/128/calendar.ics"
+campus = true
+
+[[feeds.list]]
+name = "Cal Athletics"
+type = "ics"
+url = "https://calbears.com/calendar.ashx/calendar.ics?sport_id=0"
+match = "berkeley|underhill|edwards|memorial stadium|haas pavilion|evans diamond|spieker|hearst|witter|levine-fricke|goldman|hellman|kleeberger"
+
+[[feeds.list]]
+name = "ASUC"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/calendar%40asuc.org/public/basic.ics"
+campus = true
+
+[[feeds.list]]
+name = "Graduate Assembly"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_u7u87h8t91v03rgas6hnb76b1s%40group.calendar.google.com/public/basic.ics"
+campus = true
 
 [email]
 folder = "events"  # Gmail label your listserv filter applies

@@ -1,7 +1,7 @@
 """Parsers against trimmed copies of real responses captured 2026-10-27."""
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -99,3 +99,14 @@ END:VCALENDAR
 
     assert [e.start.day for e in events] == [27, 3, 10]
     assert events[0].venue == "Soda 306" and events[0].host == "Cal Hiking"
+
+
+def test_fullcalendar_reads_utc_start_and_naive_pacific_end():
+    # Simons sends start in UTC but end as naive local time.
+    [e] = feeds.parse_fullcalendar([{"start": "2026-10-29T20:30:00Z", "end": "2026-10-29T15:30:00",
+                                     "title": " Depth-Optimal Quantum Compilation",
+                                     "url": "/events/depth", "location": "Calvin Lab 116\n"}],
+                                   "https://simons.berkeley.edu/api/events", "Simons Institute")
+    assert e.title == "Depth-Optimal Quantum Compilation"
+    assert e.end - e.start == timedelta(hours=2)
+    assert e.url == "https://simons.berkeley.edu/events/depth"
