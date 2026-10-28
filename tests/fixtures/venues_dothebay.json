@@ -1,0 +1,210 @@
+{
+ "venue": {
+  "title": "Yoshi's Oakland",
+  "permalink": "/venues/yoshi-s-oakland",
+  "city": "Oakland",
+  "full_address": "510 Embarcadero West, Oakland, CA, 94607"
+ },
+ "event_groups": [
+  {
+   "date": "2026-10-27",
+   "events": [
+    {
+     "id": 17541162,
+     "title": "Direct From Sweden: The Music Of Abba",
+     "permalink": "/events/2026/10/27/direct-from-sweden-the-music-of-abba-tickets",
+     "category": "Music",
+     "begin_time": "2026-10-27T19:00:00-05:00",
+     "begin_date": "2026-10-27",
+     "tz_adjusted_begin_date": "2026-10-27T19:00:00-07:00",
+     "is_free": false,
+     "is_ongoing": false,
+     "doors": true,
+     "ticket_info": "$59 - $99",
+     "excerpt": "“The music of ABBA” is no stranger to the incomparable sound and look of Sweden’s greatest music export, with meticulous attention to costumes, make-up, musical arrangements, movements, and singing; nothing is left to chance. Adding a few of Abba’s live traits, such as great solos, musical numbers, and a complete live band with back-up singers, ensures an extra dimension unheard of in most similar productions.\nDance, sing along, and enjoy the hits such as Dancing Queen, Chiquitita, Waterloo, Mamma Mia, The Winner Takes it All, Fernando, SOS, Take a Chance, Money Money Money, Knowing Me Knowing You, Super Trouper, Gimme Gimme Gimme, Voulez-Vous, and many more.\nWith over 400 million records sold, ABBA is Sweden’s biggest export ever! When the ",
+     "venue": {
+      "id": 23814,
+      "title": "Yoshi's Oakland",
+      "permalink": "/venues/yoshi-s-oakland",
+      "latitude": 37.796237,
+      "longitude": -122.2785532,
+      "popularity": 1.0,
+      "address": "510 Embarcadero West",
+      "city": "Oakland",
+      "state": "CA",
+      "zip": "94607",
+      "full_address": "510 Embarcadero West, Oakland, CA, 94607",
+      "is_english": true,
+      "capacity": false
+     }
+    }
+   ]
+  },
+  {
+   "date": "2026-10-28",
+   "events": [
+    {
+     "id": 17541164,
+     "title": "Daley   Preshow Vip Experience",
+     "permalink": "/events/2026/10/28/daley-preshow-vip-experience-tickets",
+     "category": "Music",
+     "begin_time": "2026-10-28T17:30:00-05:00",
+     "begin_date": "2026-10-28",
+     "tz_adjusted_begin_date": "2026-10-28T17:30:00-07:00",
+     "is_free": false,
+     "is_ongoing": false,
+     "doors": true,
+     "ticket_info": "$70",
+     "excerpt": "SHOW TICKETS NOT INCLUDED (For Show Tickets, CLICK HERE)\nExclusive Meet & Greet with Daley\nDaley is an acclaimed British singer, songwriter, and creative artist from Manchester, UK, whose unmistakable falsetto and soul-bearing songwriting first emerged through London’s underground music scene and swiftly carried him onto the global stage, where he established himself as one of the most distinctive voices in contemporary soul.\nTouched by the sounds of Prince, Chaka Khan, Sade, Radiohead, and George Michael, Daley's sound seamlessly blends classic soul sensibilities with contemporary, alternative R&B. With two critically acclaimed studio albums and several Top 10 Billboard R&B singles, Daley’s artistry has been acknowledged by the Grammys, MOB",
+     "venue": {
+      "id": 23814,
+      "title": "Yoshi's Oakland",
+      "permalink": "/venues/yoshi-s-oakland",
+      "latitude": 37.796237,
+      "longitude": -122.2785532,
+      "popularity": 1.0,
+      "address": "510 Embarcadero West",
+      "city": "Oakland",
+      "state": "CA",
+      "zip": "94607",
+      "full_address": "510 Embarcadero West, Oakland, CA, 94607",
+      "is_english": true,
+      "capacity": false
+     }
+    },
+    {
+     "id": 17541163,
+     "title": "Daley",
+     "permalink": "/events/2026/10/28/daley-tickets",
+     "category": "Music",
+     "begin_time": "2026-10-28T19:00:00-05:00",
+     "begin_date": "2026-10-28",
+     "tz_adjusted_begin_date": "2026-10-28T19:00:00-07:00",
+     "is_free": false,
+     "is_ongoing": false,
+     "doors": true,
+     "ticket_info": "$40 - $79",
+     "excerpt": "MEET & GREET TICKETS AVAILABLE HERE (Show Tickets NOT INCLUDED)\nDaley is an acclaimed British singer, songwriter, and creative artist from Manchester, UK, whose unmistakable falsetto and soul-bearing songwriting first emerged through London’s underground music scene and swiftly carried him onto the global stage, where he established himself as one of the most distinctive voices in contemporary soul.\nTouched by the sounds of Prince, Chaka Khan, Sade, Radiohead, and George Michael, Daley's sound seamlessly blends classic soul sensibilities with contemporary, alternative R&B. With two critically acclaimed studio albums and several Top 10 Billboard R&B singles, Daley’s artistry has been acknowledged by the Grammys, MOBO Awards, BET, and Soul Tra",
+     "venue": {
+      "id": 23814,
+      "title": "Yoshi's Oakland",
+      "permalink": "/venues/yoshi-s-oakland",
+      "latitude": 37.796237,
+      "longitude": -122.2785532,
+      "popularity": 1.0,
+      "address": "510 Embarcadero West",
+      "city": "Oakland",
+      "state": "CA",
+      "zip": "94607",
+      "full_address": "510 Embarcadero West, Oakland, CA, 94607",
+      "is_english": true,
+      "capacity": false
+     }
+    }
+   ]
+  },
+  {
+   "date": "2026-10-29",
+   "events": [
+    {
+     "id": 16226464,
+     "title": "North Berkeley Food Tour",
+     "permalink": "/events/weekly/thu/north-berkeley-food-tour-tickets",
+     "category": "Food & Drink",
+     "begin_time": "2026-10-29T11:00:00-05:00",
+     "begin_date": "2026-10-29",
+     "tz_adjusted_begin_date": "2025-08-14T11:00:00-07:00",
+     "is_free": false,
+     "is_ongoing": false,
+     "doors": false,
+     "ticket_info": "$137",
+     "excerpt": "Discover The Birthplace of California Farm-To-Table Cuisine!\n\n\nJoin award-winning food & wine tour company Edible Excursions for a guided walking tour through North Berkeley, home to the legendary Chez Panisse and the birthplace of the farm-to-table movement. Led by a local food industry expert, you’ll explore the roots of the Bay Area food scene while hearing the stories behind the chefs, restaurants, and sustainable food pioneers who influenced the national dining landscape.\n\nEnjoy a flavor-packed afternoon with tastes from beloved household names, including: \n\nSaul's Delicatessen\nCheeseboard Pizza\nThe Local Butcher Shop\nGrégoire Restaurant\n+ more!\nBuy tickets here!\n\nWhen: Thursdays & Saturdays 11am - 2pm\nWhere: North Shattuck (North Berke",
+     "venue": {
+      "id": 489433,
+      "title": "Shattuck Avenue & Vine Street",
+      "permalink": "/venues/shattuck-avenue-vine-street",
+      "latitude": null,
+      "longitude": null,
+      "popularity": 1.0,
+      "address": "2113 Vine Street",
+      "city": "Berkeley",
+      "state": "CA",
+      "zip": "94709",
+      "full_address": "2113 Vine Street, Berkeley, CA, 94709",
+      "is_english": true,
+      "capacity": false
+     }
+    }
+   ]
+  },
+  {
+   "date": "2026-10-30",
+   "events": [
+    {
+     "id": 17588548,
+     "title": "Rick Braun",
+     "permalink": "/events/2026/10/30/rick-braun-tickets",
+     "category": "Music",
+     "begin_time": "2026-10-30T19:00:00-05:00",
+     "begin_date": "2026-10-30",
+     "tz_adjusted_begin_date": "2026-10-30T19:00:00-07:00",
+     "is_free": false,
+     "is_ongoing": false,
+     "doors": true,
+     "ticket_info": "$39 - $84",
+     "excerpt": "Over three decades, 20+ albums, and more than 20 #1 Billboard hits into one of contemporary jazz's most inspiring careers, Rick Braun remains a master of the trumpet and flugelhorn. The Allentown, Pennsylvania-born Braun began playing music in elementary school, ultimately winding up at the prestigious Eastman School of Music. There, he hooked up with like-minded musicians to form the jazz-fusion combo Auracle.\nBraun's first big break came when he composed \"Here With Me,\" a Top 20 hit for REO Speedwagon. He soon became a highly regarded pop sideman, touring and recording with the likes of Rod Stewart, War, Sade, Tina Turner, Natalie Cole, Glenn Frey, Tom Petty, and Crowded House.\nThe trumpeter became a Smooth Jazz fixture with his 1993 debut",
+     "venue": {
+      "id": 23814,
+      "title": "Yoshi's Oakland",
+      "permalink": "/venues/yoshi-s-oakland",
+      "latitude": 37.796237,
+      "longitude": -122.2785532,
+      "popularity": 1.0,
+      "address": "510 Embarcadero West",
+      "city": "Oakland",
+      "state": "CA",
+      "zip": "94607",
+      "full_address": "510 Embarcadero West, Oakland, CA, 94607",
+      "is_english": true,
+      "capacity": false
+     }
+    },
+    {
+     "id": 17588549,
+     "title": "Rick Braun",
+     "permalink": "/events/2026/10/30/rick-braun-tickets-nlpow8d",
+     "category": "Music",
+     "begin_time": "2026-10-30T21:15:00-05:00",
+     "begin_date": "2026-10-30",
+     "tz_adjusted_begin_date": "2026-10-30T21:15:00-07:00",
+     "is_free": false,
+     "is_ongoing": false,
+     "doors": true,
+     "ticket_info": "$39",
+     "excerpt": "Over three decades, 20+ albums, and more than 20 #1 Billboard hits into one of contemporary jazz's most inspiring careers, Rick Braun remains a master of the trumpet and flugelhorn. The Allentown, Pennsylvania-born Braun began playing music in elementary school, ultimately winding up at the prestigious Eastman School of Music. There, he hooked up with like-minded musicians to form the jazz-fusion combo Auracle.\nBraun's first big break came when he composed \"Here With Me,\" a Top 20 hit for REO Speedwagon. He soon became a highly regarded pop sideman, touring and recording with the likes of Rod Stewart, War, Sade, Tina Turner, Natalie Cole, Glenn Frey, Tom Petty, and Crowded House.\nThe trumpeter became a Smooth Jazz fixture with his 1993 debut",
+     "venue": {
+      "id": 23814,
+      "title": "Yoshi's Oakland",
+      "permalink": "/venues/yoshi-s-oakland",
+      "latitude": 37.796237,
+      "longitude": -122.2785532,
+      "popularity": 1.0,
+      "address": "510 Embarcadero West",
+      "city": "Oakland",
+      "state": "CA",
+      "zip": "94607",
+      "full_address": "510 Embarcadero West, Oakland, CA, 94607",
+      "is_english": true,
+      "capacity": false
+     }
+    }
+   ]
+  }
+ ],
+ "paging": {
+  "count": 98,
+  "page_size": 25,
+  "total_pages": 4,
+  "current_page": 1
+ }
+}

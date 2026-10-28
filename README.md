@@ -17,6 +17,7 @@ Live: https://vitgruib.github.io/bearly/
 | Cerebral Valley | its public API, every approved Bay Area event | nothing |
 | Eventbrite | search pages for Berkeley and Oakland | nothing |
 | Hackathons | Devpost (only hackathons whose window is the event itself, not a month-long submission period), YC events, MLH, AGI House; Bay Area in-person only | nothing |
+| Music & venues | Ashkenaz, Ivy Room (VenuePilot), Fox, Greek, UC Theatre, Resident Advisor, and 17 East Bay venues on DoTheBay | nothing |
 | Partiful | Bay Area "trending" on `/explore`, plus any `partiful.com/e/…` link seen elsewhere | nothing |
 | Instagram | ~850 student-org accounts (`clubs/instagram.txt`, from CalLink) via Apify; captions parsed for date/time/place | `APIFY_TOKEN` |
 | Mailing lists | IMAP inbox subscribed to listservs | `IMAP_USER`, `IMAP_PASSWORD` |

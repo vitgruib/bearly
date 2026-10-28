@@ -1,0 +1,94 @@
+{
+ "data": {
+  "eventListings": {
+   "data": [
+    {
+     "event": {
+      "id": "2494924",
+      "title": "Factory 93: Halloween Weekender (10/30 + 10/31) at Gold Bar Hangar",
+      "startTime": "2026-10-30T19:00:00.000",
+      "contentUrl": "/events/2494924",
+      "cost": "",
+      "venue": {
+       "name": "Gold Bar Hangar",
+       "address": "2505 Monarch St, Alameda, CA 94501",
+       "area": {
+        "id": "218",
+        "name": "San Francisco/Oakland"
+       }
+      }
+     }
+    },
+    {
+     "event": {
+      "id": "2494924",
+      "title": "Factory 93: Halloween Weekender (10/30 + 10/31) at Gold Bar Hangar",
+      "startTime": "2026-10-30T19:00:00.000",
+      "contentUrl": "/events/2494924",
+      "cost": "",
+      "venue": {
+       "name": "Gold Bar Hangar",
+       "address": "2505 Monarch St, Alameda, CA 94501",
+       "area": {
+        "id": "218",
+        "name": "San Francisco/Oakland"
+       }
+      }
+     }
+    },
+    {
+     "event": {
+      "id": "2557363",
+      "title": "Hugel",
+      "startTime": "2026-11-07T18:00:00.000",
+      "contentUrl": "/events/2557363",
+      "cost": "",
+      "venue": {
+       "name": "Berkeley Greek Theatre",
+       "address": "2001 Gayley Rd, Berkeley, CA 94720",
+       "area": {
+        "id": "218",
+        "name": "San Francisco/Oakland"
+       }
+      }
+     }
+    },
+    {
+     "event": {
+      "id": "2564166",
+      "title": "Strut SF and F8 present The Halloween Party with Sean Majors and Jeff Straw",
+      "startTime": "2026-10-28T21:00:00.000",
+      "contentUrl": "/events/2564166",
+      "cost": "0-10",
+      "venue": {
+       "name": "F8 1192 Folsom",
+       "address": "1192 Folsom St, San Francisco, CA 94103",
+       "area": {
+        "id": "218",
+        "name": "San Francisco/Oakland"
+       }
+      }
+     }
+    },
+    {
+     "event": {
+      "id": "2524575",
+      "title": "BlackandWhitesound presents Jay Tripwire and Tho",
+      "startTime": "2026-10-30T21:00:00.000",
+      "contentUrl": "/events/2524575",
+      "cost": "$20-30",
+      "venue": {
+       "name": "TBA",
+       "address": null,
+       "area": {
+        "id": "218",
+        "name": "San Francisco/Oakland"
+       }
+      }
+     }
+    }
+   ],
+   "totalResults": 5
+  }
+ }
+}

@@ -412,6 +412,58 @@ every_hours = 24
 # Devpost: only open pages of hackathons starting within this many days.
 days_ahead = 45
 
+[venues]
+# East Bay venue calendars. Each [[venues.list]] entry has a type:
+#   venuepilot (account id) | anotherplanet (url, venue, city) | uctheatre (url, max_shows)
+#   resident_advisor (area; 218 = SF/Oakland) | dothebay (venues = DoTheBay venue slugs)
+# A show listed by a venue's own feed and an aggregator is kept once, from the venue.
+days_ahead = 30
+
+[[venues.list]]
+name = "Ashkenaz"
+type = "venuepilot"
+account = 1228
+url = "https://www.ashkenaz.com/"
+
+[[venues.list]]
+name = "Ivy Room"
+type = "venuepilot"
+account = 992
+url = "https://www.ivyroom.com/"
+
+[[venues.list]]
+name = "Fox Theater"
+type = "anotherplanet"
+url = "https://thefoxoakland.com/"
+venue = "Fox Theater"
+city = "Oakland"
+
+[[venues.list]]
+name = "Greek Theatre"
+type = "anotherplanet"
+url = "https://thegreekberkeley.com/event-listing/"
+venue = "Greek Theatre"
+city = "Berkeley"
+
+[[venues.list]]
+name = "UC Theatre"
+type = "uctheatre"
+url = "https://www.theuctheatre.org/events"
+max_shows = 25
+
+[[venues.list]]
+name = "Resident Advisor"
+type = "resident_advisor"
+area = 218
+
+[[venues.list]]
+name = "DoTheBay"
+type = "dothebay"
+venues = ["yoshi-s-oakland", "the-freight", "thee-stork-club", "quinn-s-lighthouse", "crybaby",
+  "paramount-theatre", "oakland-arena", "fluid510", "the-starry-plough", "cornerstone",
+  "berkeley-repertory-theatre", "oakland-museum-of-california", "all-out-comedy-theater",
+  "uss-hornet-museum", "the-crucible", "piedmont-piano-company", "east-brother-beer-company-taproom"]
+
 [instagram]
 # Needs APIFY_TOKEN. The one paid source: Apify bills ~$0.0017 per post read.
 accounts_file = "clubs/instagram.txt"
