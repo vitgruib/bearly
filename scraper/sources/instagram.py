@@ -2,8 +2,9 @@
 Instagram Post Scraper (pay-per-post), and parse captions with the free text parser.
 
 Cost control, because this is the one paid source:
-- only posts newer than the last run are requested (plus a 1-day overlap), so each post is
-  paid for once;
+- accounts (sources.toml plus clubs/instagram.txt, ~850 clubs from CalLink) are read in
+  slices of `accounts_per_run`, each slice once per full cycle, asking only for posts newer
+  than one cycle (plus a day of overlap), so each post is paid for about once;
 - spend is tracked per calendar month in state and the run is capped to what is left of
   `monthly_budget_usd` (Apify enforces the cap server-side via maxTotalChargeUsd);
 - captions of the last `keep_days` are remembered, so events announced in an older post
@@ -11,6 +12,7 @@ Cost control, because this is the one paid source:
 
 Env: APIFY_TOKEN."""
 
+import math
 import os
 import time
 from datetime import timedelta
@@ -18,7 +20,7 @@ from datetime import timedelta
 from ..http import request
 from ..messages import events_from_message
 from ..models import Event, parse_dt
-from ..state import Context, NotConfigured
+from ..state import ROOT, Context, NotConfigured
 
 ACTOR = "apify~instagram-post-scraper"
 API = "https://api.apify.com/v2"
@@ -55,32 +57,44 @@ def events_from_posts(posts: dict[str, dict]) -> list[Event]:
     return events
 
 
+def load_accounts(cfg: dict) -> list[str]:
+    accounts = list(cfg.get("accounts", []))
+    if path := cfg.get("accounts_file"):
+        for line in (ROOT / path).read_text().splitlines():
+            if line.strip() and not line.startswith("#"):
+                accounts.append(line.strip())
+    return list(dict.fromkeys(accounts))
+
+
 def fetch(cfg: dict, ctx: Context) -> list[Event]:
     token = os.environ.get("APIFY_TOKEN")
     if not token:
         raise NotConfigured("set APIFY_TOKEN")
-    accounts = cfg.get("accounts", [])
+    accounts = load_accounts(cfg)
     mem = ctx.memory
     posts: dict[str, dict] = mem.setdefault("posts", {})
     month = ctx.now.strftime("%Y-%m")
     budget = mem.setdefault("budget", {"month": month, "spent_usd": 0.0})
     if budget["month"] != month:
         budget.update(month=month, spent_usd=0.0)
-    remaining = cfg.get("monthly_budget_usd", 3.0) - budget["spent_usd"]
+    remaining = cfg.get("monthly_budget_usd", 5.0) - budget["spent_usd"]
     per_run = min(remaining, cfg.get("max_run_usd", 0.5))
 
     if accounts and per_run >= 0.02:
-        since = (parse_dt(mem["last_fetch"]) - timedelta(days=1)) if mem.get("last_fetch") \
-            else ctx.now - timedelta(days=cfg.get("first_run_days", 10))
+        size = min(cfg.get("accounts_per_run", 100), len(accounts))
+        start = mem.get("cursor", 0) % len(accounts)
+        batch = (accounts + accounts)[start:start + size]
+        runs_per_cycle = math.ceil(len(accounts) / size)
+        cycle = timedelta(hours=runs_per_cycle * cfg.get("every_hours", 24))
         items, cost = _run_actor(token, {
-            "username": accounts,
-            "resultsLimit": cfg.get("posts_per_account", 6),
-            "onlyPostsNewerThan": since.date().isoformat(),
+            "username": batch,
+            "resultsLimit": cfg.get("posts_per_account", 4),
+            "onlyPostsNewerThan": (ctx.now - cycle - timedelta(days=1)).date().isoformat(),
             "skipPinnedPosts": True,
             "dataDetailLevel": "basicData",
         }, per_run)
         budget["spent_usd"] = round(budget["spent_usd"] + cost, 4)
-        mem["last_fetch"] = ctx.now.isoformat(timespec="seconds")
+        mem["cursor"] = (start + size) % len(accounts)
         for it in items:
             if it.get("error") or not it.get("caption"):
                 continue

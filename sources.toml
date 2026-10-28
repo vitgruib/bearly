@@ -142,6 +142,276 @@ type = "jsonld"
 url = "https://sf.funcheap.com/region/berkeley/"
 city = "Berkeley"
 
+# --- Student org Google Calendars (public ones linked from CalLink, checked 2026-10-28) ---
+
+[[feeds.list]]
+name = "American Cancer Society of Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/acsofberkeley%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "American Chemical Society at Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/f0fofgtfekram9j80vqkodu264%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "American Nuclear Society"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_vh3arrit553bmbbfqvbmu5koq0%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Bhagat Puran Singh Health Initiative"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/ucberkeley%40bpshi.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Blood Pressure Project"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/projectbloodpressure%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "bridges Multicultural Resource Center"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/8a1103dca1160dcbea19b0d140366bf2b49095f3cf2114e7ddf00e23c69f9a8b%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Cal Hiking and Outdoor Society"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/ucbchaos%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Cal Undergraduate Public Health Coalition"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/caluphc.publichealth%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "CASCADE: Community Service"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/cascade%40berkeley.edu/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Chi Epsilon"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/9mqompi2fvcr7smkfaa8b0scso%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Computational Biology at Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_89fd0fd6639f6879e54e29cf6160bd6b715c0d824d84fdc0166332e82c13404c%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Computer Science Undergraduate Association"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_rv641pmt9o13qnh1ss4uib78bs%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Data Science Society at Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_9crnfpiudugdctfhkrq2abdttc%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "FeelGood"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/feelgoodberk%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Foresight Pre-Optometry Club"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/foresight.webcoordinator%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Graduate Architecture Student Union"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_h9sa883itfr0n258pplcdr1nd4%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Graduate Women of Engineering"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/gradswe%40berkeley.edu/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "IEEE Student Branch"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_9k08nrpdahaujiva7u1ss9j92s%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Institute of Transportation Engineers at Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_bdp737t462v2c7nrjp5b946phg%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Kerusso Fellowship"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/kerussofellowship%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Latin American Leadership Society"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/llsoperationscom%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Mariachi Luz de Oro"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/ucbmariachi%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Mathematics Undergraduate Student Association"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/0bbe9337266bc3bba91c3e8e58c703684bb8f6ac9b81fc9f2c1492094298bf2b%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Mixed @ Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/mixedatberkeley%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Multicultural Community Center"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/v65jvkus5m00isl13k6800ff9k%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Mycology Club at Berkeley"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_7caacf72e3cda64e814cf4c9de792f213a9356e2482eadea7f46e08d55afe859%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Open Computing Facility"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/ocf.berkeley.edu_bcl2puplt6t9e9e9njme6jqca8%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Pioneers in Engineering"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/pioneers.berkeley.edu_c0jb0s77eo5bg2h2n0dvcovrg4%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Pre-Nursing Society"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/prenursingsociety%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "PreDental Society"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/calpredentalsociety%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Queer Alliance & Resource Center"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_5b89d7de880efd20938501c067084d00bad35a69669bb5431aee30d3a495f2cc%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Society of Women Engineers"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/phrivnjgo1i6s4iisp61ige25g%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Steel Bridge Competition Team"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/steelbridge.berkeley%40gmail.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Student Environmental Resource Center"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/4tbdlomu9akkincnbfos61cmrs%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Student Organic Gardening Association"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_gb0561ttotsm2rgbgjd9b841j4%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Telegraph for People"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/1cmuiuldkleq4a0ua7df8ta4jo%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[[feeds.list]]
+name = "Undergraduate Women in Economics"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_eac1fefeefabed866542cffbae2235073c2ed7cd6500c43679d917e3801c7186%40group.calendar.google.com/public/basic.ics"
+campus = true
+max_repeats = 5
+
+[instagram]
+# Needs APIFY_TOKEN. The one paid source: Apify bills ~$0.0017 per post read.
+accounts_file = "clubs/instagram.txt"
+accounts = []            # extra handles beyond the CalLink list
+accounts_per_run = 100   # ~9 daily runs to cycle through every club
+posts_per_account = 4
+monthly_budget_usd = 5.0 # Apify's free plan includes $5/month
+max_run_usd = 0.5
+
 [email]
 folder = "events"  # Gmail label your listserv filter applies
 days_back = 14

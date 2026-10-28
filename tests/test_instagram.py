@@ -46,7 +46,20 @@ def test_new_posts_become_events_and_are_remembered(apify):
     assert (e.host, e.image, e.url) == ("Codeology", "https://img.test/a.jpg", POST["url"])
     assert ctx.memory["budget"]["spent_usd"] == 0.04
     sent = json.loads(apify[0].content)
-    assert sent["username"] == ["codeology"] and sent["onlyPostsNewerThan"] == "2026-10-17"
+    assert sent["username"] == ["codeology"] and sent["onlyPostsNewerThan"] == "2026-10-25"
+
+
+def test_accounts_are_read_in_rotating_slices(apify):
+    ctx = Context({}, NOW)
+    cfg = {"accounts": ["a", "b", "c"], "accounts_per_run": 2}
+
+    instagram.fetch(cfg, ctx)
+    instagram.fetch(cfg, ctx)
+
+    sent = [json.loads(r.content) for r in apify if r.method == "POST"]
+    assert [s["username"] for s in sent] == [["a", "b"], ["c", "a"]]
+    # 3 accounts / 2 per run = 2 daily runs per cycle, plus a day of overlap
+    assert sent[0]["onlyPostsNewerThan"] == "2026-10-24"
 
 
 def test_exhausted_monthly_budget_skips_apify_but_keeps_known_events(apify):
