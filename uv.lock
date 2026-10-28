@@ -20,6 +20,7 @@ name = "berkeley-events"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "httpx" },
     { name = "icalendar" },
     { name = "recurring-ical-events" },
@@ -32,6 +33,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2026.10.23" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "icalendar", specifier = ">=7.3.0" },
     { name = "recurring-ical-events", specifier = ">=3.8.2" },

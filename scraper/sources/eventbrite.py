@@ -55,5 +55,6 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
     for place in cfg.get("places", ["ca--berkeley"]):
         for page in range(1, cfg.get("pages", 4) + 1):
             events += parse_page(get_text(
-                f"https://www.eventbrite.com/d/{place}/all-events/", page=page))
+                f"https://www.eventbrite.com/d/{place}/all-events/", proxy=cfg.get("proxy", False),
+                page=page))
     return events

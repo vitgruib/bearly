@@ -78,6 +78,12 @@ its secret skips itself quietly.
   `channels:read` and `channels:history` scopes. Invite the bot to a channel to start
   reading it.
 
+- `PROXY_URL` (optional): an HTTP proxy for sources with `proxy = true` in
+  `sources.toml`. Eventbrite refuses GitHub's runner IPs, so it needs one in CI. A Bright
+  Data Web Unlocker or residential zone works, e.g.
+  `http://brd-customer-…-zone-…:PASSWORD@brd.superproxy.io:33335`. Add its CA certificate
+  (PEM text) as `PROXY_CA_CERT` so TLS is still verified.
+
 ## Adding a source
 
 A club or venue with a calendar: add a `[[feeds.list]]` entry, or a Luma slug under

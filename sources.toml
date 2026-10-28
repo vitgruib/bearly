@@ -25,6 +25,8 @@ calendars = [
 [eventbrite]
 places = ["ca--berkeley", "ca--oakland"]
 pages = 4
+# Eventbrite refuses GitHub's IPs; go through PROXY_URL when that secret is set.
+proxy = true
 
 [cerebral_valley]
 location = "BAY_AREA"
