@@ -87,6 +87,12 @@ SIX_PM = NOW + timedelta(days=1)
      "Defending Our Rights, Fighting For Our Future: The ACLU’s Cecillia Wang"),
     ("California Men’s Basketball vs Adams State - HOME OPENER",
      "California Men's Basketball vs Adams State - HOME OPENER"),
+    ("Haas Tech & AI Summit 2026 · Where Intelligence Goes Next",
+     "Tech and AI Summit 2026 - Where Intelligence Goes Next"),
+    ("Own Your AI: Build an Agentic AI Model Factory - Hack Night",
+     "Own Your AI: Build an Agentic AI Model Factory - in person"),
+    ("Change Not Charity: The Americans with Disabilities Act at 36",
+     "‘Change Not Charity: Americans With Disabilities Act at 36’"),
 ])
 def test_same_event_listed_under_two_titles_is_merged(a, b):
     events = build([ev(a, SIX_PM, source="berkeley_calendar"), ev(b, SIX_PM, source="feeds")],
@@ -95,15 +101,33 @@ def test_same_event_listed_under_two_titles_is_merged(a, b):
     assert len(events) == 1 and events[0].also_on == ["feeds"]
 
 
+def test_one_source_listing_an_event_from_two_platforms_is_merged():
+    luma = ev("AWS Agentic Partner Showcase Extended - Temporal, Arize, Databricks", SIX_PM,
+              source="cerebral_valley", url="https://luma.com/1xkwh68x")
+    meetup = ev("AWS Partner Showcase - Temporal, Arize, Databricks", SIX_PM,
+                source="cerebral_valley", url="https://www.meetup.com/svsiaa/events/316967081")
+
+    assert len(build([luma, meetup], 30, NOW)) == 1
+
+
 @pytest.mark.parametrize("a, b", [
     ("California Men’s Swimming & Diving vs CSL Wild Card",
      "California Women’s Swimming & Diving vs CSL Wild Card"),
     ("PG&E Monitoring Center Tour #1", "PG&E Monitoring Center Tour #2"),
+    ("California Men’s Tennis vs Stanford", "California Women’s Tennis vs Stanford"),
     ("Advanced Program in Software Development Online Information Session",
      "Program in Software Development Online Information Session"),
 ])
 def test_different_events_at_the_same_time_stay_separate(a, b):
     assert len(build([ev(a, SIX_PM), ev(b, SIX_PM)], 30, NOW)) == 2
+
+
+def test_mens_and_womens_meets_from_two_sources_stay_separate():
+    mens = ev("California Men’s Swimming & Diving vs CSL Wild Card", SIX_PM,
+              source="berkeley_calendar")
+    womens = ev("California Women’s Swimming & Diving vs CSL Wild Card", SIX_PM, source="feeds")
+
+    assert len(build([mens, womens], 30, NOW)) == 2
 
 
 def test_full_postponed_and_busy_placeholders_are_dropped():

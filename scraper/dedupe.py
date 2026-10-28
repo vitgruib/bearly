@@ -2,6 +2,7 @@
 into one record that remembers everywhere it was seen."""
 
 import re
+from urllib.parse import urlparse
 
 from .models import Event, dedupe_key
 
@@ -39,14 +40,36 @@ def _norm(title: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", re.sub(r"^\[[^\]]*\]", "", title.lower()))
 
 
+DISTINGUISHING = {"men", "mens", "women", "womens", "boys", "girls", "jv", "varsity", "i", "ii",
+                  "iii", "iv", "part", "session", "advanced", "intro", "beginner", "beginners"}
+
+
+def _words(title: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", title.lower().replace("’", "'").replace("'", "")))
+
+
+def _host(url: str) -> str:
+    return urlparse(url).netloc.removeprefix("www.")
+
+
 def _same_listing(a: Event, b: Event) -> bool:
-    """One source's title is the other's plus a prefix or suffix ("Film Screening: X" / "X",
-    "Neuro Night" / "NeuroNight SF"). Only across sources and at the same minute: within one
-    source, two similar titles at one time are two different listings."""
-    if a.source == b.source or a.start != b.start:
+    """One listing's title is the other's plus extra words ("Film Screening: X" / "X",
+    "Neuro Night" / "NeuroNight SF", "AWS Agentic Partner Showcase Extended - …" / "AWS Partner
+    Showcase - …"), at the same minute, from different sources or different sites. Two such
+    titles on one site at one time are that site's two different listings (tour #1 / #2)."""
+    if a.start != b.start or (a.source == b.source and _host(a.url) == _host(b.url)):
         return False
     x, y = sorted((_norm(a.title), _norm(b.title)), key=len)
-    return len(x) >= 8 and x in y
+    if len(x) >= 8 and x in y:
+        return True
+    wx, wy = sorted((_words(a.title), _words(b.title)), key=len)
+    if len(wx) >= 3 and wx <= wy:
+        return True
+    # Two sources' own wording of one title ("Haas Tech & AI Summit" / "Tech and AI Summit"):
+    # most words shared, and none of the differing ones tells two events apart.
+    differ = wx ^ wy
+    return (a.source != b.source and len(wx) >= 5 and len(wx & wy) >= 0.8 * len(wx)
+            and not differ & DISTINGUISHING and not any(w.isdigit() for w in differ))
 
 
 def dedupe(events: list[Event]) -> list[Event]:
