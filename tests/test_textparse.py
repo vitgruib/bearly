@@ -57,3 +57,58 @@ def test_january_date_in_a_december_email_is_next_year():
     [e] = parse_announcement("Winter hack night Jan 8, 6pm", december, "email")
 
     assert e.start == datetime(2027, 1, 8, 18, 0, tzinfo=PT)
+
+
+# Shapes below come from a hand-labelled sample of 80 club Instagram posts (2026-10-28).
+
+def test_deadline_with_a_time_is_not_an_event():
+    text = ("Our firm visit is Tuesday, November 3 in the afternoon.\n\n"
+            "The deadline to apply for this event is Thursday, October 29 at 11:59 PM.")
+    registration = "REGISTRATION IS NOW OPEN!!\n\nRegister your team by Sunday Nov 1st, 11:59pm!"
+
+    assert parse_announcement(text, TUESDAY, "instagram") == []
+    assert parse_announcement(registration, TUESDAY, "instagram") == []
+
+
+def test_volunteer_shift_lists_are_not_events():
+    text = ("We're looking for volunteers to lead campus tours!\n\n"
+            "📍 Wednesday, November 4 | 10 AM – 2 PM\nHigh school visit @ UC Berkeley\n\n"
+            "📍 Friday, November 6 | 10:30 AM – 11:15 AM\nCampus tour\n\n"
+            "Please select ONLY one slot. Sign up below!")
+
+    assert parse_announcement(text, TUESDAY, "instagram") == []
+
+
+def test_title_is_the_named_event_not_a_label_or_greeting():
+    labelled = ("Hi Community!!\n\nJoin us for our Photocard Decorating Event!\n\n"
+                "📅 Date: Thursday, Oct 29\n🕔 Time: 8PM\n📍 Location: Dwinelle 243")
+    tonight = ("CalTV is covering AFTER EFFECTS at its weekly editing workshop TONIGHT, "
+               "8-10 PM in the ASUC Senate Chambers!")
+
+    [a] = parse_announcement(labelled, TUESDAY, "instagram", host="Art and Mind")
+    [b] = parse_announcement(tonight, TUESDAY, "instagram", host="CalTV")
+
+    assert a.title == "Photocard Decorating Event"
+    assert a.start == datetime(2026, 10, 29, 20, 0, tzinfo=PT)
+    assert b.title == "Weekly Editing Workshop"
+
+
+def test_each_line_of_an_event_list_is_titled_by_its_own_name():
+    text = ("Halloween Week is here!\n\n"
+            "👻 Wed 10/28 | 1–3 PM | Make Your Own Slime at the Undergrad Lounge\n\n"
+            "🍫 Fri 10/30 | 12–2 PM | Haas Fall Fest at the Haas Courtyard")
+
+    events = parse_announcement(text, TUESDAY, "instagram")
+
+    assert [(e.title, e.start) for e in events] == [
+        ("Make Your Own Slime", datetime(2026, 10, 28, 13, 0, tzinfo=PT)),
+        ("Haas Fall Fest", datetime(2026, 10, 30, 12, 0, tzinfo=PT)),
+    ]
+
+
+def test_untitled_post_falls_back_to_the_host_not_a_fragment():
+    text = "Support us by getting chipotle TOMORROW from 4-8PM!! Show this flyer at the cashier."
+
+    [e] = parse_announcement(text, TUESDAY, "instagram", host="American Red Cross at Cal")
+
+    assert e.title == "American Red Cross at Cal event"

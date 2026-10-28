@@ -41,7 +41,7 @@ def test_new_posts_become_events_and_are_remembered(apify):
 
     [e] = instagram.fetch({"accounts": ["codeology"]}, ctx)
 
-    assert e.title == "Codeology x Hackers@Berkeley game night 🎲"
+    assert e.title == "Codeology x Hackers@Berkeley game night"
     assert e.start == datetime(2026, 10, 29, 19, 0, tzinfo=PT)
     assert (e.host, e.image, e.url) == ("Codeology", "https://img.test/a.jpg", POST["url"])
     assert ctx.memory["budget"]["spent_usd"] == 0.04
@@ -71,5 +71,5 @@ def test_exhausted_monthly_budget_skips_apify_but_keeps_known_events(apify):
     events = instagram.fetch({"accounts": ["codeology"], "monthly_budget_usd": 3.0}, ctx)
 
     assert apify == []
-    assert [e.title for e in events] == ["Codeology x Hackers@Berkeley game night 🎲"]
+    assert [e.title for e in events] == ["Codeology x Hackers@Berkeley game night"]
     assert "budget" in ctx.warnings[0]
