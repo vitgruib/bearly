@@ -12,6 +12,7 @@
 A feed that fails is reported as a warning; the others still count."""
 
 import re
+from collections import Counter
 from datetime import UTC, date, datetime, timedelta
 from email.utils import parsedate_to_datetime
 from urllib.parse import urljoin
@@ -199,8 +200,12 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
         if feed.get("exclude"):
             rx = re.compile(feed["exclude"], re.IGNORECASE)
             found = [e for e in found if not rx.search(f"{e.title} {e.description}")]
-        if feed.get("campus"):  # department calendars that never say "Berkeley"
+        if limit := feed.get("max_repeats"):  # a venue's daily shows aren't news
+            times = Counter(e.title for e in found)
+            found = [e for e in found if times[e.title] <= limit]
+        # Many calendars never name their own city (a department, a single venue).
+        if city := feed.get("city") or ("Berkeley" if feed.get("campus") else None):
             for e in found:
-                e.city = e.city or "Berkeley"
+                e.city = e.city or city
         events += found
     return events

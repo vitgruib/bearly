@@ -29,8 +29,10 @@ days_ahead = 21
 # Calendars in standard formats. Each [[feeds.list]] entry:
 #   type    = ics | rss | jsonld | tribe | localist | fullcalendar
 #   campus  = true for department calendars whose events never mention a city
+#   city    = the city to assume for a venue's calendar that never names it
 #   match   = regex an event's title/venue must match (e.g. only home games)
 #   exclude = regex that drops an event by title/description
+#   max_repeats = drop titles that recur more often than this (daily shows, tours)
 
 # --- Campus calendars not (fully) mirrored on events.berkeley.edu ---
 
@@ -93,6 +95,40 @@ name = "Graduate Assembly"
 type = "ics"
 url = "https://calendar.google.com/calendar/ical/berkeley.edu_u7u87h8t91v03rgas6hnb76b1s%40group.calendar.google.com/public/basic.ics"
 campus = true
+
+# --- City and community ---
+
+[[feeds.list]]
+name = "Berkeley Public Library"
+type = "ics"
+url = "https://berkeleypubliclibrary.libnet.info/feeds?data=eyJmZWVkVHlwZSI6ImljYWwiLCJmaWx0ZXJzIjp7ImxvY2F0aW9uIjpbImFsbCJdLCJhZ2VzIjpbImFsbCJdLCJ0eXBlcyI6WyJhbGwiXSwidGFncyI6W10sInRlcm0iOiIiLCJkYXlzIjoxNH19"
+city = "Berkeley"
+exclude = "storytime|story time|baby|toddler|preschool|lapsit|homework help"
+
+[[feeds.list]]
+name = "BAMPFA"
+type = "ics"
+url = "https://bampfa.org/events/upcoming.ics"
+campus = true
+
+[[feeds.list]]
+name = "Oakland Museum of California"
+type = "tribe"
+url = "https://museumca.org/wp-json/tribe/events/v1/events"
+city = "Oakland"
+
+[[feeds.list]]
+name = "Chabot Space & Science Center"
+type = "tribe"
+url = "https://chabotspace.org/wp-json/tribe/events/v1/events"
+city = "Oakland"
+max_repeats = 2
+
+[[feeds.list]]
+name = "Funcheap (Berkeley)"
+type = "jsonld"
+url = "https://sf.funcheap.com/region/berkeley/"
+city = "Berkeley"
 
 [email]
 folder = "events"  # Gmail label your listserv filter applies
