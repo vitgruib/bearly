@@ -11,6 +11,7 @@ from .sources import (
     email_inbox,
     eventbrite,
     feeds,
+    hackathons,
     instagram,
     luma,
     partiful,
@@ -34,5 +35,6 @@ SOURCES = {
     "feeds": Source("Club & department calendars", feeds, 6),
     "email": Source("Mailing lists", email_inbox, 3),
     "slack": Source("Slack", slack, 3),
+    "hackathons": Source("Hackathons", hackathons, 24),
     "instagram": Source("Instagram", instagram, 24),
 }

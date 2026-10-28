@@ -1,0 +1,144 @@
+{
+ "events": [
+  {
+   "coverImageUrl": "https://agi-operator-production-uploadsbucketbucket-xfawhcxu.s3.amazonaws.com/users/e4d82498-5061-702a-c28c-37dd24a71b64/cover/68db7a19-5d04-4857-8a9d-c15cc19cde7c.jpg",
+   "waitlistedCount": 0,
+   "confirmedCount": 0,
+   "location": {
+    "name": "AGI House",
+    "isVirtual": false,
+    "address": "1868 Floribunda Ave",
+    "city": "Hillsborough, CA"
+   },
+   "endTime": "2026-11-09T05:00:00.000Z",
+   "status": "published",
+   "title": "Personal Agent to Real-World Deployment Build Day",
+   "updatedAt": "2026-10-23T23:50:02.774Z",
+   "type": "hackathon",
+   "version": 9,
+   "timezone": "America/Los_Angeles",
+   "privacy": "public",
+   "entityType": "Event",
+   "createdAt": "2026-10-20T00:55:18.818Z",
+   "dateTbd": false,
+   "startTime": "2026-11-08T18:00:00.000Z",
+   "slug": "lenovo-x-agi-house-build-day"
+  },
+  {
+   "waitlistedCount": 0,
+   "confirmedCount": 0,
+   "createdAt": "2026-09-16T19:24:12.876Z",
+   "location": {
+    "name": "AGI House",
+    "isVirtual": false,
+    "address": "1868 Floribunda Ave",
+    "city": "Hillsborough, CA"
+   },
+   "status": "published",
+   "startTime": "2026-10-24T17:00:00.000Z",
+   "slug": "the-google-gemma-hardware-hackathon",
+   "updatedAt": "2026-10-27T00:48:59.819Z",
+   "type": "hackathon",
+   "title": "The Google Gemma Hardware Hackathon",
+   "timezone": "America/Los_Angeles",
+   "version": 103,
+   "privacy": "public",
+   "entityType": "Event",
+   "coverImageUrl": "https://agi-operator-production-uploadsbucketbucket-xfawhcxu.s3.amazonaws.com/users/34f80468-0051-700c-1b77-f11eb33a5199/cover/cbd11528-c98c-49bb-93d1-2a61b75232df.jpg",
+   "dateTbd": false,
+   "endTime": "2026-10-25T05:00:00.000Z"
+  },
+  {
+   "version": 4,
+   "entityType": "Event",
+   "location": {
+    "isVirtual": false,
+    "address": "1868 Floribunda Ave",
+    "name": "AGI House",
+    "city": "Hillsborough CA"
+   },
+   "privacy": "public",
+   "status": "published",
+   "slug": "agi-game-night-scb-10x",
+   "waitlistedCount": 0,
+   "createdAt": "2026-08-23T21:41:11.709Z",
+   "confirmedCount": 0,
+   "dateTbd": false,
+   "startTime": "2026-10-07T01:30:00.000Z",
+   "endTime": "2026-10-07T04:00:00.000Z",
+   "updatedAt": "2026-08-25T01:03:09.810Z",
+   "timezone": "America/Los_Angeles",
+   "type": "meetup",
+   "title": "AGI Game Night: SCB 10X",
+   "coverImageUrl": "https://agi-operator-production-uploadsbucketbucket-xfawhcxu.s3.amazonaws.com/users/34f80468-0051-700c-1b77-f11eb33a5199/cover/0a613a92-b538-41c6-a1c6-d82511ed8e47.jpg"
+  },
+  {
+   "entityType": "Event",
+   "version": 48,
+   "location": {
+    "name": "The Engine",
+    "isVirtual": false,
+    "address": "750 Main Street",
+    "city": "Cambridge, MA"
+   },
+   "privacy": "public",
+   "status": "published",
+   "slug": "multi-agent-orchestration-build-day",
+   "createdAt": "2026-05-29T18:32:48.914Z",
+   "waitlistedCount": 0,
+   "confirmedCount": 0,
+   "startTime": "2026-05-31T16:30:00.000Z",
+   "endTime": "2026-06-01T04:30:00.000Z",
+   "updatedAt": "2026-06-11T20:24:53.013Z",
+   "timezone": "America/Los_Angeles",
+   "title": "Multi Agent Orchestration Build Day",
+   "type": "hackathon",
+   "coverImageUrl": "https://agi-operator-production-uploadsbucketbucket-xfawhcxu.s3.amazonaws.com/users/34f80468-0051-700c-1b77-f11eb33a5199/cover/e095f32b-bec5-4555-aca9-2ad40d48018e.jpg"
+  },
+  {
+   "entityType": "Event",
+   "coverImageUrl": "https://agi-operator-production-uploadsbucketbucket-xfawhcxu.s3.amazonaws.com/users/e4d82498-5061-702a-c28c-37dd24a71b64/cover/594b8e28-8b80-4716-9e0e-3cf6988f583a.jpg",
+   "version": 65,
+   "location": {
+    "name": "625 2nd St",
+    "isVirtual": false,
+    "address": "625 2nd St",
+    "city": "San Francisco, CA 94107"
+   },
+   "privacy": "public",
+   "status": "published",
+   "slug": "real-time-agents-build-evening",
+   "createdAt": "2026-06-05T22:01:30.530Z",
+   "waitlistedCount": 0,
+   "confirmedCount": 0,
+   "startTime": "2026-06-18T01:00:00.000Z",
+   "endTime": "2026-06-18T04:30:00.000Z",
+   "updatedAt": "2026-06-18T19:00:07.276Z",
+   "timezone": "America/Los_Angeles",
+   "title": "Real-Time Agents Build Evening",
+   "type": "hackathon"
+  },
+  {
+   "entityType": "Event",
+   "coverImageUrl": "https://agi-house-app.s3.us-east-2.amazonaws.com/Frame 1477 (6).png",
+   "version": 2,
+   "location": {
+    "name": "AGI house, 1868 Floribunda Ave, Hillsborough, CA 94010",
+    "isVirtual": false
+   },
+   "privacy": "public",
+   "status": "completed",
+   "slug": "gemini-build-day-20251213",
+   "createdAt": "2026-03-23T20:21:50.302916+00:00",
+   "waitlistedCount": 0,
+   "confirmedCount": 213,
+   "startTime": "2025-12-13T17:00:00.000Z",
+   "endTime": "2025-12-14T03:00:00.000Z",
+   "updatedAt": "2026-06-17T17:15:14.038Z",
+   "timezone": "America/Los_Angeles",
+   "title": "Gemini Build Day",
+   "type": "hackathon"
+  }
+ ],
+ "count": 6
+}

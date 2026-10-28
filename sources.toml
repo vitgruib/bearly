@@ -403,6 +403,13 @@ url = "https://calendar.google.com/calendar/ical/c_eac1fefeefabed866542cffbae223
 campus = true
 max_repeats = 5
 
+[hackathons]
+# Devpost, YC, MLH and AGI House; Bay Area in-person only. Devpost costs one page per
+# candidate (~60), so this runs daily.
+every_hours = 24
+# Devpost: only open pages of hackathons starting within this many days.
+days_ahead = 45
+
 [instagram]
 # Needs APIFY_TOKEN. The one paid source: Apify bills ~$0.0017 per post read.
 accounts_file = "clubs/instagram.txt"

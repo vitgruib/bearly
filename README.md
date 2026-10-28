@@ -16,6 +16,7 @@ Live: https://vitgruib.github.io/bearly/
 | Calendar feeds | ~55 feeds in `sources.toml` `[[feeds.list]]`: Law, Haas, Botanical Garden, Simons, iSchool, Cal Athletics home games, ASUC, Graduate Assembly, BAMPFA, Berkeley Public Library, OMCA, Chabot, Funcheap, and 37 public student-org Google Calendars found through CalLink. Types: ics, rss, jsonld, tribe, localist, fullcalendar | nothing |
 | Cerebral Valley | its public API, every approved Bay Area event | nothing |
 | Eventbrite | search pages for Berkeley and Oakland | nothing |
+| Hackathons | Devpost (only hackathons whose window is the event itself, not a month-long submission period), YC events, MLH, AGI House; Bay Area in-person only | nothing |
 | Partiful | Bay Area "trending" on `/explore`, plus any `partiful.com/e/…` link seen elsewhere | nothing |
 | Instagram | ~850 student-org accounts (`clubs/instagram.txt`, from CalLink) via Apify; captions parsed for date/time/place | `APIFY_TOKEN` |
 | Mailing lists | IMAP inbox subscribed to listservs | `IMAP_USER`, `IMAP_PASSWORD` |

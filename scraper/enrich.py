@@ -17,7 +17,7 @@ PENINSULA = {
     "palo alto", "stanford", "menlo park", "mountain view", "redwood city", "san mateo",
     "burlingame", "san carlos", "sunnyvale", "santa clara", "san jose", "cupertino",
     "foster city", "south san francisco", "millbrae", "belmont", "los altos", "milpitas",
-    "daly city", "san bruno", "half moon bay",
+    "daly city", "san bruno", "half moon bay", "hillsborough",
 }
 
 LOCAL_SOURCES = {"email", "slack", "feeds", "instagram", "berkeley_calendar"}

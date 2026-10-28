@@ -1,0 +1,178 @@
+{
+ "hackathons": [
+  {
+   "title": "SearchHack: Build the next layer of AI search",
+   "url": "https://searchhack.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Sunnyvale"
+   },
+   "open_state": "upcoming",
+   "submission_period_dates": "Nov 14, 2026",
+   "themes": [
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    },
+    {
+     "id": 25,
+     "name": "Web"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>0</span>",
+   "organization_name": "Telem AI"
+  },
+  {
+   "title": "Ship It: The Product Builders' Hackathon",
+   "url": "https://ship-it-hackathon.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Mixpanel HQ"
+   },
+   "open_state": "upcoming",
+   "submission_period_dates": "Nov 05, 2026",
+   "themes": [
+    {
+     "id": 17,
+     "name": "Low/No Code"
+    },
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>0</span>",
+   "organization_name": "Mixpanel"
+  },
+  {
+   "title": "DeveloperWeek 2027 Hackathon",
+   "url": "https://developerweek-2027-hackathon.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Santa Clara Convention Center + Online"
+   },
+   "open_state": "upcoming",
+   "submission_period_dates": "Jan 25 - Feb 11, 2027",
+   "themes": [
+    {
+     "id": 21,
+     "name": "Enterprise"
+    },
+    {
+     "id": 7,
+     "name": "IoT"
+    },
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>6,000</span>",
+   "organization_name": "DevNetwork"
+  },
+  {
+   "title": "Tech to Treasure Hackathon",
+   "url": "https://techtotreasure.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Tully Community Branch Library"
+   },
+   "open_state": "upcoming",
+   "submission_period_dates": "Mar 03 - 10, 2027",
+   "themes": [
+    {
+     "id": 23,
+     "name": "Beginner Friendly"
+    },
+    {
+     "id": 19,
+     "name": "Education"
+    },
+    {
+     "id": 13,
+     "name": "Social Good"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>450</span>",
+   "organization_name": "bin to better"
+  },
+  {
+   "title": "Haven Richmond",
+   "url": "https://haven-richmond.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Richmond, Virginia, USA"
+   },
+   "open_state": "upcoming",
+   "submission_period_dates": "Nov 14 - 15, 2026",
+   "themes": [
+    {
+     "id": 23,
+     "name": "Beginner Friendly"
+    },
+    {
+     "id": 19,
+     "name": "Education"
+    },
+    {
+     "id": 4,
+     "name": "Gaming"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>500</span>",
+   "organization_name": "HackClub  \u2713\u20dd"
+  },
+  {
+   "title": "Solix AI Hackathon 2026",
+   "url": "https://solix-ai-hackathon-2026.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Qualcomm Institute, UC San Diego"
+   },
+   "open_state": "open",
+   "submission_period_dates": "Oct 26 - 28, 2026",
+   "themes": [
+    {
+     "id": 16,
+     "name": "Health"
+    },
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    },
+    {
+     "id": 13,
+     "name": "Social Good"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>0</span>",
+   "organization_name": "Solix "
+  },
+  {
+   "title": "BISV Hacks 2027",
+   "url": "https://bisv-hacks-2027.devpost.com/",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "BASIS Independent Silicon Valley"
+   },
+   "open_state": "upcoming",
+   "submission_period_dates": "Mar 27, 2027",
+   "themes": [
+    {
+     "id": 23,
+     "name": "Beginner Friendly"
+    },
+    {
+     "id": 22,
+     "name": "Open Ended"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>250</span>",
+   "organization_name": "BASIS Independent Silicon Valley"
+  }
+ ],
+ "meta": {
+  "total_count": 7,
+  "per_page": 40
+ }
+}
