@@ -251,7 +251,7 @@ function icsEscape(s) {
 function downloadIcs(e) {
   const end = e._end || e._start + 2 * 3600e3;
   const ics = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//bearly//berkeley events//EN", "BEGIN:VEVENT",
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Bearly Missed//berkeley events//EN", "BEGIN:VEVENT",
     `UID:${e.id}@bearly`, `DTSTAMP:${icsDate(Date.now())}`,
     `DTSTART:${icsDate(e._start)}`, `DTEND:${icsDate(end)}`,
     `SUMMARY:${icsEscape(e.title)}`,
