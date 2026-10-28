@@ -80,6 +80,17 @@ def test_campus_calendar_drops_gym_hours_and_daily_exhibits():
     assert berkeley_calendar.parse_item(tournament) is not None
 
 
+def test_campus_calendar_drops_away_games_but_keeps_home_games():
+    sports = "Cal Bears Intercollegiate Sports"
+    away = _livewhale(title="California Men’s Tennis vs Jack Kramer Invitational",
+                      group_title=sports, location_title="Palos Verdes, Calif.")
+    home = _livewhale(title="California Men's Basketball vs Adams State",
+                      group_title=sports, location_title="Haas Pavilion")
+
+    assert berkeley_calendar.parse_item(away) is None
+    assert berkeley_calendar.parse_item(home) is not None
+
+
 def test_ics_feed_expands_weekly_club_meeting():
     feed = """BEGIN:VCALENDAR
 VERSION:2.0

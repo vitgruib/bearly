@@ -193,6 +193,7 @@ function card(e) {
   };
   if (e.tags?.includes("Free food")) add("🍕 Free food", "food");
   if (e.free === true) add("Free", "free");
+  if (e.repeats) add(`Repeats · ${e.repeats} dates`);
   e.tags?.filter((t) => t !== "Free food").slice(0, 2).forEach((t) => add(t));
   [e.source, ...(e.also_on || [])].forEach((s) => add(sourceName(s), "src"));
   const img = node.querySelector(".thumb");

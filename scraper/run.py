@@ -6,20 +6,25 @@
 
 import json
 import logging
+import re
 import sys
 import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from . import http
-from .dedupe import dedupe
+from .dedupe import collapse_repeats, dedupe
 from .enrich import REGIONS, TOPICS, enrich
 from .models import Event
 from .registry import SOURCES
 from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
 
 log = logging.getLogger("scraper")
+PACIFIC = ZoneInfo("America/Los_Angeles")
+# "FULL | Bird Walk", "POSTPONED ...", and Google Calendar's free/busy-only "Busy" blocks.
+PLACEHOLDER = re.compile(r"^(?:full|postponed|cancel+ed|sold out)\b|^busy$", re.IGNORECASE)
 
 
 def _run_one(name: str, cfg: dict, ctx: Context) -> tuple[list[Event] | None, str | None]:
@@ -40,11 +45,16 @@ def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
         # Multi-week "events" (programs, exhibits, month-long hackathons) aren't plans.
         if ends < now or e.start > horizon or (ends - e.start) > timedelta(days=12):
             continue
+        if PLACEHOLDER.search(e.title):
+            continue
+        local = e.start.astimezone(PACIFIC)
+        if not e.all_day and local.hour == local.minute == 0 and e.end is None:
+            e.all_day = True  # a date with no time, stored as midnight
         if enriched := enrich(e):
             upcoming.append(enriched)
     merged = dedupe(upcoming)
     merged.sort(key=lambda e: (e.start, e.title))
-    return merged
+    return collapse_repeats(merged)
 
 
 def main(argv: list[str]) -> None:

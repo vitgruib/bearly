@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from scraper.links import event_urls
 from scraper.models import Event
 from scraper.run import build
@@ -70,3 +72,59 @@ def test_event_links_are_pulled_out_of_messages():
 
     assert event_urls(text) == ["https://lu.ma/abc123", "https://partiful.com/e/XyZ",
                                 "https://www.eventbrite.com/e/foo-123"]
+
+
+SIX_PM = NOW + timedelta(days=1)
+
+
+@pytest.mark.parametrize("a, b", [
+    ("Matrix on Point: The State of U.S. Immigration Enforcement",
+     "The State of U.S. Immigration Enforcement"),
+    ("Film Screening: The Human Condition I: No Greater Love", "The Human Condition I: No Greater Love"),
+    ("[SF] AI Dev Night with Microsoft and Elastic", "AI Dev Night with Microsoft and Elastic"),
+    ("Neuro Night", "NeuroNight SF"),
+    ("Defending Our Rights, Fighting For Our Future",
+     "Defending Our Rights, Fighting For Our Future: The ACLU’s Cecillia Wang"),
+    ("California Men’s Basketball vs Adams State - HOME OPENER",
+     "California Men's Basketball vs Adams State - HOME OPENER"),
+])
+def test_same_event_listed_under_two_titles_is_merged(a, b):
+    events = build([ev(a, SIX_PM, source="berkeley_calendar"), ev(b, SIX_PM, source="feeds")],
+                   30, NOW)
+
+    assert len(events) == 1 and events[0].also_on == ["feeds"]
+
+
+@pytest.mark.parametrize("a, b", [
+    ("California Men’s Swimming & Diving vs CSL Wild Card",
+     "California Women’s Swimming & Diving vs CSL Wild Card"),
+    ("PG&E Monitoring Center Tour #1", "PG&E Monitoring Center Tour #2"),
+    ("Advanced Program in Software Development Online Information Session",
+     "Program in Software Development Online Information Session"),
+])
+def test_different_events_at_the_same_time_stay_separate(a, b):
+    assert len(build([ev(a, SIX_PM), ev(b, SIX_PM)], 30, NOW)) == 2
+
+
+def test_full_postponed_and_busy_placeholders_are_dropped():
+    events = build([ev("FULL | Fall Bird Walk"), ev("POSTPONED Women’s Golf vs Hawaii"),
+                    ev("Busy", source="feeds"), ev("Fall Bird Walk")], 30, NOW)
+
+    assert [e.title for e in events] == ["Fall Bird Walk"]
+
+
+def test_midnight_start_with_no_time_is_shown_as_all_day():
+    midnight = datetime(2026, 10, 29, 7, tzinfo=UTC)  # 00:00 Pacific
+
+    [e] = build([ev("Art + Comic Expo", midnight)], 30, NOW)
+
+    assert e.all_day is True
+
+
+def test_a_title_repeating_all_month_is_listed_once_with_its_count():
+    daily = [ev("Technology Help", NOW + timedelta(days=d, hours=2), source="feeds",
+                url="https://lib.test/help") for d in range(1, 6)]
+
+    [e] = build(daily, 30, NOW)
+
+    assert e.start == NOW + timedelta(days=1, hours=2) and e.repeats == 5

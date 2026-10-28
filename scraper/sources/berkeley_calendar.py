@@ -12,6 +12,10 @@ BASE = "https://events.berkeley.edu/live/json/v2/events"
 FIELDS = "location,tags,summary,image,event_types,group_title,cost"
 # Rec Sports publishes gym hours, lap swim and PE class sections as "events".
 REC_KEEP = re.compile(r"tournament|clinic|workshop|festival|\b5k\b|race|fair|night", re.IGNORECASE)
+# Athletics lists away games too; their location is the other school's city.
+HOME_VENUE = re.compile(r"berkeley|haas pavilion|memorial stadium|edwards|evans diamond|spieker|"
+                        r"hearst|witter|levine-fricke|goldman|hellman|kleeberger|underhill",
+                        re.IGNORECASE)
 
 
 def parse_item(it: dict) -> Event | None:
@@ -20,6 +24,9 @@ def parse_item(it: dict) -> Event | None:
     if it.get("is_canceled") or (it.get("is_all_day") and "Exhibits" in types):
         return None
     if it.get("group_title") == "Recreational Sports" and not REC_KEEP.search(it["title"]):
+        return None
+    if (it.get("group_title") == "Cal Bears Intercollegiate Sports"
+            and not HOME_VENUE.search(it.get("location_title") or it.get("location") or "")):
         return None
     start = parse_dt(it["date_iso"])
     cost = str(it.get("cost") or "").lower()

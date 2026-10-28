@@ -26,6 +26,7 @@ class Event:
     tags: list[str] = field(default_factory=list)
     region: str | None = None
     also_on: list[str] = field(default_factory=list)
+    repeats: int | None = None  # this listing recurs; the record is its next occurrence
 
     @property
     def id(self) -> str:
