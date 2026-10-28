@@ -612,8 +612,8 @@ days_back = 14
 [reports]
 # "Missing an event?" on the site. form_url is the Google Form's share link; sheet_csv is its
 # response sheet via File > Share > Publish to web > CSV. Reported links go up automatically.
-form_url = ""
-sheet_csv = ""
+form_url = "https://docs.google.com/forms/d/e/1FAIpQLSdFIr8KpoGHE_QdNr3G5VxwySYmd-CSaygLFWsSWIN_5nVr6Q/viewform"
+sheet_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZmUmfNT7L2r6xr9X0_o0QSENrlbokbbxy70KdnJYw20jqcDyMv62u0RF1PFnE1Ib0zc76ZOjOuTmx/pub?output=csv"
 days_back = 60
 block = []  # event or report URLs that should never be listed
 
