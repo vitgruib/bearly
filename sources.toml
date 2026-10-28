@@ -25,10 +25,11 @@ events = []
 [berkeley_calendar]
 days_ahead = 21
 
-[ics]
-# Public iCal feeds, e.g. a club's Google Calendar ("Public address in iCal format").
-feeds = [
-  # { name = "Example Club", url = "https://calendar.google.com/calendar/ical/.../public/basic.ics" },
+[feeds]
+# One entry per calendar: type = ics | rss | jsonld | tribe | localist.
+# campus = true marks department calendars whose events never mention a city.
+list = [
+  # { name = "Example Club", type = "ics", url = "https://calendar.google.com/calendar/ical/.../public/basic.ics" },
 ]
 
 [email]

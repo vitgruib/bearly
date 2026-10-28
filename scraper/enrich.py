@@ -20,7 +20,7 @@ PENINSULA = {
     "daly city", "san bruno", "half moon bay",
 }
 
-LOCAL_SOURCES = {"email", "slack", "ics", "berkeley_calendar"}
+LOCAL_SOURCES = {"email", "slack", "feeds", "instagram", "berkeley_calendar"}
 
 REGIONS = ["Campus", "Berkeley", "East Bay", "San Francisco", "Peninsula & South Bay",
            "North Bay", "Online"]

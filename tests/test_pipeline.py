@@ -32,7 +32,7 @@ def test_listings_far_away_or_unplaceable_are_dropped():
     events = build([
         ev("Toronto hackathon", city="Toronto", source="cerebral_valley"),
         ev("NYC party", lat=40.75, lng=-73.99),
-        ev("Club meeting", source="ics", city=None),  # club feeds without a city are local
+        ev("Club meeting", source="feeds", city=None),  # club feeds without a city are local
     ], 30, NOW)
 
     assert [e.title for e in events] == ["Club meeting"]

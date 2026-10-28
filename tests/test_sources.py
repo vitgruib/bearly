@@ -6,7 +6,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from scraper.schema_org import events_from_html
-from scraper.sources import berkeley_calendar, eventbrite, ics, luma, partiful
+from scraper.sources import berkeley_calendar, eventbrite, feeds, luma, partiful
 
 FIX = Path(__file__).parent / "fixtures"
 PT = ZoneInfo("America/Los_Angeles")
@@ -95,7 +95,7 @@ END:VCALENDAR
 """
     now = datetime(2026, 10, 27, 12, tzinfo=PT)
 
-    events = ics.parse_feed(feed, "Cal Hiking", days_ahead=15, now=now)
+    events = feeds.parse_ics(feed, "Cal Hiking", days_ahead=15, now=now)
 
     assert [e.start.day for e in events] == [27, 3, 10]
     assert events[0].venue == "Soda 306" and events[0].host == "Cal Hiking"

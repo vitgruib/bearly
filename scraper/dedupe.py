@@ -5,7 +5,7 @@ from .models import Event, dedupe_key
 
 # Platform listings carry structured data; message-derived records are best-effort.
 PRIORITY = {"luma": 0, "partiful": 0, "eventbrite": 1, "cerebral_valley": 1,
-            "berkeley_calendar": 1, "ics": 2, "email": 3, "slack": 3}
+            "berkeley_calendar": 1, "feeds": 2, "instagram": 3, "email": 3, "slack": 3}
 
 
 def _richness(e: Event) -> tuple:
