@@ -123,14 +123,36 @@
   </footer>
 
   <script>
+    const ago = (iso) => {
+      const min = Math.round((Date.now() - Date.parse(iso)) / 60000);
+      if (min < 60) return `${Math.max(min, 1)} min ago`;
+      if (min < 48 * 60) return `${Math.round(min / 60)} h ago`;
+      return `${Math.round(min / 1440)} days ago`;
+    };
+    const every = (h) => h < 24 ? `every ${h} h` : h === 24 ? "daily" : `every ${h / 24} days`;
+    function statusText(s) {
+      const checked = s.last_run ? `checked ${ago(s.last_run)}, ` : "";
+      const feeds = s.warnings ? ` · ${s.warnings} feed${s.warnings > 1 ? "s" : ""} failing` : "";
+      switch (s.health) {
+        case "ok": return `Working · ${checked}updates ${every(s.every_hours)}${feeds}`;
+        case "degraded": return `Fewer events than usual, the site may have changed · ${checked}updates ${every(s.every_hours)}`;
+        case "failing": return `Last check failed, retrying ${every(s.every_hours)} · showing events from ${s.last_ok ? ago(s.last_ok) : "earlier"}`;
+        case "down": return `Down, being fixed · showing events from ${s.last_ok ? ago(s.last_ok) : "earlier"}`;
+        default: return "Not connected yet";
+      }
+    }
     fetch("data/events.json", { cache: "no-cache" }).then((r) => r.json()).then((data) => {
       for (const s of data.sources) {
-        const el = document.querySelector(`.source[data-source="${s.id}"] h3`);
-        if (!el) continue;
+        const card = document.querySelector(`.source[data-source="${s.id}"]`);
+        if (!card) continue;
         const tag = document.createElement("span");
         tag.className = "live";
-        tag.textContent = s.health === "off" ? "not connected yet" : `${s.count.toLocaleString()} upcoming`;
-        el.append(tag);
+        tag.textContent = s.health === "off" ? "" : `${s.count.toLocaleString()} upcoming`;
+        card.querySelector("h3").append(tag);
+        const status = document.createElement("p");
+        status.className = `status ${s.health}`;
+        status.textContent = statusText(s);
+        card.append(status);
       }
       document.getElementById("updated").textContent =
         `${data.events.length.toLocaleString()} upcoming events right now, from the sources below.`;

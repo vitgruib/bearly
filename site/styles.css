@@ -209,6 +209,11 @@ a.wordmark { display: inline-block; text-decoration: none; }
 .source h3 { margin: 0; font-size: 16px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .source p { margin: 4px 0 0; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); }
 .live { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.source .status { margin-top: 8px; font-size: 12.5px; color: var(--muted); display: flex; gap: 7px; align-items: baseline; }
+.status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transform: translateY(-1px); }
+.status.ok::before { background: #2f9e5b; }
+.status.degraded::before, .status.failing::before { background: var(--gold); }
+.status.down::before { background: #d64545; }
 
 @media (max-width: 600px) {
   /* Four rows of filters would eat half a phone screen if they stayed pinned. */

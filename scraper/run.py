@@ -121,7 +121,10 @@ def main(argv: list[str]) -> None:
         "generated_at": now.isoformat(timespec="seconds"),
         "report_url": config.get("reports", {}).get("form_url") or None,
         "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
-                     "last_ok": state.source(n).get("last_ok"), **statuses[n]}
+                     "last_ok": state.source(n).get("last_ok"),
+                     "last_run": state.source(n).get("last_run"),
+                     "every_hours": config.get(n, {}).get("every_hours", SOURCES[n].every_hours),
+                     "warnings": len(state.source(n).get("warnings", [])), **statuses[n]}
                     for n in enabled],
         "regions": REGIONS,
         "topics": list(TOPICS),
