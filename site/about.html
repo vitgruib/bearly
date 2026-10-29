@@ -219,7 +219,7 @@
       document.getElementById("updated").textContent =
         `${data.events.length.toLocaleString()} upcoming events right now. Tap a source to see how it's read.`;
       if (data.forms?.form) {
-        document.getElementById("form").href = data.forms.form;
+        for (const a of document.querySelectorAll("#form, .report-link")) a.href = data.forms.form;
         document.getElementById("form-item").hidden = false;
       }
       if (data.contributed?.length) {
