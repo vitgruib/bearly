@@ -3,10 +3,12 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from scraper import contribute
-from scraper.contribute import Rejected, hide_event, normalize, parse_issue, save_source
+from scraper import contribute, links
+from scraper.contribute import Rejected, hide_event, normalize, parse_issue, save_event, save_source
 from scraper.models import Event
 from scraper.run import build, hidden_ids, load_config
+from scraper.sources import reports
+from scraper.state import Context
 
 FORM = """### Club or calendar name
 
@@ -97,19 +99,18 @@ def test_hidden_events_are_dropped_from_the_published_list():
     assert [e.title for e in build([keep, spam], 30, now, hidden={spam.id})] == ["Study night"]
 
 
-SOURCE_SHEET = """Timestamp,Club or calendar name,Calendar link,Where are the events?,Anything else?
-10/29/2026 9:00:00,Cal Hiking Club,https://luma.com/calhiking,On or near campus,
-10/29/2026 9:05:00,Already filed,https://luma.com/filed,On or near campus,
-10/29/2026 9:10:00,@everyone spam,https://spam.test/cal.ics,Mostly online,ping @maintainer
-"""
-REPORT_SHEET = """Timestamp,Event,What's wrong?,Anything else?
-10/29/2026 9:20:00,Fake party (Oct 30) [0123456789ab],Spam or not a real event,
+SHEET = """Timestamp,What's this about?,Event link,No link? Where was it posted?,Club or calendar name,Calendar link,Where are the events?,Event,What's wrong?,Details,Your feedback
+10/29/2026 9:00:00,Add a club's calendar,,,Cal Hiking Club,https://luma.com/calhiking,On or near campus,,,,
+10/29/2026 9:05:00,Add an event,https://luma.com/abc123,,,,,,,,
+10/29/2026 9:10:00,Report an event,,,,,,Fake party (Oct 30) [0123456789ab],Spam or not a real event,ping @maintainer,
+10/29/2026 9:15:00,Send feedback,,,,,,,,,The map filter is great
+10/29/2026 9:20:00,Add an event,,,,,,,,,
 """
 
 
 class FakeGitHub:
     def __init__(self, existing):
-        self.existing, self.created, self.comments = existing, [], []
+        self.existing, self.created, self.after = existing, [], []
 
     def __call__(self, *args):
         if args[:2] == ("issue", "list"):
@@ -118,29 +119,61 @@ class FakeGitHub:
             opts = dict(zip(args[2::2], args[3::2], strict=False))
             self.created.append(opts)
             return f"https://github.com/o/r/issues/{len(self.created) + 40}\n"
-        self.comments.append(args)
+        self.after.append(args[:3])
         return ""
 
 
-def test_form_responses_become_issues_once(monkeypatch):
-    sheets = {"src.csv": SOURCE_SHEET, "rep.csv": REPORT_SHEET}
-    monkeypatch.setattr(contribute, "get_text", lambda url: sheets[url])
-    monkeypatch.setattr(contribute, "check", lambda fields, config: (None, "bot says hi"))
-    gh = FakeGitHub([{"title": "Add source: x", "body": "https://luma.com/filed"}])
-    config = {"community": {"source_sheet_csv": "src.csv", "report_sheet_csv": "rep.csv"}}
+def test_each_kind_of_form_response_becomes_its_issue_once(monkeypatch):
+    monkeypatch.setattr(contribute, "get_text", lambda url: SHEET)
+    monkeypatch.setattr(contribute, "check", lambda fields, config: (None, "source check"))
+    monkeypatch.setattr(contribute, "check_event", lambda fields, config: (None, "listed", True))
+    gh = FakeGitHub([])
+    config = {"community": {"sheet_csv": "sheet.csv"}}
 
     contribute.from_forms(config, gh)
 
-    titles = [c["--title"] for c in gh.created]
-    assert titles == ["Add source: Cal Hiking Club", "Add source: @\u200beveryone spam",
-                      "Report: Fake party (Oct 30) [0123456789ab]"]
-    first = parse_issue(gh.created[0]["--body"])
-    assert first["calendar link"] == "https://luma.com/calhiking"
-    assert "@maintainer" not in gh.created[1]["--body"]  # form text can't notify anyone
-    assert [c["--label"] for c in gh.created] == ["new-source", "new-source", "report"]
-    assert ("issue", "comment", "41", "--body", "bot says hi") in gh.comments
+    assert [(c["--label"], c["--title"]) for c in gh.created] == [
+        ("new-source", "Add source: Cal Hiking Club"),
+        ("new-event", "Add event: https://luma.com/abc123"),
+        ("report", "Report: Fake party (Oct 30) [0123456789ab]"),
+        ("feedback", "Feedback: The map filter is great"),
+    ]  # the empty "Add an event" row files nothing
+    assert parse_issue(gh.created[0]["--body"])["calendar link"] == "https://luma.com/calhiking"
+    assert "@maintainer" not in gh.created[2]["--body"]  # form text can't notify anyone
+    # the source gets the bot's comment; the already-listed event is closed with it
+    assert gh.after == [("issue", "comment", "41"), ("issue", "close", "42")]
 
-    gh.existing += [{"title": c["--title"], "body": c["--body"]} for c in gh.created]
+    gh.existing = [{"title": c["--title"], "body": c["--body"]} for c in gh.created]
     gh.created.clear()
     contribute.from_forms(config, gh)
-    assert gh.created == []  # a row already turned into an issue is skipped next run
+    assert gh.created == []
+
+
+def test_an_event_the_site_already_lists_is_closed_without_fetching(monkeypatch):
+    monkeypatch.setattr(contribute, "get_json", lambda url: {"events": [
+        {"title": "AI x Bio night", "url": "https://luma.com/other",
+         "listings": [{"source": "luma", "url": "https://luma.com/abc123"}]}]})
+    link, comment, close = contribute.check_event({"event link": "https://luma.com/abc123?tk=1"},
+                                                  {"repo": "o/r"})
+    assert (link, close) == (None, True)
+    assert "Already listed" in comment
+
+
+def test_an_approved_event_is_read_by_the_reports_source(tmp_path, monkeypatch):
+    (tmp_path / "sources.toml").write_text("")
+    save_event("https://luma.com/abc123", "someone", 7, tmp_path)
+    with pytest.raises(Rejected, match="already"):
+        save_event("https://luma.com/abc123/", "other", 8, tmp_path)
+    resolved = []
+    monkeypatch.setattr(links, "resolve", lambda url, source: resolved.append(url) or [])
+
+    config = load_config(tmp_path)
+    reports.fetch(config["reports"], Context({}, datetime(2026, 10, 29, tzinfo=UTC)))
+
+    assert resolved == ["https://luma.com/abc123"]
+    assert "contributed" not in config  # the events file isn't mistaken for a source
+
+
+def test_an_event_with_no_link_cannot_be_approved():
+    with pytest.raises(Rejected, match="no event link"):
+        contribute.event_link({"event link": "", "no link? where was it posted?": "@calclub on Instagram"})

@@ -1,18 +1,21 @@
-"""Community sources and event reports, run from GitHub issues by .github/workflows/community.yml.
+"""Community sources, events and reports, run from GitHub issues by .github/workflows/community.yml.
 
-Anyone can open an "Add a source" issue with a calendar link. The bot works out which kind of
-feed it is, fetches it once, and comments with the events it found. When the maintainer adds the
-`approved` label, the source is saved as contributed/<slug>.toml and the next scrape lists it.
-Only feed types the scraper already parses are accepted, so a contribution is data, never code.
-A "Report an event" issue that gets `approved` hides that event (moderation.toml).
+Nothing a stranger sends goes up until the maintainer adds the `approved` label:
+- "Add a source" (new-source): the bot works out which kind of feed the link is, fetches it
+  once and comments with the events it found. Approved, it's saved as contributed/<slug>.toml.
+  Only feed types the scraper already parses are accepted, so a contribution is data, never code.
+- "Add an event" (new-event): the bot fetches the event and comments with a preview, or closes
+  the issue when the site already lists it. Approved, its link goes in contributed/events.toml
+  and the reports source re-reads it every run.
+- "Report an event" (report): approved, that event is hidden (moderation.toml).
 
-    python -m scraper.contribute check     # comment on a new or edited source issue
-    python -m scraper.contribute approve   # save the approved source, or hide the reported event
+    python -m scraper.contribute check     # comment on a new or edited source or event issue
+    python -m scraper.contribute approve   # save the source or event, or hide the reported event
     python -m scraper.contribute forms     # turn new Google Form responses into those issues
 
-The Google Forms are the no-account path. Forms can't trigger GitHub, so a scheduled job reads
-each form's published response sheet and files new rows as the same issues, with the bot's
-check as a comment; approving them works the same way.
+The Google Form is the no-account path: one form for all of the above plus feedback. Forms can't
+trigger GitHub, so a scheduled job reads its published response sheet and files new rows as
+the same issues, with the bot's check as a comment.
 
 The issue comes in through ISSUE_TITLE, ISSUE_BODY, ISSUE_NUMBER, ISSUE_AUTHOR and ISSUE_LABELS; the comment
 to post is written to COMMENT_FILE.
@@ -35,8 +38,9 @@ from urllib.parse import parse_qs, quote, unquote, urljoin, urlsplit
 
 import httpx
 
+from . import links
 from .http import get_json, get_text
-from .run import build, load_config
+from .run import EVENTS_FILE, build, load_config
 from .schema_org import events_from_html
 from .sources import feeds, luma
 from .state import ROOT, now_utc
@@ -191,12 +195,81 @@ def save_source(source: dict, author: str, issue: int, root: Path = ROOT) -> Pat
     folder = root / "contributed"
     folder.mkdir(exist_ok=True)
     path = folder / f"{_slug(source['name'])}.toml"
-    if path.exists():
+    if path.exists() or path.name == EVENTS_FILE:
         path = folder / f"{_slug(source['name'])}-{issue}.toml"
     fields = {**source, "added_by": author, "issue": issue}
     path.write_text("".join(f"{k} = {json.dumps(v)}\n" for k, v in fields.items()))
     tomllib.loads(path.read_text())  # json strings, ints and bools are valid TOML; make sure
     return path
+
+
+def _key(url: str) -> str:
+    return url.split("?")[0].split("#")[0].rstrip("/").lower()
+
+
+def _published(config: dict) -> dict[str, str]:
+    """Every link the live site lists, mapped to that event's title."""
+    owner, name = config["repo"].split("/")
+    data = get_json(f"https://{owner}.github.io/{name}/data/events.json")
+    return {_key(u): e["title"] for e in data["events"]
+            for u in [e["url"], *(x["url"] for x in e.get("listings", []))] if u}
+
+
+def event_link(fields: dict[str, str]) -> str:
+    link = fields.get("event link", "").strip().strip("<>")
+    if not link:
+        raise Rejected("There's no event link to add. Add the event's page to the issue, or add "
+                       "the club's calendar instead.")
+    parts = urlsplit(link)
+    if parts.scheme not in ("http", "https") or not parts.hostname:
+        raise Rejected("That doesn't look like a web link. Paste the full address, starting with https://")
+    if _private(parts.hostname):
+        raise Rejected("That address isn't on the public web.")
+    return link
+
+
+def check_event(fields: dict[str, str], config: dict) -> tuple[str | None, str, bool]:
+    """(link to save or None, the bot's comment, whether the issue can be closed)."""
+    if not fields.get("event link") and fields.get("no link? where was it posted?"):
+        return None, ("**No link,** so a maintainer will look at where it was posted. If it's a "
+                      "club that posts often, its calendar may be added instead."), False
+    try:
+        link = event_link(fields)
+        if title := _published(config).get(_key(link)):
+            return None, f"**Already listed** as {_code(title)}. Thanks!", True
+        found = links.resolve(link, "reports")
+    except Rejected as exc:
+        return None, f"**Can't add this yet.** {exc}\n\nEdit the issue to fix it and I'll check again.", False
+    except (httpx.HTTPError, ValueError, KeyError) as exc:
+        return None, (f"**Couldn't read that page** ({type(exc).__name__}). Edit the issue with a "
+                      "public link and I'll try again."), False
+    if not found:
+        return None, ("**Couldn't find an event on that page.** Links that work: Luma, Partiful, "
+                      "Eventbrite, Meetup, or any page that lists its date in a standard format. "
+                      "Edit the issue to fix it and I'll check again."), False
+    if len(found) > 1:
+        return None, (f"**That's a calendar** with {len(found)} events. To add all of them, use "
+                      "Add a source instead."), False
+    listed = build(found, 30, now_utc())
+    e = found[0]
+    where = "Online" if e.online else e.venue or e.address or e.city or "no place given"
+    lines = [f"**Found it:** {_code(e.title)}, {e.start.strftime('%a %b %-d, %-I:%M %p')} UTC, {_code(where)}."]
+    if not listed:
+        lines.append("\nThe site wouldn't list it: it's past, more than 30 days out, or outside "
+                     "the Bay Area.")
+    lines.append("\nA maintainer will review it. Adding the `approved` label puts it on the site.")
+    return link, "\n".join(lines), False
+
+
+def save_event(link: str, author: str, issue: int, root: Path = ROOT) -> None:
+    path = root / "contributed" / EVENTS_FILE
+    saved = tomllib.loads(path.read_text()).get("events", []) if path.exists() else []
+    if any(_key(e["url"]) == _key(link) for e in saved):
+        raise Rejected("This event was already added.")
+    path.parent.mkdir(exist_ok=True)
+    entry = {"url": link, "by": author, "issue": issue}
+    with path.open("a") as f:
+        f.write("\n[[events]]\n" + "".join(f"{k} = {json.dumps(v)}\n" for k, v in entry.items()))
 
 
 def hide_event(issue_title: str, reason: str, issue: int, root: Path = ROOT) -> None:
@@ -222,15 +295,11 @@ def _quiet(s: str, limit: int = 500) -> str:
 
 
 def _rows(sheet_csv: str | None) -> list[dict[str, str]]:
-    """Response rows keyed by lowercased question, so the forms' wording can change a bit."""
+    """Response rows keyed by lowercased question title."""
     if not sheet_csv:
         return []
-    return [{k.strip().lower(): v for k, v in row.items() if k}
+    return [{k.strip().lower(): (v or "").strip() for k, v in row.items() if k}
             for row in csv.DictReader(io.StringIO(get_text(sheet_csv)))]
-
-
-def _answer(row: dict[str, str], word: str) -> str:
-    return next((v.strip() for k, v in row.items() if word in k), "")
 
 
 def _form_body(fields: dict[str, str], stamp: str) -> str:
@@ -239,35 +308,55 @@ def _form_body(fields: dict[str, str], stamp: str) -> str:
     return f"{answers}_Sent through the Google Form ({stamp})._"
 
 
+def _form_issue(row: dict[str, str]) -> tuple[str, str, dict[str, str]] | None:
+    """A response row -> (issue title, label, answers), or None for a row with nothing in it."""
+    kind = row.get("what's this about?", "")
+    if kind == "Add an event":
+        fields = {"Event link": row.get("event link", ""),
+                  "No link? Where was it posted?": row.get("no link? where was it posted?", "")}
+        if not any(fields.values()):
+            return None
+        title = fields["Event link"] or fields["No link? Where was it posted?"]
+        return f"Add event: {_quiet(title, 80)}", "new-event", fields
+    if kind == "Add a club's calendar":
+        fields = {"Club or calendar name": row.get("club or calendar name", ""),
+                  "Calendar link": row.get("calendar link", ""),
+                  "Where are the events?": row.get("where are the events?", "")}
+        if not fields["Calendar link"]:
+            return None
+        return f"Add source: {_quiet(fields['Club or calendar name'], 80)}", "new-source", fields
+    if kind == "Report an event":
+        if not (event := row.get("event", "")):
+            return None
+        fields = {"What's wrong?": row.get("what's wrong?", ""), "Details": row.get("details", "")}
+        return f"Report: {_quiet(event, 150)}", "report", fields
+    if kind == "Send feedback":
+        if not (text := row.get("your feedback", "")):
+            return None
+        return f"Feedback: {_quiet(text, 60)}", "feedback", {"Your feedback": text}
+    return None
+
+
 def from_forms(config: dict, gh=_gh) -> None:
-    c = config.get("community", {})
     issues = json.loads(gh("issue", "list", "--state", "all", "--limit", "1000",
                            "--json", "title,body"))
-    filed = "\n".join(f"{i['title']}\n{i['body']}" for i in issues)
+    filed = "\n".join(i["body"] for i in issues)
     made = 0
-    for row in _rows(c.get("source_sheet_csv")):
-        link = _answer(row, "link")
-        if not link or link in filed or made >= FORM_BATCH:
+    for row in _rows(config.get("community", {}).get("sheet_csv")):
+        stamp = row.get("timestamp", "")
+        if made >= FORM_BATCH or f"Google Form ({stamp})" in filed or not (issue := _form_issue(row)):
             continue
-        fields = {"Club or calendar name": _answer(row, "name"), "Calendar link": link,
-                  "Where are the events?": _answer(row, "where"),
-                  "Anything else?": _answer(row, "anything")}
-        body = _form_body(fields, row.get("timestamp", ""))
-        url = gh("issue", "create", "--title", f"Add source: {_quiet(fields['Club or calendar name'], 80)}",
-                 "--label", "new-source", "--body", body)
-        _, comment = check(parse_issue(body), config)
-        gh("issue", "comment", url.strip().rsplit("/", 1)[1], "--body", comment)
-        filed += "\n" + link
-        made += 1
-    for row in _rows(c.get("report_sheet_csv")):
-        stamp, event = row.get("timestamp", ""), _answer(row, "event")
-        body = _form_body({"What's wrong?": _answer(row, "wrong"),
-                           "Anything else?": _answer(row, "anything")}, stamp)
-        if not event or (f"({stamp})" in filed and event in filed) or made >= FORM_BATCH:
-            continue
-        gh("issue", "create", "--title", f"Report: {_quiet(event, 150)}", "--label", "report",
-           "--body", body)
-        filed += f"\n{event}\n({stamp})"
+        title, label, fields = issue
+        body = _form_body(fields, stamp)
+        url = gh("issue", "create", "--title", title, "--label", label, "--body", body)
+        number = url.strip().rsplit("/", 1)[1]
+        if label == "new-source":
+            _, comment = check(parse_issue(body), config)
+            gh("issue", "comment", number, "--body", comment)
+        elif label == "new-event":
+            _, comment, close = check_event(parse_issue(body), config)
+            gh("issue", "close" if close else "comment", number, "--comment" if close else "--body", comment)
+        filed += "\n" + body
         made += 1
 
 
@@ -285,11 +374,23 @@ def main(command: str) -> int:
             comment.write_text("Thanks for the report. This event is now hidden from the site; "
                                "it disappears on the next update.")
             return 0
+        author = os.environ.get("ISSUE_AUTHOR", "")
+        # Form submissions are filed by the bot; the person who sent them is anonymous.
+        author = "" if author.endswith("[bot]") else author
+        if "new-event" in labels and command == "approve":
+            save_event(event_link(fields), author, issue)
+            comment.write_text("Added. It shows up on the site within a few minutes. Thanks!")
+            return 0
+        if "new-event" in labels:
+            _, text, close = check_event(fields, load_config())
+            if close and (out := os.environ.get("GITHUB_OUTPUT")):
+                with open(out, "a") as f:
+                    f.write("close=true\n")
+            comment.write_text(text)
+            return 0
         source, text = check(fields, load_config())
         if command == "approve" and source:
-            author = os.environ.get("ISSUE_AUTHOR", "")
-            # Form submissions are filed by the bot; the person who sent them is anonymous.
-            path = save_source(source, "" if author.endswith("[bot]") else author, issue)
+            path = save_source(source, author, issue)
             text = (f"Added as `{path.relative_to(ROOT)}`. Its events show up on the site within a "
                     "few minutes. Thanks for contributing!")
         comment.write_text(text)

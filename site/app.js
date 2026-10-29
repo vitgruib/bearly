@@ -189,6 +189,9 @@ function toggle(set, v) {
 
 /* ---------- List ---------- */
 
+// The form when it's set up (no account needed), otherwise the GitHub issue.
+const addEvent = () => data.forms?.form
+  || (data.repo ? `https://github.com/${data.repo}/issues/new?template=add-event.yml` : null);
 const sourceName = (id) => data.sources.find((s) => s.id === id)?.name || id;
 
 function dayLabel(key) {
@@ -253,8 +256,8 @@ function card(e) {
     // fields but keeps the title, so on GitHub the id rides there.
     const label = `${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]`;
     const q = new URLSearchParams({ template: "report-event.yml", title: `Report: ${label}` });
-    flag.href = data.forms?.report_form
-      ? data.forms.report_form.replace("EVENT", encodeURIComponent(label))
+    flag.href = data.forms?.report_prefill
+      ? data.forms.report_prefill.replace("EVENT", encodeURIComponent(label))
       : `https://github.com/${data.repo}/issues/new?${q}`;
     flag.hidden = false;
   }
@@ -295,7 +298,7 @@ function update() {
   rendered = 0;
   lastDay = null;
   if (!filtered.length) {
-    $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.${data.report_url ? ` Know of one we missed? <a href="${data.report_url}" target="_blank" rel="noopener">Tell us</a>.` : ""}</div>`;
+    $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.${addEvent() ? ` Know of one we missed? <a href="${addEvent()}" target="_blank" rel="noopener">Add it</a>.` : ""}</div>`;
     return;
   }
   renderMore();
@@ -377,8 +380,8 @@ async function boot() {
   const notes = data.sources.filter((s) => s.health !== "ok" && !(s.health === "off" && s.count)).map((s) =>
     `${s.name} (${s.health === "off" ? "not connected" : `having trouble; showing results from ${s.last_ok ? relTime(s.last_ok) : "earlier"}`})`);
   $("#status").textContent = notes.length ? `Also: ${notes.join(", ")}.` : "";
-  if (data.report_url) {
-    $("#report a").href = data.report_url;
+  if (addEvent()) {
+    $("#report a").href = addEvent();
     $("#report").hidden = false;
   }
   if (data.repo) $("#report .add-source").hidden = false;

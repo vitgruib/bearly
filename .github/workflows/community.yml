@@ -1,9 +1,10 @@
 name: Community sources and reports
 
-# "Add a source" and "Report an event" issues (.github/ISSUE_TEMPLATE). A new or edited source
-# issue gets a bot comment with what the calendar contains; the maintainer's `approved` label
-# saves the source (contributed/) or hides the event (moderation.toml), commits it, and starts a
-# scrape. Only people with triage access can add labels, so approval stays with maintainers.
+# "Add a source", "Add an event" and "Report an event" issues (.github/ISSUE_TEMPLATE). A new or
+# edited source or event issue gets a bot comment with what the link contains (an event the
+# site already lists is closed); the maintainer's `approved` label saves the source or event
+# (contributed/) or hides the reported event (moderation.toml), commits it, and starts a scrape.
+# Only people with triage access can add labels, so approval stays with maintainers.
 # Google Form responses (the no-account path) are filed as the same issues every 30 minutes.
 # Issue text is untrusted: it reaches scraper.contribute only through env vars.
 on:
@@ -40,7 +41,8 @@ jobs:
   check:
     if: >-
       github.event_name == 'issues' && github.event.action != 'labeled' && github.event.issue.state == 'open' &&
-      contains(github.event.issue.labels.*.name, 'new-source')
+      (contains(github.event.issue.labels.*.name, 'new-source') ||
+       contains(github.event.issue.labels.*.name, 'new-event'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -52,21 +54,29 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen --no-dev
-      - name: Fetch the calendar
+      - name: Fetch the link
+        id: check
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
           COMMENT_FILE: ${{ runner.temp }}/comment.md
         run: uv run python -m scraper.contribute check || true
       - name: Reply
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh issue comment ${{ github.event.issue.number }} --body-file "$RUNNER_TEMP/comment.md"
+      - name: Close an event the site already lists
+        if: steps.check.outputs.close == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue close ${{ github.event.issue.number }}
 
   approve:
     if: >-
       github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'approved' &&
       (contains(github.event.issue.labels.*.name, 'new-source') ||
+       contains(github.event.issue.labels.*.name, 'new-event') ||
        contains(github.event.issue.labels.*.name, 'report'))
     runs-on: ubuntu-latest
     timeout-minutes: 10

@@ -40,10 +40,18 @@ def _run_one(name: str, cfg: dict, ctx: Context) -> tuple[list[Event] | None, st
         return None, f"{type(exc).__name__}: {exc}"
 
 
+EVENTS_FILE = "events.toml"  # approved single events, in contributed/ beside the sources
+
+
 def load_config(root: Path = ROOT) -> dict:
-    """sources.toml plus every community source in contributed/ (see contribute.py)."""
+    """sources.toml plus every community source and event in contributed/ (see contribute.py)."""
     config = tomllib.loads((root / "sources.toml").read_text())
+    events = root / "contributed" / EVENTS_FILE
+    if events.exists():
+        config.setdefault("reports", {})["events"] = tomllib.loads(events.read_text()).get("events", [])
     for path in sorted((root / "contributed").glob("*.toml")):
+        if path.name == EVENTS_FILE:
+            continue
         feed = tomllib.loads(path.read_text())
         config.setdefault("contributed", []).append({"name": feed["name"], "by": feed.get("added_by")})
         if feed["type"] == "luma":
@@ -151,10 +159,9 @@ def main(argv: list[str]) -> None:
     state.save()
     EVENTS.write_text(json.dumps({
         "generated_at": now.isoformat(timespec="seconds"),
-        "report_url": config.get("reports", {}).get("form_url") or None,
         "repo": config.get("repo"),
         "contributed": config.get("contributed", []),
-        "forms": {k: config.get("community", {}).get(k) or None for k in ("source_form", "report_form")},
+        "forms": {k: config.get("community", {}).get(k) or None for k in ("form", "report_prefill")},
         "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
                      "last_ok": state.source(n).get("last_ok"),
                      "last_run": state.source(n).get("last_run"),

@@ -21,7 +21,7 @@ Live: https://vitgruib.github.io/bearly/
 | Partiful | Bay Area "trending" on `/explore`, plus any `partiful.com/e/…` link seen elsewhere | nothing |
 | Instagram | ~850 student-org accounts (`clubs/instagram.txt`, from CalLink) via Apify; captions parsed for date/time/place | `APIFY_TOKEN` |
 | Mailing lists | IMAP inbox subscribed to listservs | `IMAP_USER`, `IMAP_PASSWORD` |
-| Student reports | "Missing an event?" Google Form on the site; any event link in a report goes up on the next run | `[reports]` URLs in `sources.toml` |
+| Added by students | single events sent through the form or an "Add an event" issue, once a maintainer approves them (`contributed/events.toml`) | nothing |
 | Slack | channels the bot is in, across any number of workspaces | `SLACK_TOKENS` |
 
 Emails, Slack posts, RSS items and Instagram captions go through two passes, both free.
@@ -89,23 +89,26 @@ its secret skips itself quietly.
 
 ## Adding a source
 
-Anyone, no code: open an [Add a source](https://github.com/vitgruib/bearly/issues/new?template=add-source.yml)
-issue with a calendar link. `.github/workflows/community.yml` runs `scraper/contribute.py`,
-which recognizes the feed (Google Calendar share links become their iCal address; Luma,
-.ics, RSS, WordPress, Localist and schema.org pages are detected), fetches it once and
-replies with the events it found. Adding the `approved` label saves it as
-`contributed/<name>.toml`, commits it and starts a scrape. Only feed types the scraper
-already parses are accepted, and only people with triage access can add labels, so
-nothing a stranger submits runs as code or goes up without a maintainer.
+Anyone, no code, and nothing goes up until a maintainer adds the `approved` label:
 
-No GitHub account? The same two flows run from Google Forms (`[community]` in
-`sources.toml`). Forms can't trigger GitHub, so every 30 minutes the workflow reads each
-form's published response sheet and files new rows as the same issues, with the bot's
-check as a comment. The submitter gets no reply, which is why the site calls GitHub the
-fast path.
+- [Add a source](https://github.com/vitgruib/bearly/issues/new?template=add-source.yml): a
+  calendar link. `.github/workflows/community.yml` runs `scraper/contribute.py`, which
+  recognizes the feed (Google Calendar share links become their iCal address; Luma, .ics, RSS,
+  WordPress, Localist and schema.org pages are detected), fetches it once and replies with the
+  events it found. Approved, it's saved as `contributed/<name>.toml`, committed, and a scrape
+  starts. Only feed types the scraper already parses are accepted, so nothing a stranger
+  submits runs as code.
+- [Add an event](https://github.com/vitgruib/bearly/issues/new?template=add-event.yml): one
+  event link. The bot replies with a preview, or closes the issue if the site already lists it.
+  Approved, the link goes in `contributed/events.toml` and is re-read every run.
+- **Report**: each event's Report link opens a prefilled issue. Approved, the event's id goes in
+  `moderation.toml`, which hides it from then on.
 
-Reports work the same way: each event's **Report** link opens a prefilled issue, and
-`approved` adds the event's id to `moderation.toml`, which hides it from then on.
+No GitHub account? One Google Form (`[community]` in `sources.toml`) covers all three plus
+feedback. Forms can't trigger GitHub, so every 30 minutes the workflow reads the form's
+published response sheet and files new rows as the same issues (feedback gets a `feedback`
+label), with the bot's check as a comment. The submitter gets no reply, which is why the site
+calls GitHub the fast path.
 
 By hand: add a `[[feeds.list]]` entry, or a Luma slug under
 `[luma] calendars`, or an Instagram handle to `clubs/instagram.txt`.

@@ -1,0 +1,20 @@
+name: Add an event
+description: Add one event the site is missing.
+title: "Add event: "
+labels: [new-event]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A bot fetches the link and replies with what it found. A maintainer then approves it.
+        If the club posts events often, [add its calendar](https://github.com/vitgruib/bearly/issues/new?template=add-source.yml) instead.
+  - type: input
+    id: link
+    attributes:
+      label: Event link
+      placeholder: https://luma.com/abc123
+  - type: textarea
+    id: where
+    attributes:
+      label: No link? Where was it posted?
+      description: An Instagram account, a mailing list, a flyer...
