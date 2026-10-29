@@ -48,6 +48,8 @@ jobs:
           for f in events.json state.json; do
             curl -fsSL "${{ steps.pages.outputs.base_url }}/data/$f" -o "site/data/$f" || echo "no previous $f"
           done
+          # Kept aside so the smoke test can tell a scraper collapse from a quiet week.
+          cp site/data/events.json "$RUNNER_TEMP/prev-events.json" || true
       - uses: actions/cache@v4
         with:
           path: .cache
@@ -69,6 +71,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: uv run python -m scraper.alerts
+
+      # Nothing below deploys unless the built site works in a real browser; on failure the
+      # last good site stays up and the run goes red.
+      - name: Version asset URLs
+        run: uv run python -m scraper.stamp
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('uv.lock') }}
+      - name: Install browser
+        run: uv run playwright install --with-deps chromium
+      - name: Smoke test the site
+        run: uv run python -m scraper.smoke "$RUNNER_TEMP/prev-events.json"
 
       - uses: actions/upload-pages-artifact@v3
         with:

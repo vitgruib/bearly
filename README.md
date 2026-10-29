@@ -52,6 +52,11 @@ platform listing wins, and the card shows every source it came from.
 - **Cost cap.** Instagram is the only paid source. It reads accounts in rotating slices,
   asks only for posts since that slice was last read, and stops for the month at
   `monthly_budget_usd` (Apify also enforces a per-run cap server-side).
+- **Nothing broken ships.** Before every deploy, `scraper/smoke.py` loads both pages in
+  headless Chromium at desktop and phone width: no uncaught errors, events and every filter
+  row render, filters respond, no sideways scroll, and the event count hasn't fallen below
+  half the last published one. A failure skips the deploy and the last good site stays up.
+  `scraper/stamp.py` versions asset URLs by content hash so no browser mixes old and new files.
 - **Keepalive.** GitHub disables cron workflows after 60 days without commits; the
   workflow re-enables itself every run.
 
@@ -63,6 +68,7 @@ uv run python -m scraper.run              # every source that is due
 uv run python -m scraper.run luma feeds   # force just these; the rest keep last results
 python3 -m http.server -d site 8000       # open http://localhost:8000
 uv run pytest
+uv run playwright install chromium && uv run python -m scraper.smoke   # what CI runs before deploying
 ```
 
 ## Secrets

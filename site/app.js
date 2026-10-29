@@ -197,7 +197,7 @@ function card(e) {
   if (e.free === true) add("Free", "free");
   if (e.repeats) add(`Repeats · ${e.repeats} dates`);
   e.tags?.filter((t) => t !== "Free food").slice(0, 2).forEach((t) => add(t));
-  [e.source, ...(e.also_on || [])].forEach((s) => add(sourceName(s), "src"));
+  new Set([e.source, ...(e.also_on || [])]).forEach((s) => add(sourceName(s), "src"));
   const img = node.querySelector(".thumb");
   if (e.image) img.src = e.image; else img.remove();
   img.onerror = () => img.remove();
@@ -219,7 +219,12 @@ function renderMore() {
       h.innerHTML = `<h2>${big}</h2><span>${small} · ${n} event${n === 1 ? "" : "s"}</span>`;
       frag.append(h);
     }
-    frag.append(card(e));
+    // One malformed event from a scraper must not take the rest of the list down with it.
+    try {
+      frag.append(card(e));
+    } catch (err) {
+      console.warn("skipped event", e.id, err);
+    }
   }
   rendered += PAGE;
   list.append(frag);
@@ -291,8 +296,17 @@ async function boot() {
     update();
   };
 
-  const res = await fetch("data/events.json", { cache: "no-cache" });
-  data = await res.json();
+  try {
+    const res = await fetch("data/events.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error(`events.json: HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.error(err);
+    $("#list").innerHTML = `<div class="empty"><strong>Couldn't load events.</strong>Check your connection and refresh the page.</div>`;
+    return;
+  }
+  // The data comes from scrapers: drop anything the page can't place on a calendar.
+  data.events = data.events.filter((e) => e.title && Number.isFinite(Date.parse(e.start)));
   for (const e of data.events) {
     e._start = Date.parse(e.start);
     e._end = e.end ? Date.parse(e.end) : null;
