@@ -204,8 +204,9 @@ function card(e) {
   node.querySelector(".ical").onclick = () => downloadIcs(e);
   if (data.repo) {
     const flag = node.querySelector(".flag");
-    const q = new URLSearchParams({ template: "report-event.yml", title: `Report: ${e.title}`,
-      event: `${e.title} (${fmtDate.format(new Date(e._start))}) ${e.url || ""}`.trim(), "event-id": e.id });
+    // GitHub's issue page drops prefilled form fields but keeps the title, so the id rides there.
+    const q = new URLSearchParams({ template: "report-event.yml",
+      title: `Report: ${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]` });
     flag.href = `https://github.com/${data.repo}/issues/new?${q}`;
     flag.hidden = false;
   }

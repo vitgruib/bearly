@@ -9,7 +9,7 @@ A "Report an event" issue that gets `approved` hides that event (moderation.toml
     python -m scraper.contribute check     # comment on a new or edited source issue
     python -m scraper.contribute approve   # save the approved source, or hide the reported event
 
-The issue comes in through ISSUE_BODY, ISSUE_NUMBER, ISSUE_AUTHOR and ISSUE_LABELS; the comment
+The issue comes in through ISSUE_TITLE, ISSUE_BODY, ISSUE_NUMBER, ISSUE_AUTHOR and ISSUE_LABELS; the comment
 to post is written to COMMENT_FILE.
 """
 
@@ -34,7 +34,7 @@ from .sources import feeds, luma
 from .state import ROOT, now_utc
 
 LUMA_HOSTS = {"luma.com", "lu.ma", "www.luma.com"}
-EVENT_ID = re.compile(r"^[0-9a-f]{12}$")
+EVENT_ID = re.compile(r"\[([0-9a-f]{12})\]\s*$")  # the Report link ends the title with [id]
 
 
 class Rejected(Exception):
@@ -191,11 +191,12 @@ def save_source(source: dict, author: str, issue: int, root: Path = ROOT) -> Pat
     return path
 
 
-def hide_event(event_id: str, title: str, reason: str, issue: int, root: Path = ROOT) -> None:
-    if not EVENT_ID.match(event_id):
-        raise Rejected("The report has no event id. Use the Report link on the event.")
+def hide_event(issue_title: str, reason: str, issue: int, root: Path = ROOT) -> None:
+    if not (m := EVENT_ID.search(issue_title)):
+        raise Rejected("The title has no event id in [brackets]. Use the Report link on the event.")
+    title = issue_title[: m.start()].removeprefix("Report:").strip()
     path = root / "moderation.toml"
-    entry = {"id": event_id, "title": title[:120], "reason": reason[:60], "issue": issue}
+    entry = {"id": m.group(1), "title": title[:120], "reason": reason[:60], "issue": issue}
     with path.open("a") as f:
         f.write("\n[[hidden]]\n" + "".join(f"{k} = {json.dumps(v)}\n" for k, v in entry.items()))
 
@@ -207,8 +208,7 @@ def main(command: str) -> int:
     comment = Path(os.environ.get("COMMENT_FILE", "comment.md"))
     try:
         if "report" in labels and command == "approve":
-            hide_event(fields.get("event id", ""), fields.get("event", ""),
-                       fields.get("what's wrong?", ""), issue)
+            hide_event(os.environ.get("ISSUE_TITLE", ""), fields.get("what's wrong?", ""), issue)
             comment.write_text("Thanks for the report. This event is now hidden from the site; "
                                "it disappears on the next update.")
             return 0

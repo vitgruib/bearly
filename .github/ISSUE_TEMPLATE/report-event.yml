@@ -3,20 +3,11 @@ description: Flag an event that's spam, cancelled, or wrong. Use the Report link
 title: "Report: "
 labels: [report]
 body:
-  - type: input
-    id: event
+  - type: markdown
     attributes:
-      label: Event
-      description: Filled in by the Report link.
-    validations:
-      required: true
-  - type: input
-    id: event-id
-    attributes:
-      label: Event id
-      description: Filled in by the Report link. Leave it as is.
-    validations:
-      required: true
+      value: |
+        The title names the event and its id in [brackets]; keep the id so the right event is
+        hidden. No Report link handy? Paste the event's link below.
   - type: dropdown
     id: reason
     attributes:
@@ -34,3 +25,4 @@ body:
     id: details
     attributes:
       label: Anything else?
+      description: The event's link, what's wrong with it, or anything else that helps.

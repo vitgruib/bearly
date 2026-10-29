@@ -65,7 +65,7 @@ def test_saved_sources_and_hidden_events_reach_the_scraper(tmp_path):
     save_source({"name": 'The "Quote" Club', "type": "ics", "url": "https://q.test/c.ics", "campus": True},
                 "someone", 12, tmp_path)
     save_source({"name": "Calmsa", "type": "luma", "url": "calmsa"}, "other", 13, tmp_path)
-    hide_event("0123456789ab", "Fake party", "Spam", 14, tmp_path)
+    hide_event("Report: Fake party (Oct 30) [0123456789ab]", "Spam", 14, tmp_path)
 
     config = load_config(tmp_path)
 
@@ -75,6 +75,11 @@ def test_saved_sources_and_hidden_events_reach_the_scraper(tmp_path):
     assert config["contributed"] == [{"name": "Calmsa", "by": "other"},
                                      {"name": 'The "Quote" Club', "by": "someone"}]
     assert hidden_ids(tmp_path) == {"0123456789ab"}
+
+
+def test_a_report_without_an_event_id_is_refused(tmp_path):
+    with pytest.raises(Rejected, match="event id"):
+        hide_event("Report: that party last week", "Spam", 15, tmp_path)
 
 
 def test_a_source_already_listed_is_not_saved_twice(tmp_path):
