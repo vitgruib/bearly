@@ -174,3 +174,15 @@ def test_cancelled_anywhere_in_title_is_dropped_and_venue_placeholders_cleared()
                     ev("Careers Panel", venue="Sign in to download the location")], 30, NOW)
 
     assert [(e.title, e.venue) for e in events] == [("Careers Panel", None)]
+
+
+def test_links_that_are_not_web_pages_never_reach_the_site():
+    events = build([
+        ev("Script link", url="javascript:alert(1)"),
+        ev("Odd image", image="data:image/svg+xml,<svg onload=alert(1)>",
+           listings=[{"source": "feeds", "url": "javascript:x"}, {"source": "luma", "url": "https://lu.ma/a"}]),
+    ], 30, NOW)
+
+    assert [e.title for e in events] == ["Odd image"]
+    assert events[0].image is None
+    assert "javascript:x" not in [x["url"] for x in events[0].listings]

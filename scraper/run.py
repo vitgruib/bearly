@@ -59,6 +59,10 @@ def hidden_ids(root: Path = ROOT) -> set[str]:
     return {h["id"] for h in tomllib.loads(path.read_text()).get("hidden", [])} if path.exists() else set()
 
 
+# Any scheme but http(s): javascript:, data:, vbscript:... Relative paths have none.
+UNSAFE_LINK = re.compile(r"\s*(?!https?:)[a-z][a-z0-9+.-]*:", re.IGNORECASE)
+
+
 def build(events: list[Event], days_ahead: int, now: datetime,
           hidden: set[str] = frozenset()) -> list[Event]:
     horizon = now + timedelta(days=days_ahead)
@@ -70,6 +74,13 @@ def build(events: list[Event], days_ahead: int, now: datetime,
             continue
         if PLACEHOLDER.search(e.title):
             continue
+        # Feeds and reports are written by strangers: a javascript: or data: link in an href
+        # or img src would run on the site, so those never get through.
+        if UNSAFE_LINK.match(e.url):
+            continue
+        if e.image and UNSAFE_LINK.match(e.image):
+            e.image = None
+        e.listings = [x for x in e.listings if not UNSAFE_LINK.match(x.get("url") or "")]
         if e.venue and NO_VENUE.search(e.venue):
             e.venue = None
         local = e.start.astimezone(PACIFIC)
