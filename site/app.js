@@ -165,7 +165,7 @@ function renderShowing() {
   ].filter((g) => g.length);
   const el = $("#showing");
   if (!groups.length) {
-    el.textContent = "Within a row, any pick matches. Across rows, all must match.";
+    el.replaceChildren();
     return;
   }
   const word = (w) => Object.assign(document.createElement("b"), { textContent: ` ${w} ` });

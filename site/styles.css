@@ -104,8 +104,10 @@ body {
 .fchips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .frow + .frow { border-top: 1px solid var(--faint); padding-top: 8px; }
 .fsubs { display: grid; gap: 6px; min-width: 0; }
-.fsub { display: grid; grid-template-columns: 92px 1fr; align-items: start; gap: 8px; min-width: 0; }
-.fsublabel { font-size: 12px; color: var(--muted); padding-top: 8px; white-space: nowrap; }
+/* At full width every row fits on one line, so its chips stretch edge to edge. Narrower, rows
+   wrap, and a stretched chip alone on the last line looks broken, so they keep their size. */
+.fchips > .chip:not(#free) { flex: 1 0 auto; }
+@media (max-width: 1180px) { .fchips > .chip:not(#free) { flex: none; } }
 .showing { margin: 0 auto 0 0; color: var(--muted); font-size: 13px; min-width: 0; }
 .showing b { color: var(--ink); font-weight: 600; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
 .pick-group { color: var(--ink); }
@@ -131,7 +133,7 @@ body {
 .chip .n { opacity: .55; margin-left: 5px; font-weight: 400; }
 .chip.zero:not([aria-pressed="true"]) { opacity: .45; }
 /* Lower rows are refinements, so they read lighter than the topic rows. */
-#regions .chip, #sources .chip { background: transparent; border-color: var(--faint); padding: 6px 11px; font-size: 12.5px; }
+#regions .chip, #sources .chip { background: transparent; border-color: var(--faint); padding: 6px 10px; font-size: 12.5px; }
 #regions .chip[aria-pressed="true"], #sources .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
 
 .meta-row { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 8px; }
@@ -282,8 +284,6 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   .fchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .fchips::-webkit-scrollbar { display: none; }
   .fchips > #when { margin-right: 0; }
-  .fsub { grid-template-columns: 1fr; gap: 2px; }
-  .fsublabel { padding-top: 0; }
   .meta-row { flex-wrap: wrap; }
   .showing { flex-basis: 100%; }
   .masthead { padding-top: 36px; }
