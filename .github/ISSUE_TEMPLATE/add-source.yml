@@ -1,0 +1,42 @@
+name: Add a source
+description: Add a club, department or venue calendar to Bearly Missed.
+title: "Add source: "
+labels: [new-source]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Paste a link to a calendar and a bot will fetch it and reply with the events it found.
+        A maintainer then approves it, and it's checked every few hours from then on.
+
+        **Links that work:** a public Google Calendar, a Luma calendar (luma.com/yourclub), an
+        .ics or RSS feed, or an events page on most WordPress, Localist and ticketing sites.
+        Instagram accounts and private calendars can't be added this way.
+  - type: input
+    id: name
+    attributes:
+      label: Club or calendar name
+      placeholder: Cal Hiking Club
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Calendar link
+      placeholder: https://luma.com/yourclub
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where are the events?
+      options:
+        - On or near campus
+        - Around the Bay Area
+        - Mostly online
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?

@@ -3,6 +3,7 @@
 # env vars in README.md are set.
 
 days_ahead = 30  # how far ahead the site lists events
+repo = "vitgruib/bearly"  # where "Add a source" and "Report" open issues
 
 [luma]
 center = [37.8715, -122.2730]  # Luma's "discover" feed is ordered by distance from here

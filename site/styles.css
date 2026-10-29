@@ -186,11 +186,19 @@ body {
 :root[data-theme="dark"] .badge.food { background: #3a2f12; color: #f6d27a; }
 :root[data-theme="dark"] .badge.free { background: #15301f; color: #8fd8a8; }
 .ical {
+  margin-left: auto;
   position: relative; z-index: 1;
   font: 500 12px Inter, system-ui, sans-serif; color: var(--muted);
   background: none; border: 0; padding: 4px 6px; border-radius: 6px; cursor: pointer; white-space: nowrap;
 }
 .ical:hover { color: var(--ink); background: var(--chip); }
+.flag {
+  position: relative; z-index: 1;
+  font: 500 12px Inter, system-ui, sans-serif; color: var(--muted); opacity: .7;
+  padding: 4px 6px; border-radius: 6px; text-decoration: none; white-space: nowrap;
+}
+.flag:hover { opacity: 1; color: var(--ink); background: var(--chip); }
+.flag[hidden] { display: none; }
 .thumb {
   width: 92px; height: 92px; object-fit: cover; border-radius: 10px;
   background: var(--chip);

@@ -88,7 +88,19 @@ its secret skips itself quietly.
 
 ## Adding a source
 
-A club or venue with a calendar: add a `[[feeds.list]]` entry, or a Luma slug under
+Anyone, no code: open an [Add a source](https://github.com/vitgruib/bearly/issues/new?template=add-source.yml)
+issue with a calendar link. `.github/workflows/community.yml` runs `scraper/contribute.py`,
+which recognizes the feed (Google Calendar share links become their iCal address; Luma,
+.ics, RSS, WordPress, Localist and schema.org pages are detected), fetches it once and
+replies with the events it found. Adding the `approved` label saves it as
+`contributed/<name>.toml`, commits it and starts a scrape. Only feed types the scraper
+already parses are accepted, and only people with triage access can add labels, so
+nothing a stranger submits runs as code or goes up without a maintainer.
+
+Reports work the same way: each event's **Report** link opens a prefilled issue, and
+`approved` adds the event's id to `moderation.toml`, which hides it from then on.
+
+By hand: add a `[[feeds.list]]` entry, or a Luma slug under
 `[luma] calendars`, or an Instagram handle to `clubs/instagram.txt`.
 
 A new kind of site: add a module under `scraper/sources/` with

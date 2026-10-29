@@ -12,6 +12,7 @@ import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import http
@@ -39,7 +40,27 @@ def _run_one(name: str, cfg: dict, ctx: Context) -> tuple[list[Event] | None, st
         return None, f"{type(exc).__name__}: {exc}"
 
 
-def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
+def load_config(root: Path = ROOT) -> dict:
+    """sources.toml plus every community source in contributed/ (see contribute.py)."""
+    config = tomllib.loads((root / "sources.toml").read_text())
+    for path in sorted((root / "contributed").glob("*.toml")):
+        feed = tomllib.loads(path.read_text())
+        config.setdefault("contributed", []).append({"name": feed["name"], "by": feed.get("added_by")})
+        if feed["type"] == "luma":
+            config.setdefault("luma", {}).setdefault("calendars", []).append(feed["url"])
+        else:
+            config.setdefault("feeds", {}).setdefault("list", []).append(feed)
+    return config
+
+
+def hidden_ids(root: Path = ROOT) -> set[str]:
+    """Events taken down after an approved report."""
+    path = root / "moderation.toml"
+    return {h["id"] for h in tomllib.loads(path.read_text()).get("hidden", [])} if path.exists() else set()
+
+
+def build(events: list[Event], days_ahead: int, now: datetime,
+          hidden: set[str] = frozenset()) -> list[Event]:
     horizon = now + timedelta(days=days_ahead)
     upcoming = []
     for e in events:
@@ -56,7 +77,7 @@ def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
             e.all_day = True  # a date with no time, stored as midnight
         if enriched := enrich(e):
             upcoming.append(enriched)
-    merged = dedupe(upcoming)
+    merged = [e for e in dedupe(upcoming) if e.id not in hidden]
     merged.sort(key=lambda e: (e.start, e.title))
     return collapse_repeats(merged)
 
@@ -64,7 +85,7 @@ def build(events: list[Event], days_ahead: int, now: datetime) -> list[Event]:
 def main(argv: list[str]) -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
-    config = tomllib.loads((ROOT / "sources.toml").read_text())
+    config = load_config()
     state = State()
     now = now_utc()
 
@@ -110,7 +131,7 @@ def main(argv: list[str]) -> None:
             events += state.previous_events(name)
             statuses[name] = {"health": state.source(name).get("health", "ok"), "cached": True}
 
-    final = build(events, config.get("days_ahead", 30), now)
+    final = build(events, config.get("days_ahead", 30), now, hidden_ids())
     counts: dict[str, int] = {}
     for e in final:
         counts[e.source] = counts.get(e.source, 0) + 1
@@ -120,6 +141,8 @@ def main(argv: list[str]) -> None:
     EVENTS.write_text(json.dumps({
         "generated_at": now.isoformat(timespec="seconds"),
         "report_url": config.get("reports", {}).get("form_url") or None,
+        "repo": config.get("repo"),
+        "contributed": config.get("contributed", []),
         "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
                      "last_ok": state.source(n).get("last_ok"),
                      "last_run": state.source(n).get("last_run"),

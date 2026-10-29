@@ -202,6 +202,13 @@ function card(e) {
   if (e.image) img.src = e.image; else img.remove();
   img.onerror = () => img.remove();
   node.querySelector(".ical").onclick = () => downloadIcs(e);
+  if (data.repo) {
+    const flag = node.querySelector(".flag");
+    const q = new URLSearchParams({ template: "report-event.yml", title: `Report: ${e.title}`,
+      event: `${e.title} (${fmtDate.format(new Date(e._start))}) ${e.url || ""}`.trim(), "event-id": e.id });
+    flag.href = `https://github.com/${data.repo}/issues/new?${q}`;
+    flag.hidden = false;
+  }
   return node;
 }
 
@@ -324,6 +331,10 @@ async function boot() {
   if (data.report_url) {
     $("#report a").href = data.report_url;
     $("#report").hidden = false;
+  }
+  if (data.repo) {
+    $("#report .add-source a").href = `https://github.com/${data.repo}/issues/new?template=add-source.yml`;
+    $("#report .add-source").hidden = false;
   }
 
   new IntersectionObserver((entries) => {

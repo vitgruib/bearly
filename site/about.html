@@ -174,8 +174,17 @@
       the scrapers in <code>scraper/sources/</code>, every calendar and club in
       <code>sources.toml</code> and <code>clubs/instagram.txt</code>, and this site in
       <code>site/</code>. The current data is public too:
-      <a href="data/events.json">events.json</a>. To add a club calendar, open a pull request
-      or use the <a class="report-link" href="#">missing-event form</a>.</p>
+      <a href="data/events.json">events.json</a>.</p>
+
+    <h2>Add a source</h2>
+    <p>Anyone can add a calendar. <a href="https://github.com/vitgruib/bearly/issues/new?template=add-source.yml">Open
+      an “Add a source” issue</a> with a link to a public Google Calendar, a Luma calendar, an .ics or
+      RSS feed, or an events page. A bot fetches it and replies with the events it found; once a
+      maintainer approves it, it's checked every few hours like every other source.
+      <span id="contributed"></span></p>
+    <p>See something wrong? Every event has a <strong>Report</strong> link for spam, cancellations
+      and mistakes; an approved report takes the event down. For one event we missed, the
+      <a class="report-link" href="#">missing-event form</a> needs no account.</p>
   </main>
 
   <footer class="wrap footer">
@@ -218,6 +227,10 @@
       document.getElementById("updated").textContent =
         `${data.events.length.toLocaleString()} upcoming events right now. Tap a source to see how it's read.`;
       if (data.report_url) for (const a of document.querySelectorAll(".report-link")) a.href = data.report_url;
+      if (data.contributed?.length) {
+        document.getElementById("contributed").textContent = `Added by the community so far: ${
+          data.contributed.map((c) => c.by ? `${c.name} (@${c.by})` : c.name).join(", ")}.`;
+      }
     }).catch(() => {});
   </script>
 </body>

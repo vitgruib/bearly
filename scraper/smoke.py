@@ -54,6 +54,8 @@ def check_events(page: Page, base: str, size: str, errors: list[str]) -> None:
     for row in ("#when button", "#topics-0 .chip", "#topics-1 .chip", "#regions .chip", "#sources .chip"):
         if not page.locator(row).count():
             errors.append(f"index ({size}): no filters in {row.split()[0]}")
+    if not page.locator(".card .flag:not([hidden])").count():
+        errors.append(f"index ({size}): events have no Report link")
     before = page.locator("#count").inner_text()
     page.locator("#topics-0 .chip").first.click()
     if page.locator("#count").inner_text() == before:

@@ -1,0 +1,86 @@
+name: Community sources and reports
+
+# "Add a source" and "Report an event" issues (.github/ISSUE_TEMPLATE). A new or edited source
+# issue gets a bot comment with what the calendar contains; the maintainer's `approved` label
+# saves the source (contributed/) or hides the event (moderation.toml), commits it, and starts a
+# scrape. Only people with triage access can add labels, so approval stays with maintainers.
+# Issue text is untrusted: it reaches scraper.contribute only through env vars.
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  check:
+    if: >-
+      github.event.action != 'labeled' && github.event.issue.state == 'open' &&
+      contains(github.event.issue.labels.*.name, 'new-source')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: check-${{ github.event.issue.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --no-dev
+      - name: Fetch the calendar
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_FILE: ${{ runner.temp }}/comment.md
+        run: uv run python -m scraper.contribute check || true
+      - name: Reply
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --body-file "$RUNNER_TEMP/comment.md"
+
+  approve:
+    if: >-
+      github.event.action == 'labeled' && github.event.label.name == 'approved' &&
+      (contains(github.event.issue.labels.*.name, 'new-source') ||
+       contains(github.event.issue.labels.*.name, 'report'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: approve  # one commit to main at a time
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --no-dev
+      - name: Save it
+        id: save
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
+          COMMENT_FILE: ${{ runner.temp }}/comment.md
+        run: uv run python -m scraper.contribute approve
+      - name: Commit and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add contributed moderation.toml 2>/dev/null || git add contributed
+          git commit -m "Community: approve #${{ github.event.issue.number }}"
+          git pull --rebase
+          git push
+          # Pushes made with the workflow token don't trigger workflows, so start the scrape.
+          gh workflow run scrape.yml
+          gh issue close ${{ github.event.issue.number }} --comment "$(cat "$RUNNER_TEMP/comment.md")"
+      - name: Explain a failure
+        if: failure() && steps.save.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --body-file "$RUNNER_TEMP/comment.md"

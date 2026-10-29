@@ -1,0 +1,36 @@
+name: Report an event
+description: Flag an event that's spam, cancelled, or wrong. Use the Report link on the event.
+title: "Report: "
+labels: [report]
+body:
+  - type: input
+    id: event
+    attributes:
+      label: Event
+      description: Filled in by the Report link.
+    validations:
+      required: true
+  - type: input
+    id: event-id
+    attributes:
+      label: Event id
+      description: Filled in by the Report link. Leave it as is.
+    validations:
+      required: true
+  - type: dropdown
+    id: reason
+    attributes:
+      label: What's wrong?
+      options:
+        - Spam or not a real event
+        - Cancelled
+        - Wrong time or place
+        - Duplicate
+        - Not relevant to students
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else?
