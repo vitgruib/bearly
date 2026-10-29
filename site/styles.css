@@ -247,28 +247,9 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .live.ok::before { background: #2f9e5b; }
 .live.degraded::before, .live.failing::before { background: var(--gold); }
 .live.down::before { background: #d64545; }
-.more summary h2 { display: inline; }
-.more summary::after { content: " ▸"; color: var(--muted); font-size: 14px; }
-.more[open] summary::after { content: " ▾"; }
-.more summary { margin: 26px 0 6px; }
-.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
-.tree { margin: 10px 0 8px; }
-.tree ul { margin-left: 14px; padding-left: 16px; border-left: 1px solid var(--faint); }
-.tree li { position: relative; margin: 0; padding: 3px 0; }
-.tree ul > li::before {
-  content: ""; position: absolute; left: -16px; top: 15px; width: 12px;
-  border-top: 1px solid var(--faint);
-}
-.tree ul > li:last-child::after {
-  content: ""; position: absolute; left: -17px; top: 16px; bottom: 0; width: 3px; background: var(--bg);
-}
-.node {
-  display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
-  background: var(--surface); border: 1px solid var(--faint);
-}
-.node.root { background: var(--blue); color: #fff; border-color: var(--blue); font: 400 18px var(--display); }
-.node.leaf { font-weight: 400; background: var(--chip); border-color: transparent; }
-.node b { font-weight: 600; color: var(--accent); }
+.facts { display: grid; grid-template-columns: 76px 1fr; gap: 6px 12px; margin: 2px 0 0; padding: 0 14px 4px 35px; font-size: 14px; }
+.facts dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.facts dd { margin: 0; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); }
 
 /* Options from the UI panel (tweaks.js), set as attributes on <html>. */
 [data-headings="sans"] { --display: Inter, system-ui, sans-serif; }
@@ -292,6 +273,9 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 [data-thumbs="off"] .card { grid-template-columns: 74px 1fr; }
 
 @media (max-width: 600px) {
+  .facts { grid-template-columns: 1fr; gap: 0; padding-left: 14px; }
+  .facts dd { margin-bottom: 8px; }
+  .source .status { padding-left: 14px; }
   /* Labels sit above their row, and each row scrolls sideways instead of wrapping. */
   .frow { grid-template-columns: 1fr; gap: 4px; }
   .flabel { padding-top: 0; }

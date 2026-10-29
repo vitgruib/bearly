@@ -33,124 +33,129 @@
     <p class="note" id="updated">Tap a source to see how it's read.</p>
 
     <div class="sources">
-    <details class="source" data-source="instagram">
-      <summary><span class="name">Club Instagram</span></summary>
-      <p>About 880 student-org accounts, taken from CalLink, the official club directory. Each
-        club's recent posts are read, and the caption's date, time and room are pulled out by
-        a rule-based parser ("GBM Thursday 10/29 7pm in Soda 306"). All clubs are read about
-        every 9 days.</p>
-    </details>
-
-    <details class="source" data-source="feeds">
-      <summary><span class="name">Club &amp; department calendars</span></summary>
-      <p>About 60 public calendar feeds: student-org Google Calendars found through CalLink
-        and club websites, the Haas clubs calendar (around 40 business-school clubs), and
-        departments and nearby institutions such as Berkeley Law, the iSchool, the Simons
-        Institute, BAMPFA, the Botanical Garden and the Berkeley Public Library.</p>
+    <details class="source" data-source="luma">
+      <summary><span class="name">Luma</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 3 hours</dd>
+        <dt>How</dt><dd>Luma's JSON API (<code>api.lu.ma</code>): the discover feed around campus and
+          its AI, Tech, Climate and Arts categories; each followed calendar's events; and the
+          events of organizers who host from a personal account.</dd>
+        <dt>Gets</dt><dd>Title, time, venue and map location, host, description, cover image, free or paid.</dd>
+        <dt>Found by</dt><dd>About 25 campus-org calendars, 25 Bay Area tech calendars and 17
+          organizer profiles listed by hand. Any calendar the discover feed shows hosting near
+          campus is added automatically.</dd>
+      </dl>
     </details>
 
     <details class="source" data-source="berkeley_calendar">
       <summary><span class="name">UC Berkeley Events</span></summary>
-      <p>The campus calendar at <a href="https://events.berkeley.edu">events.berkeley.edu</a>:
-        talks, info sessions, performances and home games. Gym hours, daily exhibits and away
-        games are left out.</p>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 6 hours</dd>
+        <dt>How</dt><dd>The JSON API behind <a href="https://events.berkeley.edu">events.berkeley.edu</a>
+          (LiveWhale), one day at a time.</dd>
+        <dt>Gets</dt><dd>Title, time, room and building, department, description, image, event type, cost.</dd>
+        <dt>Found by</dt><dd>It's the official campus calendar. Gym hours, daily exhibits and away
+          games are left out.</dd>
+      </dl>
     </details>
 
-    <details class="source" data-source="luma">
-      <summary><span class="name">Luma</span></summary>
-      <p>Luma's discover feed around campus; about 25 campus-org calendars and Bay Area tech
-        calendars; organizers who post from personal accounts; and any other Luma calendar
-        found hosting near campus, which is added automatically.</p>
+    <details class="source" data-source="feeds">
+      <summary><span class="name">Club &amp; department calendars</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 6 hours; unchanged calendars cost one "not modified" check</dd>
+        <dt>How</dt><dd>About 60 public feeds, each in its own standard format: Google Calendar and
+          other iCal (.ics) feeds, RSS, schema.org event data in a page, and the WordPress,
+          Localist and FullCalendar event APIs.</dd>
+        <dt>Gets</dt><dd>Title, time, location, description, and image where the feed has one.</dd>
+        <dt>Found by</dt><dd>Student-org Google Calendars linked from CalLink (the official club
+          directory) and embedded on club sites hosted by OCF; the Haas clubs feed (about 40
+          clubs); and departments and nearby institutions such as Berkeley Law, the iSchool, the
+          Simons Institute, BAMPFA, the Botanical Garden and the Berkeley Public Library. Anyone
+          can <a href="#add-source">add one</a>.</dd>
+      </dl>
     </details>
 
-    <details class="source" data-source="cerebral_valley">
-      <summary><span class="name">Cerebral Valley</span></summary>
-      <p>The Bay Area AI community calendar at
-        <a href="https://cerebralvalley.ai/events">cerebralvalley.ai</a>.</p>
-    </details>
-
-    <details class="source" data-source="hackathons">
-      <summary><span class="name">Hackathons</span></summary>
-      <p>Devpost, Y Combinator events, MLH and AGI House, kept to in-person Bay Area
-        hackathons. Month-long online submission windows are skipped.</p>
-    </details>
-
-    <details class="source" data-source="venues">
-      <summary><span class="name">Music &amp; venues</span></summary>
-      <p>Concert calendars for Ashkenaz, the Ivy Room, the Fox, the Greek, the UC Theatre and
-        more East Bay venues, plus Resident Advisor and DoTheBay.</p>
-    </details>
-
-    <details class="source" data-source="partiful">
-      <summary><span class="name">Partiful</span></summary>
-      <p>Bay Area trending events, plus any Partiful link that turns up in another source.</p>
-    </details>
-
-    <details class="source" data-source="reports">
-      <summary><span class="name">Reported by students</span></summary>
-      <p>Links sent through the <a class="report-link" href="#">missing-event form</a>. A
-        Luma, Partiful, Meetup or Cerebral Valley link goes up on the next run; a Luma calendar
-        link brings in every event on that calendar.</p>
+    <details class="source" data-source="instagram">
+      <summary><span class="name">Club Instagram</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Daily, 100 accounts at a time, so each club about every 9 days</dd>
+        <dt>How</dt><dd>Apify's Instagram Post Scraper (a paid API, capped at $5 a month), asking
+          only for posts since that account was last read.</dd>
+        <dt>Gets</dt><dd>Date, time, room and free food from the caption, read by a rule-based
+          parser ("GBM Thursday 10/29 7pm in Soda 306"). A Luma or Partiful link in the caption
+          is followed to the full event.</dd>
+        <dt>Found by</dt><dd>The Instagram handle on each club's CalLink profile, about 880 accounts.</dd>
+      </dl>
     </details>
 
     <details class="source" data-source="email">
       <summary><span class="name">Mailing lists</span></summary>
-      <p>Department and club listservs such as eecs-ugrads, read from an inbox subscribed to
-        them. Event links in emails are fetched as full events, and announcements without a
-        link go through the same parser as Instagram captions.</p>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 3 hours</dd>
+        <dt>How</dt><dd>IMAP, reading an inbox subscribed to department and club listservs such as eecs-ugrads.</dd>
+        <dt>Gets</dt><dd>Event links in each email are followed to the full event. Announcements
+          without a link go through the same parser as Instagram captions.</dd>
+        <dt>Found by</dt><dd>Subscribing the inbox to a list.</dd>
+      </dl>
+    </details>
+
+    <details class="source" data-source="cerebral_valley">
+      <summary><span class="name">Cerebral Valley</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 6 hours</dd>
+        <dt>How</dt><dd>Cerebral Valley's public events API, which lists every approved event; its
+          <a href="https://cerebralvalley.ai/events">events page</a> shows only 20.</dd>
+        <dt>Gets</dt><dd>Title, time, venue, city, description, image, event type.</dd>
+        <dt>Found by</dt><dd>It's the main Bay Area AI community calendar.</dd>
+      </dl>
+    </details>
+
+    <details class="source" data-source="partiful">
+      <summary><span class="name">Partiful</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 6 hours</dd>
+        <dt>How</dt><dd>Partiful has no public search, so the Bay Area "trending" section of
+          partiful.com/explore is read from the page's embedded data.</dd>
+        <dt>Gets</dt><dd>Title, time, venue and address, description, image, free or paid.</dd>
+        <dt>Found by</dt><dd>Trending events, plus any partiful.com/e/ link found in another source.</dd>
+      </dl>
+    </details>
+
+    <details class="source" data-source="hackathons">
+      <summary><span class="name">Hackathons</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Daily</dd>
+        <dt>How</dt><dd>Devpost's hackathon API, then each candidate's page; the Y Combinator, MLH and AGI House event listings.</dd>
+        <dt>Gets</dt><dd>Title, dates, venue and address, host, description, image.</dd>
+        <dt>Found by</dt><dd>Those four platforms, kept to in-person Bay Area hackathons. Month-long
+          online submission windows are skipped.</dd>
+      </dl>
+    </details>
+
+    <details class="source" data-source="venues">
+      <summary><span class="name">Music &amp; venues</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 12 hours</dd>
+        <dt>How</dt><dd>Whatever each venue's own calendar reads: VenuePilot's GraphQL API (Ashkenaz,
+          Ivy Room), schema.org data on the Fox and Greek pages, the UC Theatre's show pages,
+          Resident Advisor's GraphQL API, and DoTheBay venue pages as JSON.</dd>
+        <dt>Gets</dt><dd>Show name, time, venue and address, description, image, price.</dd>
+        <dt>Found by</dt><dd>East Bay venues listed by hand, plus 17 more through DoTheBay. A show
+          listed by both a venue and an aggregator is merged.</dd>
+      </dl>
+    </details>
+
+    <details class="source" data-source="reports">
+      <summary><span class="name">Added by students</span></summary>
+      <dl class="facts">
+        <dt>Checked</dt><dd>Every 3 hours</dd>
+        <dt>How</dt><dd>Each approved link is fetched like a link in an email (Luma, Partiful,
+          Eventbrite, Meetup and other event pages).</dd>
+        <dt>Gets</dt><dd>The full event from its page, refreshed each time so changes show up.</dd>
+        <dt>Found by</dt><dd>The <a class="report-link" href="#">form</a> or a GitHub issue, approved by a maintainer.</dd>
+      </dl>
     </details>
     </div>
-
-    <details class="more">
-      <summary><h2>How sources are found</h2></summary>
-    <p>Most events come from finding the places clubs already post, then reading those
-      places automatically. One discovery step often leads to many sources.</p>
-    <ul class="tree" aria-label="How sources are found">
-      <li><span class="node root">Bearly Missed</span>
-        <ul>
-          <li><span class="node">Club directories</span>
-            <ul>
-              <li><span class="node">CalLink, the official club directory</span>
-                <ul>
-                  <li><span class="node leaf">Instagram handle on each club's profile <b>→ ~880 accounts</b></span></li>
-                  <li><span class="node leaf">Club website <b>→ public Google Calendar</b></span></li>
-                </ul>
-              </li>
-              <li><span class="node">Club sites on OCF, the student web host</span>
-                <ul><li><span class="node leaf">Embedded Google Calendars <b>→ ~48 calendars in all</b></span></li></ul>
-              </li>
-              <li><span class="node leaf">Haas CampusGroups <b>→ one feed, ~40 clubs</b></span></li>
-            </ul>
-          </li>
-          <li><span class="node">Event platforms</span>
-            <ul>
-              <li><span class="node">Luma discover feed around campus</span>
-                <ul><li><span class="node leaf">Each calendar hosting near campus <b>→ added automatically</b></span></li></ul>
-              </li>
-              <li><span class="node leaf">Cerebral Valley, Partiful</span></li>
-              <li><span class="node leaf">Devpost, YC, MLH, AGI House <b>→ hackathons</b></span></li>
-            </ul>
-          </li>
-          <li><span class="node">Campus &amp; city calendars</span>
-            <ul>
-              <li><span class="node leaf">events.berkeley.edu <b>→ every department</b></span></li>
-              <li><span class="node leaf">Law, Haas, iSchool, Simons, BAMPFA, library, museums</span></li>
-              <li><span class="node leaf">Music venues, Resident Advisor, DoTheBay</span></li>
-            </ul>
-          </li>
-          <li><span class="node">People</span>
-            <ul>
-              <li><span class="node leaf">Missing-event form <b>→ links</b></span></li>
-              <li><span class="node leaf">Mailing lists <b>→ links and announcements</b></span></li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-    <p class="note">Any Luma, Partiful, Meetup or Cerebral Valley link found in a caption, email or
-      report is followed to the full event, and a Luma calendar link brings in that whole calendar.</p>
-
-    </details>
 
     <h2 id="code">Code</h2>
     <p>Everything is at <a href="https://github.com/vitgruib/bearly">github.com/vitgruib/bearly</a>:
@@ -190,11 +195,11 @@
     };
     const every = (h) => h < 24 ? `every ${h} h` : h === 24 ? "daily" : `every ${h / 24} days`;
     function statusText(s) {
-      const checked = s.last_run ? `checked ${ago(s.last_run)}, ` : "";
+      const checked = s.last_run ? ` · checked ${ago(s.last_run)}` : "";
       const feeds = s.warnings ? ` · ${s.warnings} feed${s.warnings > 1 ? "s" : ""} failing` : "";
       switch (s.health) {
-        case "ok": return `Working · ${checked}updates ${every(s.every_hours)}${feeds}`;
-        case "degraded": return `Fewer events than usual, the site may have changed · ${checked}updates ${every(s.every_hours)}`;
+        case "ok": return `Working${checked}${feeds}`;
+        case "degraded": return `Fewer events than usual, the site may have changed${checked}`;
         case "failing": return `Last check failed, retrying ${every(s.every_hours)} · showing events from ${s.last_ok ? ago(s.last_ok) : "earlier"}`;
         case "down": return `Down, being fixed · showing events from ${s.last_ok ? ago(s.last_ok) : "earlier"}`;
         default: return "Not connected yet";
