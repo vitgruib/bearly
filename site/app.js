@@ -11,7 +11,7 @@ const TOPIC_EMOJI = {
   "Social": "🎉", "Arts & Music": "🎨", "Sports & Wellness": "🏃", "Community": "🤝",
   "Free food": "🍕",
 };
-// Shown as two clusters so the row scans as "what for" vs "what kind of time".
+// One filter row per group; a topic missing from both lands in the second row.
 const TOPIC_GROUPS = [
   ["AI & Tech", "Startups", "Hackathons", "Career", "Talks"],
   ["Social", "Arts & Music", "Sports & Wellness", "Community", "Free food"],
@@ -25,7 +25,7 @@ const fmtDay = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long" 
 const fmtDate = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
 
 let data = { events: [], sources: [], topics: [], regions: [] };
-let state = { q: "", when: "week", topics: new Set(), regions: new Set(), free: false, hide: new Set() };
+let state = { q: "", when: "week", topics: new Set(), regions: new Set(), free: false, src: new Set() };
 let filtered = [];
 let rendered = 0;
 let lastDay = null;
@@ -39,7 +39,7 @@ function readHash() {
   state.topics = new Set((p.get("t") || "").split(",").filter(Boolean));
   state.regions = new Set((p.get("r") || "").split(",").filter(Boolean));
   state.free = p.get("free") === "1";
-  state.hide = new Set((p.get("hide") || "").split(",").filter(Boolean));
+  state.src = new Set((p.get("src") || "").split(",").filter(Boolean));
 }
 
 function writeHash() {
@@ -49,7 +49,7 @@ function writeHash() {
   if (state.topics.size) p.set("t", [...state.topics].join(","));
   if (state.regions.size) p.set("r", [...state.regions].join(","));
   if (state.free) p.set("free", "1");
-  if (state.hide.size) p.set("hide", [...state.hide].join(","));
+  if (state.src.size) p.set("src", [...state.src].join(","));
   const h = p.toString();
   history.replaceState(null, "", h ? `#${h}` : location.pathname + location.search);
 }
@@ -92,7 +92,7 @@ function base(skip) {
   const now = Date.now();
   return data.events.filter((e) =>
     (e._end || e._start + 2 * 3600e3) > now &&
-    !state.hide.has(e.source) &&
+    (skip === "src" || !state.src.size || state.src.has(e.source) || e.also_on?.some((s) => state.src.has(s))) &&
     matchesWhen(e, range) &&
     matchesSearch(e, terms) &&
     (!state.free || e.free === true) &&
@@ -108,6 +108,7 @@ function chip(label, pressed, count, onClick, title) {
   b.type = "button";
   b.setAttribute("aria-pressed", pressed);
   b.innerHTML = `${label}<span class="n">${count}</span>`;
+  b.classList.toggle("zero", !count);
   if (title) b.title = title;
   b.onclick = onClick;
   return b;
@@ -127,77 +128,30 @@ function renderControls() {
 
   const forTopics = base("topics");
   const grouped = TOPIC_GROUPS.flat();
-  const groups = [...TOPIC_GROUPS, data.topics.filter((t) => !grouped.includes(t))]
-    .map((g) => g.filter((t) => data.topics.includes(t))).filter((g) => g.length);
-  $("#topics").replaceChildren(...groups.flatMap((g, i) => {
-    const chips = g.map((t) => {
+  const rows = [TOPIC_GROUPS[0], [...TOPIC_GROUPS[1], ...data.topics.filter((t) => !grouped.includes(t))]];
+  rows.forEach((row, i) => {
+    $(`#topics-${i}`).replaceChildren(...row.filter((t) => data.topics.includes(t)).map((t) => {
       const n = forTopics.filter((e) => e.tags?.includes(t)).length;
       return chip(`${TOPIC_EMOJI[t] || ""} ${t}`, state.topics.has(t), n, () => toggle(state.topics, t));
-    });
-    if (!i) return chips;
-    const sep = document.createElement("span");
-    sep.className = "sep";
-    return [sep, ...chips];
-  }));
+    }));
+  });
 
   const forRegions = base("regions");
   $("#regions").replaceChildren(...data.regions.map((r) => {
     const n = forRegions.filter((e) => e.region === r).length;
     const title = r === "Campus" ? "On or right next to campus" : "";
     return chip(r === "Campus" ? "📍 Campus" : r, state.regions.has(r), n, () => toggle(state.regions, r), title);
-  }).filter((b) => b.querySelector(".n").textContent !== "0" || b.getAttribute("aria-pressed") === "true"));
+  }));
+
+  const forSources = base("src");
+  // Sources with no events at all (not connected yet) are left out; the rest always show.
+  $("#sources").replaceChildren(...data.sources.filter((s) => s.count).map((s) => {
+    const n = forSources.filter((e) => e.source === s.id || e.also_on?.includes(s.id)).length;
+    return chip(s.name, state.src.has(s.id), n, () => toggle(state.src, s.id));
+  }));
 
   $("#free").setAttribute("aria-pressed", state.free);
-  renderActive();
-
-  const counts = {};
-  data.events.forEach((e) => { counts[e.source] = (counts[e.source] || 0) + 1; });
-  $("#sources").replaceChildren(...data.sources.filter((s) => counts[s.id]).map((s) => {
-    const l = document.createElement("label");
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = !state.hide.has(s.id);
-    input.onchange = () => { input.checked ? state.hide.delete(s.id) : state.hide.add(s.id); update(); };
-    l.append(input, s.name);
-    const n = document.createElement("span");
-    n.className = "n";
-    n.textContent = counts[s.id];
-    l.append(n);
-    return l;
-  }));
-}
-
-// Filters that live behind the Filters button stay visible here, so a closed panel never
-// hides why the list is short.
-function renderActive() {
-  const pills = [];
-  const pill = (label, onRemove) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "pill";
-    b.textContent = label;
-    b.title = "Remove filter";
-    b.onclick = onRemove;
-    pills.push(b);
-  };
-  for (const r of state.regions) pill(r, () => toggle(state.regions, r));
-  if (state.free) pill("Free only", () => { state.free = false; update(); });
-  if (state.hide.size) pill(`${state.hide.size} source${state.hide.size > 1 ? "s" : ""} hidden`, () => { state.hide.clear(); update(); });
-  const hidden = pills.length;
-  if (state.topics.size || hidden) {
-    const clear = document.createElement("button");
-    clear.type = "button";
-    clear.className = "link";
-    clear.textContent = "Clear all";
-    clear.onclick = () => {
-      state.topics.clear(); state.regions.clear(); state.hide.clear(); state.free = false;
-      update();
-    };
-    pills.push(clear);
-  }
-  $("#active").replaceChildren(...pills);
-  $("#more-n").hidden = !hidden;
-  $("#more-n").textContent = hidden;
+  $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
 }
 
 function toggle(set, v) {
@@ -332,11 +286,9 @@ async function boot() {
     t = setTimeout(() => { state.q = ev.target.value.trim(); update(); }, 120);
   });
   $("#free").onclick = () => { state.free = !state.free; update(); };
-  $("#all-sources").onclick = () => { state.hide.clear(); update(); };
-  $("#more").onclick = () => {
-    const open = $("#panel").hidden;
-    $("#panel").hidden = !open;
-    $("#more").setAttribute("aria-expanded", open);
+  $("#clear").onclick = () => {
+    state.topics.clear(); state.regions.clear(); state.src.clear(); state.free = false;
+    update();
   };
 
   const res = await fetch("data/events.json", { cache: "no-cache" });
@@ -360,9 +312,6 @@ async function boot() {
     $("#report").hidden = false;
   }
 
-  const ro = new ResizeObserver(() =>
-    document.documentElement.style.setProperty("--controls-h", `${$("#controls").offsetHeight}px`));
-  ro.observe($("#controls"));
   new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting && rendered < filtered.length) renderMore();
   }, { rootMargin: "800px" }).observe($("#sentinel"));

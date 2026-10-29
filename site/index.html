@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="tweaks.js"></script>
+  <link rel="stylesheet" href="styles.css?v=2">
+  <script src="tweaks.js?v=2"></script>
 </head>
 <body>
   <header class="masthead">
@@ -28,31 +28,21 @@
 
   <div class="controls" id="controls">
     <div class="wrap">
-      <div class="top">
-        <label class="search">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input id="q" type="search" placeholder="Search talks, parties, hackathons, clubs…" autocomplete="off">
-        </label>
-        <button class="more-btn" id="more" type="button" aria-expanded="false" aria-controls="panel">Filters<span class="badge-n" id="more-n" hidden></span></button>
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search talks, parties, hackathons, clubs…" autocomplete="off">
+      </label>
+      <div class="filters">
+        <div class="frow"><span class="flabel">When</span>
+          <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><button class="chip" id="free" type="button" aria-pressed="false">Free only</button></div>
+        </div>
+        <div class="frow"><span class="flabel">Tech &amp; career</span><div class="fchips" id="topics-0" aria-label="Tech and career topics"></div></div>
+        <div class="frow"><span class="flabel">Fun</span><div class="fchips" id="topics-1" aria-label="Fun topics"></div></div>
+        <div class="frow"><span class="flabel">Where</span><div class="fchips" id="regions" aria-label="Where"></div></div>
+        <div class="frow"><span class="flabel">From</span><div class="fchips" id="sources" aria-label="Sources"></div></div>
       </div>
-      <div class="row" id="when" role="radiogroup" aria-label="When"></div>
-      <div class="row chips" id="topics" aria-label="Topics"></div>
-      <div class="panel" id="panel" hidden>
-        <section>
-          <h3>Where</h3>
-          <div class="chips wrap-chips" id="regions"></div>
-        </section>
-        <section>
-          <h3>Cost</h3>
-          <div class="chips wrap-chips"><button class="chip" id="free" type="button" aria-pressed="false">Free only</button></div>
-        </section>
-        <section>
-          <h3>Sources <button class="link" id="all-sources" type="button">Show all</button></h3>
-          <div class="menu" id="sources"></div>
-        </section>
-      </div>
-      <div class="row meta-row">
-        <div class="active" id="active"></div>
+      <div class="meta-row">
+        <button class="link" id="clear" type="button" hidden>Clear filters</button>
         <span class="count" id="count"></span>
       </div>
     </div>
@@ -82,6 +72,6 @@
     </article>
   </template>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
