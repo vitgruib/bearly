@@ -51,6 +51,21 @@ def test_past_far_future_and_month_long_events_are_dropped():
     assert [e.title for e in events] == ["Happening now"]
 
 
+def test_merged_event_keeps_a_link_to_every_listing():
+    luma = ev("Hike to the Big C", url="https://luma.com/bigc", image="img.png")
+    club = ev("Hike to the Big C", url="https://calhiking.test/bigc", source="feeds",
+              host="Cal Hiking Club")
+    email = ev("Hike to the Big C!", url="", source="email")
+
+    [merged] = build([email, club, luma], 30, NOW)
+
+    assert merged.listings == [
+        {"source": "luma", "url": "https://luma.com/bigc"},
+        {"source": "feeds", "url": "https://calhiking.test/bigc", "name": "Cal Hiking Club"},
+    ]
+    assert merged.also_on == ["feeds", "email"]
+
+
 def test_same_event_from_listserv_merges_into_platform_record():
     luma = ev("AI Safety Reading Group", url="https://luma.com/abc", image="img.png",
               lat=37.8756, lng=-122.2588)

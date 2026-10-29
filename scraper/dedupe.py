@@ -15,9 +15,26 @@ def _richness(e: Event) -> tuple:
     return (PRIORITY.get(e.source, 2), -bool(e.image), -(e.lat is not None), -len(e.description))
 
 
+def _listing(e: Event) -> dict:
+    # Every club calendar is source "feeds"; the club's name is what tells listings apart.
+    return {"source": e.source, "url": e.url, **({"name": e.host} if e.source == "feeds" and e.host else {})}
+
+
+def _listings(group: list[Event]) -> list[dict]:
+    out, seen = [], set()
+    for e in group:
+        for item in [_listing(e), *e.listings]:
+            url = item["url"].split("?")[0].rstrip("/")
+            if url and url not in seen:
+                seen.add(url)
+                out.append(item)
+    return out if len(out) > 1 else []
+
+
 def _merge(group: list[Event]) -> Event:
     group.sort(key=_richness)
     best = group[0]
+    listings = _listings(group)
     for other in group[1:]:
         for field in ("end", "host", "venue", "address", "city", "lat", "lng", "image",
                       "free", "region"):
@@ -33,6 +50,7 @@ def _merge(group: list[Event]) -> Event:
                 seen.add(s)
                 best.also_on.append(s)
     best.also_on = [s for s in best.also_on if s != best.source]
+    best.listings = listings
     return best
 
 

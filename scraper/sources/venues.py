@@ -16,6 +16,7 @@ the others still count."""
 import html
 import re
 from datetime import UTC, date, datetime, timedelta
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -324,7 +325,7 @@ def _norm(title: str) -> str:
 def dedupe(events: list[Event]) -> list[Event]:
     """Same local date and the same title, or one title containing the other in the same
     city ("Kamasi Washington" / "Kamasi Washington KEXP Yule Benefit"). Callers pass the
-    venues' own feeds first, so their copy wins; the loser is noted in also_on."""
+    venues' own feeds first, so their copy wins; the loser is kept in its listings."""
     out: list[Event] = []
     for e in events:
         day, title = e.start.astimezone(PACIFIC).date(), _norm(e.title)
@@ -335,8 +336,10 @@ def dedupe(events: list[Event]) -> list[Event]:
             short, long = sorted((title, other), key=len)
             if title == other or (len(short) >= 5 and short in long
                                   and (k.city or "").lower() == (e.city or "").lower()):
-                if e.url and e.url != k.url and e.url not in k.also_on:
-                    k.also_on.append(e.url)
+                if e.url and e.url != k.url and e.url not in {x["url"] for x in k.listings}:
+                    k.listings = k.listings or [{"source": "venues", "url": k.url}]
+                    k.listings.append({"source": "venues", "url": e.url,
+                                       "name": urlparse(e.url).netloc.removeprefix("www.")})
                 break
         else:
             out.append(e)

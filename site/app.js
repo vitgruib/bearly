@@ -197,7 +197,24 @@ function card(e) {
   if (e.free === true) add("Free", "free");
   if (e.repeats) add(`Repeats · ${e.repeats} dates`);
   e.tags?.filter((t) => t !== "Free food").slice(0, 2).forEach((t) => add(t));
-  new Set([e.source, ...(e.also_on || [])]).forEach((s) => add(sourceName(s), "src"));
+  // One badge per place the event is listed, each linking there; sources seen without a
+  // link of their own (an email, a Slack post) get a plain badge.
+  const listings = e.listings?.length ? e.listings
+    : [{ source: e.source, url: e.url, name: e.source === "feeds" ? e.host : null }];
+  const linked = new Set(listings.map((l) => l.source));
+  const named = new Set();
+  for (const l of listings) {
+    const label = l.name || sourceName(l.source);
+    if (named.has(label)) continue;
+    named.add(label);
+    const a = document.createElement("a");
+    a.className = "badge src";
+    a.textContent = label;
+    a.title = `See it on ${a.textContent}`;
+    if (l.url) Object.assign(a, { href: l.url, target: "_blank", rel: "noopener" });
+    badges.append(a);
+  }
+  (e.also_on || []).filter((s) => !linked.has(s)).forEach((s) => add(sourceName(s), "src"));
   const img = node.querySelector(".thumb");
   if (e.image) img.src = e.image; else img.remove();
   img.onerror = () => img.remove();

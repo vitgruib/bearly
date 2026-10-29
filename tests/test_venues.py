@@ -137,7 +137,9 @@ def test_fetch_keeps_the_venues_own_listing_of_a_show_an_aggregator_repeats(monk
 
     assert len(hugel) == 1
     assert hugel[0].url == "https://thegreekberkeley.com/events/hugel-261107"
-    assert hugel[0].also_on == ["https://ra.co/events/2557363"]
+    assert hugel[0].also_on == []
+    assert hugel[0].listings[-1] == {"source": "venues", "url": "https://ra.co/events/2557363",
+                                     "name": "ra.co"}
     assert all(e.start.tzinfo is not None and e.city for e in events)
 
 

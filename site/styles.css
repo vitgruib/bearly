@@ -179,6 +179,8 @@ body {
 .badge.food { background: #fff1d0; color: #7a5200; }
 .badge.free { background: #e3f3e8; color: #1d6b3a; }
 .badge.src { background: transparent; border: 1px solid var(--faint); }
+a.badge.src { position: relative; z-index: 1; text-decoration: none; }
+a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .badge.food { background: #3a2f12; color: #f6d27a; }
   :root:not([data-theme="light"]) .badge.free { background: #15301f; color: #8fd8a8; }
