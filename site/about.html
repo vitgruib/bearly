@@ -37,13 +37,11 @@
       <summary><span class="name">Luma</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>Luma's JSON API (<code>api.lu.ma</code>): the discover feed around campus and
-          its AI, Tech, Climate and Arts categories; each followed calendar's events; and the
-          events of organizers who host from a personal account.</dd>
+        <dt>How</dt><dd>Luma's JSON API: the discover feed around campus, followed calendars, and
+          organizer profiles.</dd>
         <dt>Gets</dt><dd>Title, time, venue and map location, host, description, cover image, free or paid.</dd>
-        <dt>Found by</dt><dd>About 25 campus-org calendars, 25 Bay Area tech calendars and 17
-          organizer profiles listed by hand. Any calendar the discover feed shows hosting near
-          campus is added automatically.</dd>
+        <dt>Found by</dt><dd>About 70 calendars and organizers listed by hand, plus any calendar the
+          discover feed shows hosting near campus.</dd>
       </dl>
     </details>
 
@@ -51,39 +49,32 @@
       <summary><span class="name">UC Berkeley Events</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>The JSON API behind <a href="https://events.berkeley.edu">events.berkeley.edu</a>
-          (LiveWhale), one day at a time.</dd>
+        <dt>How</dt><dd>The JSON API behind <a href="https://events.berkeley.edu">events.berkeley.edu</a>.</dd>
         <dt>Gets</dt><dd>Title, time, room and building, department, description, image, event type, cost.</dd>
-        <dt>Found by</dt><dd>It's the official campus calendar. Gym hours, daily exhibits and away
-          games are left out.</dd>
+        <dt>Found by</dt><dd>It's the official campus calendar.</dd>
       </dl>
     </details>
 
     <details class="source" data-source="feeds">
       <summary><span class="name">Club &amp; department calendars</span></summary>
       <dl class="facts">
-        <dt>Checked</dt><dd>Every 6 hours; unchanged calendars cost one "not modified" check</dd>
-        <dt>How</dt><dd>About 60 public feeds, each in its own standard format: Google Calendar and
-          other iCal (.ics) feeds, RSS, schema.org event data in a page, and the WordPress,
-          Localist and FullCalendar event APIs.</dd>
+        <dt>Checked</dt><dd>Every 6 hours</dd>
+        <dt>How</dt><dd>About 60 public feeds: Google Calendar and other iCal feeds, RSS, and event
+          data on calendar pages.</dd>
         <dt>Gets</dt><dd>Title, time, location, description, and image where the feed has one.</dd>
-        <dt>Found by</dt><dd>Student-org Google Calendars linked from CalLink (the official club
-          directory) and embedded on club sites hosted by OCF; the Haas clubs feed (about 40
-          clubs); and departments and nearby institutions such as Berkeley Law, the iSchool, the
-          Simons Institute, BAMPFA, the Botanical Garden and the Berkeley Public Library. Anyone
-          can <a href="#add-source">add one</a>.</dd>
+        <dt>Found by</dt><dd>Club calendars linked from CalLink and club websites, the Haas clubs
+          calendar, and departments and nearby institutions such as Berkeley Law, BAMPFA and the
+          Berkeley Public Library. Anyone can <a href="#add-source">add one</a>.</dd>
       </dl>
     </details>
 
     <details class="source" data-source="instagram">
       <summary><span class="name">Club Instagram</span></summary>
       <dl class="facts">
-        <dt>Checked</dt><dd>Daily, 100 accounts at a time, so each club about every 9 days</dd>
-        <dt>How</dt><dd>Apify's Instagram Post Scraper (a paid API, capped at $5 a month), asking
-          only for posts since that account was last read.</dd>
-        <dt>Gets</dt><dd>Date, time, room and free food from the caption, read by a rule-based
-          parser ("GBM Thursday 10/29 7pm in Soda 306"). A Luma or Partiful link in the caption
-          is followed to the full event.</dd>
+        <dt>Checked</dt><dd>Each club about every 9 days</dd>
+        <dt>How</dt><dd>Apify's Instagram scraper reads each club's recent posts.</dd>
+        <dt>Gets</dt><dd>Date, time, room and free food from the caption ("GBM Thursday 10/29 7pm in
+          Soda 306"). An event link in the caption is followed to the full event.</dd>
         <dt>Found by</dt><dd>The Instagram handle on each club's CalLink profile, about 880 accounts.</dd>
       </dl>
     </details>
@@ -92,9 +83,9 @@
       <summary><span class="name">Mailing lists</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>IMAP, reading an inbox subscribed to department and club listservs such as eecs-ugrads.</dd>
-        <dt>Gets</dt><dd>Event links in each email are followed to the full event. Announcements
-          without a link go through the same parser as Instagram captions.</dd>
+        <dt>How</dt><dd>An inbox subscribed to department and club listservs, read over IMAP.</dd>
+        <dt>Gets</dt><dd>The full event from any event link, otherwise the date, time and room from
+          the email.</dd>
         <dt>Found by</dt><dd>Subscribing the inbox to a list.</dd>
       </dl>
     </details>
@@ -103,8 +94,7 @@
       <summary><span class="name">Cerebral Valley</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>Cerebral Valley's public events API, which lists every approved event; its
-          <a href="https://cerebralvalley.ai/events">events page</a> shows only 20.</dd>
+        <dt>How</dt><dd>Cerebral Valley's public events API.</dd>
         <dt>Gets</dt><dd>Title, time, venue, city, description, image, event type.</dd>
         <dt>Found by</dt><dd>It's the main Bay Area AI community calendar.</dd>
       </dl>
@@ -114,8 +104,7 @@
       <summary><span class="name">Partiful</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>Partiful has no public search, so the Bay Area "trending" section of
-          partiful.com/explore is read from the page's embedded data.</dd>
+        <dt>How</dt><dd>The Bay Area "trending" section of partiful.com/explore.</dd>
         <dt>Gets</dt><dd>Title, time, venue and address, description, image, free or paid.</dd>
         <dt>Found by</dt><dd>Trending events, plus any partiful.com/e/ link found in another source.</dd>
       </dl>
@@ -125,10 +114,9 @@
       <summary><span class="name">Hackathons</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Daily</dd>
-        <dt>How</dt><dd>Devpost's hackathon API, then each candidate's page; the Y Combinator, MLH and AGI House event listings.</dd>
+        <dt>How</dt><dd>Devpost's API and the Y Combinator, MLH and AGI House event listings.</dd>
         <dt>Gets</dt><dd>Title, dates, venue and address, host, description, image.</dd>
-        <dt>Found by</dt><dd>Those four platforms, kept to in-person Bay Area hackathons. Month-long
-          online submission windows are skipped.</dd>
+        <dt>Found by</dt><dd>In-person Bay Area hackathons on those four platforms.</dd>
       </dl>
     </details>
 
@@ -136,12 +124,10 @@
       <summary><span class="name">Music &amp; venues</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 12 hours</dd>
-        <dt>How</dt><dd>Whatever each venue's own calendar reads: VenuePilot's GraphQL API (Ashkenaz,
-          Ivy Room), schema.org data on the Fox and Greek pages, the UC Theatre's show pages,
-          Resident Advisor's GraphQL API, and DoTheBay venue pages as JSON.</dd>
+        <dt>How</dt><dd>Each venue's own calendar (Ashkenaz, Ivy Room, the Fox, the Greek, the UC
+          Theatre), Resident Advisor, and DoTheBay.</dd>
         <dt>Gets</dt><dd>Show name, time, venue and address, description, image, price.</dd>
-        <dt>Found by</dt><dd>East Bay venues listed by hand, plus 17 more through DoTheBay. A show
-          listed by both a venue and an aggregator is merged.</dd>
+        <dt>Found by</dt><dd>East Bay venues listed by hand, plus 17 more through DoTheBay.</dd>
       </dl>
     </details>
 
@@ -149,32 +135,23 @@
       <summary><span class="name">Added by students</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>Each approved link is fetched like a link in an email (Luma, Partiful,
-          Eventbrite, Meetup and other event pages).</dd>
-        <dt>Gets</dt><dd>The full event from its page, refreshed each time so changes show up.</dd>
+        <dt>How</dt><dd>Each approved event link (Luma, Partiful, Eventbrite, Meetup...) is read from
+          its page.</dd>
+        <dt>Gets</dt><dd>The full event from its page.</dd>
         <dt>Found by</dt><dd>The <a class="report-link" href="#">form</a> or a GitHub issue, approved by a maintainer.</dd>
       </dl>
     </details>
     </div>
 
     <h2 id="code">Code</h2>
-    <p>Everything is at <a href="https://github.com/vitgruib/bearly">github.com/vitgruib/bearly</a>:
-      the scrapers in <code>scraper/sources/</code>, every calendar and club in
-      <code>sources.toml</code> and <code>clubs/instagram.txt</code>, and this site in
-      <code>site/</code>. The current data is public too:
+    <p>Code at <a href="https://github.com/vitgruib/bearly">GitHub</a>. Scrapable data at
       <a href="data/events.json">events.json</a>.</p>
 
     <h2 id="add-source">Add a source</h2>
-    <p>Anyone can add a calendar (a public Google Calendar, a Luma calendar, an .ics or RSS feed,
-      or an events page) or a single event. A maintainer approves everything before it goes up.</p>
-    <ul class="ways">
-      <li><strong>On GitHub</strong> (free account):
-        <a href="https://github.com/vitgruib/bearly/issues/new?template=add-source.yml">add a calendar</a> or
-        <a href="https://github.com/vitgruib/bearly/issues/new?template=add-event.yml">add an event</a>.
-        A bot replies within a minute with what it found.</li>
-      <li id="form-item" hidden><a id="form"><strong>Google Form</strong></a> (no account). Checked
-        within half an hour, but there's no reply.</li>
-    </ul>
+    <p>Add a calendar or a single event with the
+      <a id="form" href="https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform">Google Form</a>.
+      A maintainer approves everything before it goes up. You can also open a
+      <a href="https://github.com/vitgruib/bearly/pulls">pull request</a> on GitHub.</p>
     <p><span id="contributed"></span></p>
     <p>Every event has a <strong>Report</strong> link for spam, cancellations and mistakes.</p>
   </main>
@@ -220,7 +197,6 @@
         `${data.events.length.toLocaleString()} upcoming events right now. Tap a source to see how it's read.`;
       if (data.forms?.form) {
         for (const a of document.querySelectorAll("#form, .report-link")) a.href = data.forms.form;
-        document.getElementById("form-item").hidden = false;
       }
       if (data.contributed?.length) {
         document.getElementById("contributed").textContent = `Added by the community so far: ${
