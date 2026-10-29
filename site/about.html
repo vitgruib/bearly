@@ -152,22 +152,6 @@
 
     </details>
 
-    <details class="more">
-      <summary><h2>How it fits together</h2></summary>
-    <ul>
-      <li><strong>Duplicates are merged.</strong> The same event reached from several places,
-        even under slightly different titles, becomes one card. The most complete listing wins,
-        and the card shows every source it came from.</li>
-      <li><strong>Only what's nearby.</strong> Events are tagged Campus, Berkeley, East Bay, San
-        Francisco and so on; anything outside the Bay Area is dropped.</li>
-      <li><strong>Polite scraping.</strong> Each source has its own schedule (from every 3
-        hours to once a day), requests to a site are spaced out, and unchanged calendars cost a
-        single "not modified" check.</li>
-      <li><strong>Nothing breaks silently.</strong> A source that fails keeps showing its last
-        good events, and a broken source opens a GitHub issue automatically.</li>
-    </ul>
-    </details>
-
     <h2 id="code">Code</h2>
     <p>Everything is at <a href="https://github.com/vitgruib/bearly">github.com/vitgruib/bearly</a>:
       the scrapers in <code>scraper/sources/</code>, every calendar and club in
