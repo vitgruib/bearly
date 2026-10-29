@@ -10,13 +10,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="tweaks.js"></script>
 </head>
 <body>
   <header class="masthead">
     <div class="wrap">
+      <nav class="nav" aria-label="Site">
+        <a href="./" aria-current="page">Events</a>
+        <a href="about.html">Sources</a>
+        <a href="https://github.com/vitgruib/bearly">Code</a>
+      </nav>
       <h1 class="wordmark">Bearly Missed<span class="dot">.</span></h1>
       <p class="tagline">Everything happening around Berkeley, <em>in one place</em>.</p>
-      <p class="report"><a href="about.html">Where events come from</a><span id="report" hidden> · Missing an event? <a target="_blank" rel="noopener">Tell us where it was posted</a>.</span></p>
+      <p class="report" id="report" hidden>Missing an event? <a target="_blank" rel="noopener">Tell us where it was posted</a>.</p>
     </div>
   </header>
 

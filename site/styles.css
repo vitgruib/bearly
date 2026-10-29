@@ -11,11 +11,14 @@
   --chip: #f1eee6;
   --shadow: 0 1px 2px rgb(20 20 30 / 4%), 0 4px 16px rgb(20 20 30 / 4%);
   --radius: 14px;
+  --wrap: 860px;
+  --display: "Instrument Serif", Georgia, serif;
   color-scheme: light;
 }
 
+/* Dark follows the system unless the UI panel (tweaks.js) pins a theme on <html>. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #101216;
     --surface: #181b21;
     --ink: #eceae4;
@@ -28,6 +31,18 @@
     color-scheme: dark;
   }
 }
+:root[data-theme="dark"] {
+  --bg: #101216;
+  --surface: #181b21;
+  --ink: #eceae4;
+  --muted: #9a9ea8;
+  --faint: #262a32;
+  --accent: #fdb515;
+  --accent-ink: #14161a;
+  --chip: #20242c;
+  --shadow: none;
+  color-scheme: dark;
+}
 
 * { box-sizing: border-box; }
 
@@ -39,20 +54,28 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
 
 /* Masthead */
-.masthead { padding: 56px 0 18px; }
+.masthead { padding: 18px 0 18px; }
+.nav { display: flex; justify-content: flex-end; gap: 4px; margin-bottom: 30px; }
+.nav a {
+  font-size: 13.5px; font-weight: 500; color: var(--muted); text-decoration: none;
+  padding: 6px 11px; border-radius: 999px;
+}
+.nav a:hover { color: var(--ink); background: var(--chip); }
+.nav a[aria-current="page"] { color: var(--ink); background: var(--chip); }
 .wordmark {
-  font: 400 clamp(52px, 9vw, 76px)/0.9 "Instrument Serif", Georgia, serif;
+  font: 400 clamp(52px, 9vw, 76px)/0.9 var(--display);
   letter-spacing: -0.02em;
   margin: 0;
   color: var(--blue);
 }
-@media (prefers-color-scheme: dark) { .wordmark { color: var(--ink); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark { color: var(--ink); } }
+:root[data-theme="dark"] .wordmark { color: var(--ink); }
 .wordmark .dot { color: var(--gold); }
 .tagline { margin: 10px 0 0; color: var(--muted); font-size: 17px; }
-.tagline em { font: italic 400 20px "Instrument Serif", Georgia, serif; color: var(--ink); }
+.tagline em { font: italic 400 20px var(--display); color: var(--ink); }
 
 /* Controls */
 .controls {
@@ -93,6 +116,7 @@ body {
               linear-gradient(currentColor 0 0) bottom/33% 1.5px no-repeat;
 }
 .more-btn[aria-expanded="true"] { border-color: var(--accent); }
+.badge-n[hidden] { display: none; }
 .badge-n {
   background: var(--accent); color: var(--accent-ink); border-radius: 999px;
   font-size: 11px; font-weight: 600; min-width: 18px; height: 18px; display: grid; place-items: center; padding: 0 5px;
@@ -165,7 +189,7 @@ body {
   margin: 26px 0 10px; padding: 6px 0;
   background: var(--bg);
 }
-.day h2 { margin: 0; font: 400 28px/1.1 "Instrument Serif", Georgia, serif; }
+.day h2 { margin: 0; font: 400 28px/1.1 var(--display); }
 .day span { color: var(--muted); font-size: 13px; }
 
 .card {
@@ -205,9 +229,11 @@ body {
 .badge.free { background: #e3f3e8; color: #1d6b3a; }
 .badge.src { background: transparent; border: 1px solid var(--faint); }
 @media (prefers-color-scheme: dark) {
-  .badge.food { background: #3a2f12; color: #f6d27a; }
-  .badge.free { background: #15301f; color: #8fd8a8; }
+  :root:not([data-theme="light"]) .badge.food { background: #3a2f12; color: #f6d27a; }
+  :root:not([data-theme="light"]) .badge.free { background: #15301f; color: #8fd8a8; }
 }
+:root[data-theme="dark"] .badge.food { background: #3a2f12; color: #f6d27a; }
+:root[data-theme="dark"] .badge.free { background: #15301f; color: #8fd8a8; }
 .ical {
   position: relative; z-index: 1;
   font: 500 12px Inter, system-ui, sans-serif; color: var(--muted);
@@ -221,7 +247,7 @@ body {
 .thumb[src=""], .thumb:not([src]) { display: none; }
 
 .empty { text-align: center; padding: 70px 20px; color: var(--muted); }
-.empty strong { display: block; font: 400 30px "Instrument Serif", Georgia, serif; color: var(--ink); margin-bottom: 6px; }
+.empty strong { display: block; font: 400 30px var(--display); color: var(--ink); margin-bottom: 6px; }
 
 .footer { color: var(--muted); font-size: 12.5px; padding-bottom: 50px; border-top: 1px solid var(--faint); padding-top: 18px; }
 .footer p { margin: 4px 0; }
@@ -233,7 +259,7 @@ a.wordmark { display: inline-block; text-decoration: none; }
 .prose { max-width: 680px; padding-bottom: 30px; }
 .prose p, .prose li { font-size: 15.5px; }
 .prose a { color: var(--accent); }
-.prose h2 { font: 400 28px "Instrument Serif", Georgia, serif; margin: 26px 0 6px; }
+.prose h2 { font: 400 28px var(--display); margin: 26px 0 6px; }
 .prose ul { padding-left: 20px; }
 .prose li { margin: 6px 0; }
 .prose code { font-size: 13.5px; background: var(--chip); padding: 1px 5px; border-radius: 5px; }
@@ -273,9 +299,30 @@ a.wordmark { display: inline-block; text-decoration: none; }
   display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
   background: var(--surface); border: 1px solid var(--faint);
 }
-.node.root { background: var(--blue); color: #fff; border-color: var(--blue); font: 400 18px "Instrument Serif", Georgia, serif; }
+.node.root { background: var(--blue); color: #fff; border-color: var(--blue); font: 400 18px var(--display); }
 .node.leaf { font-weight: 400; background: var(--chip); border-color: transparent; }
 .node b { font-weight: 600; color: var(--accent); }
+
+/* Options from the UI panel (tweaks.js), set as attributes on <html>. */
+[data-headings="sans"] { --display: Inter, system-ui, sans-serif; }
+[data-headings="sans"] .wordmark { font-weight: 700; letter-spacing: -0.045em; }
+[data-headings="sans"] :is(.day h2, .prose h2, .empty strong) { font-weight: 650; letter-spacing: -0.02em; font-size: 22px; }
+[data-headings="sans"] .tagline em { font-weight: 600; font-style: normal; font-size: 17px; }
+
+[data-density="compact"] .card { padding: 9px 12px; gap: 12px; margin-bottom: 6px; }
+[data-density="compact"] .desc { display: none; }
+[data-density="compact"] .foot { margin-top: 5px; }
+[data-density="compact"] .thumb { width: 56px; height: 56px; }
+[data-density="compact"] .day { margin: 16px 0 6px; }
+
+[data-layout="list"] .card {
+  background: transparent; border: 0; border-bottom: 1px solid var(--faint);
+  border-radius: 0; box-shadow: none; margin: 0;
+}
+[data-layout="list"] .card:hover { transform: none; background: var(--surface); }
+
+[data-thumbs="off"] .thumb { display: none; }
+[data-thumbs="off"] .card { grid-template-columns: 74px 1fr; }
 
 @media (max-width: 600px) {
   /* Four rows of filters would eat half a phone screen if they stayed pinned. */
