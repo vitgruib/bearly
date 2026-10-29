@@ -18,10 +18,10 @@
       <nav class="nav" aria-label="Site">
         <a href="./" aria-current="page">Events</a>
         <a href="about.html">Sources</a>
-        <a href="https://github.com/vitgruib/bearly">Code</a>
+        <a href="about.html#code">Code</a>
       </nav>
       <h1 class="wordmark">Bearly Missed<span class="dot">.</span></h1>
-      <p class="tagline">Berkeley's open-source calendar. <em>Anyone can add to it.</em></p>
+      <p class="tagline">Berkeley's open source event calendar</p>
       <p class="report" id="report" hidden>Missing an event? <a target="_blank" rel="noopener">Tell us where it was posted</a><span class="add-source" hidden>, or <a href="about.html#add-source">add your club's calendar</a></span>.</p>
     </div>
   </header>
@@ -36,12 +36,17 @@
         <div class="frow"><span class="flabel">When</span>
           <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><button class="chip" id="free" type="button" aria-pressed="false">Free only</button></div>
         </div>
-        <div class="frow"><span class="flabel">Tech &amp; career</span><div class="fchips" id="topics-0" aria-label="Tech and career topics"></div></div>
-        <div class="frow"><span class="flabel">Fun</span><div class="fchips" id="topics-1" aria-label="Fun topics"></div></div>
-        <div class="frow"><span class="flabel">Where</span><div class="fchips" id="regions" aria-label="Where"></div></div>
-        <div class="frow"><span class="flabel">From</span><div class="fchips" id="sources" aria-label="Sources"></div></div>
+        <div class="frow"><span class="flabel">Event type</span>
+          <div class="fsubs">
+            <div class="fsub"><span class="fsublabel">Tech &amp; career</span><div class="fchips" id="topics-0" aria-label="Tech and career event types"></div></div>
+            <div class="fsub"><span class="fsublabel">Fun</span><div class="fchips" id="topics-1" aria-label="Fun event types"></div></div>
+          </div>
+        </div>
+        <div class="frow"><span class="flabel">Location</span><div class="fchips" id="regions" aria-label="Location"></div></div>
+        <div class="frow"><span class="flabel">Source</span><div class="fchips" id="sources" aria-label="Source"></div></div>
       </div>
       <div class="meta-row">
+        <p class="showing" id="showing"></p>
         <button class="link" id="clear" type="button" hidden>Clear filters</button>
         <span class="count" id="count"></span>
       </div>

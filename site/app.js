@@ -152,6 +152,34 @@ function renderControls() {
 
   $("#free").setAttribute("aria-pressed", state.free);
   $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
+  renderShowing();
+}
+
+// Spells out how the picks combine: any chip within a row, every row that has one.
+function renderShowing() {
+  const groups = [
+    [...state.topics],
+    [...state.regions],
+    [...state.src].map(sourceName),
+    state.free ? ["Free"] : [],
+  ].filter((g) => g.length);
+  const el = $("#showing");
+  if (!groups.length) {
+    el.textContent = "Within a row, any pick matches. Across rows, all must match.";
+    return;
+  }
+  const word = (w) => Object.assign(document.createElement("b"), { textContent: ` ${w} ` });
+  el.replaceChildren("Showing ");
+  groups.forEach((g, i) => {
+    if (i) el.append(word("and"));
+    const span = document.createElement("span");
+    span.className = "pick-group";
+    g.forEach((label, j) => {
+      if (j) span.append(word("or"));
+      span.append(label);
+    });
+    el.append(span);
+  });
 }
 
 function toggle(set, v) {
@@ -267,7 +295,7 @@ function update() {
   rendered = 0;
   lastDay = null;
   if (!filtered.length) {
-    $("#list").innerHTML = `<div class="empty"><strong>Nothing here — yet.</strong>Try a wider date range or fewer filters.${data.report_url ? ` Know of one we missed? <a href="${data.report_url}" target="_blank" rel="noopener">Tell us</a>.` : ""}</div>`;
+    $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.${data.report_url ? ` Know of one we missed? <a href="${data.report_url}" target="_blank" rel="noopener">Tell us</a>.` : ""}</div>`;
     return;
   }
   renderMore();
