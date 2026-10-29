@@ -596,7 +596,7 @@ days_back = 14
 # Publish to web > CSV) are filed as GitHub issues, which wait for the `approved` label.
 form = "https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform"  # the form's share link
 report_prefill = "https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform?usp=pp_url&entry.983668865=Report+an+event&entry.1140898671=EVENT"  # Get pre-filled link: "Report an event" picked, Event answer set to EVENT
-sheet_csv = ""
+sheet_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe05uuWxv2swFmXVINuZL82MYKx6dJ8hroyT3kVgDu4TCwrd8QHG3ktN7t7WqNaKNVKCoYJwS29qCZ/pub?output=csv"
 
 [slack]
 days_back = 14
