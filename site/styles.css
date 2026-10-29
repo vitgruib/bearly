@@ -223,7 +223,6 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .report a, .empty a { color: var(--accent); }
 
 /* About page */
-a.wordmark { display: inline-block; text-decoration: none; }
 .prose { max-width: 680px; padding-bottom: 30px; }
 .prose p, .prose li { font-size: 15.5px; }
 .prose a { color: var(--accent); }
