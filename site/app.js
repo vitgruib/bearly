@@ -11,6 +11,11 @@ const TOPIC_EMOJI = {
   "Social": "🎉", "Arts & Music": "🎨", "Sports & Wellness": "🏃", "Community": "🤝",
   "Free food": "🍕",
 };
+// Shown as two clusters so the row scans as "what for" vs "what kind of time".
+const TOPIC_GROUPS = [
+  ["AI & Tech", "Startups", "Hackathons", "Career", "Talks"],
+  ["Social", "Arts & Music", "Sports & Wellness", "Community", "Free food"],
+];
 
 const $ = (s) => document.querySelector(s);
 const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
@@ -121,9 +126,18 @@ function renderControls() {
   }));
 
   const forTopics = base("topics");
-  $("#topics").replaceChildren(...data.topics.map((t) => {
-    const n = forTopics.filter((e) => e.tags?.includes(t)).length;
-    return chip(`${TOPIC_EMOJI[t] || ""} ${t}`, state.topics.has(t), n, () => toggle(state.topics, t));
+  const grouped = TOPIC_GROUPS.flat();
+  const groups = [...TOPIC_GROUPS, data.topics.filter((t) => !grouped.includes(t))]
+    .map((g) => g.filter((t) => data.topics.includes(t))).filter((g) => g.length);
+  $("#topics").replaceChildren(...groups.flatMap((g, i) => {
+    const chips = g.map((t) => {
+      const n = forTopics.filter((e) => e.tags?.includes(t)).length;
+      return chip(`${TOPIC_EMOJI[t] || ""} ${t}`, state.topics.has(t), n, () => toggle(state.topics, t));
+    });
+    if (!i) return chips;
+    const sep = document.createElement("span");
+    sep.className = "sep";
+    return [sep, ...chips];
   }));
 
   const forRegions = base("regions");
@@ -134,6 +148,7 @@ function renderControls() {
   }).filter((b) => b.querySelector(".n").textContent !== "0" || b.getAttribute("aria-pressed") === "true"));
 
   $("#free").setAttribute("aria-pressed", state.free);
+  renderActive();
 
   const counts = {};
   data.events.forEach((e) => { counts[e.source] = (counts[e.source] || 0) + 1; });
@@ -150,6 +165,39 @@ function renderControls() {
     l.append(n);
     return l;
   }));
+}
+
+// Filters that live behind the Filters button stay visible here, so a closed panel never
+// hides why the list is short.
+function renderActive() {
+  const pills = [];
+  const pill = (label, onRemove) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pill";
+    b.textContent = label;
+    b.title = "Remove filter";
+    b.onclick = onRemove;
+    pills.push(b);
+  };
+  for (const r of state.regions) pill(r, () => toggle(state.regions, r));
+  if (state.free) pill("Free only", () => { state.free = false; update(); });
+  if (state.hide.size) pill(`${state.hide.size} source${state.hide.size > 1 ? "s" : ""} hidden`, () => { state.hide.clear(); update(); });
+  const hidden = pills.length;
+  if (state.topics.size || hidden) {
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.className = "link";
+    clear.textContent = "Clear all";
+    clear.onclick = () => {
+      state.topics.clear(); state.regions.clear(); state.hide.clear(); state.free = false;
+      update();
+    };
+    pills.push(clear);
+  }
+  $("#active").replaceChildren(...pills);
+  $("#more-n").hidden = !hidden;
+  $("#more-n").textContent = hidden;
 }
 
 function toggle(set, v) {
@@ -284,10 +332,12 @@ async function boot() {
     t = setTimeout(() => { state.q = ev.target.value.trim(); update(); }, 120);
   });
   $("#free").onclick = () => { state.free = !state.free; update(); };
-  document.addEventListener("click", (ev) => {
-    const menu = $(".sources-menu");
-    if (menu.open && !menu.contains(ev.target)) menu.open = false;
-  });
+  $("#all-sources").onclick = () => { state.hide.clear(); update(); };
+  $("#more").onclick = () => {
+    const open = $("#panel").hidden;
+    $("#panel").hidden = !open;
+    $("#more").setAttribute("aria-expanded", open);
+  };
 
   const res = await fetch("data/events.json", { cache: "no-cache" });
   data = await res.json();
