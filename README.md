@@ -1,7 +1,8 @@
 # Bearly Missed
 
-Everything happening around Berkeley in one filterable list: talks, hackathons, parties,
-club meetings, free food. A scraper pulls from every place student events get posted,
+Berkeley's open-source calendar. Everything happening around Berkeley in one filterable
+list: talks, hackathons, parties, club meetings, free food. Anyone can add a calendar or
+report a listing ([Adding a source](#adding-a-source)), no code needed. A scraper pulls from every place student events get posted,
 merges duplicates, tags each event by topic and area, and publishes one JSON file. A static
 page lets students filter it.
 
