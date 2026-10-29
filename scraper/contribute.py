@@ -8,17 +8,25 @@ A "Report an event" issue that gets `approved` hides that event (moderation.toml
 
     python -m scraper.contribute check     # comment on a new or edited source issue
     python -m scraper.contribute approve   # save the approved source, or hide the reported event
+    python -m scraper.contribute forms     # turn new Google Form responses into those issues
+
+The Google Forms are the no-account path. Forms can't trigger GitHub, so a scheduled job reads
+each form's published response sheet and files new rows as the same issues, with the bot's
+check as a comment; approving them works the same way.
 
 The issue comes in through ISSUE_TITLE, ISSUE_BODY, ISSUE_NUMBER, ISSUE_AUTHOR and ISSUE_LABELS; the comment
 to post is written to COMMENT_FILE.
 """
 
 import base64
+import csv
+import io
 import ipaddress
 import json
 import os
 import re
 import socket
+import subprocess
 import sys
 import tomllib
 from datetime import timedelta
@@ -201,7 +209,72 @@ def hide_event(issue_title: str, reason: str, issue: int, root: Path = ROOT) -> 
         f.write("\n[[hidden]]\n" + "".join(f"{k} = {json.dumps(v)}\n" for k, v in entry.items()))
 
 
+FORM_BATCH = 10  # new issues per run, so a flooded form can't bury the issue list
+
+
+def _gh(*args: str) -> str:
+    return subprocess.run(["gh", *args], check=True, capture_output=True, text=True).stdout
+
+
+def _quiet(s: str, limit: int = 500) -> str:
+    """Form text goes into public issues: no @mentions, and a sane length."""
+    return s.replace("@", "@\u200b").strip()[:limit]
+
+
+def _rows(sheet_csv: str | None) -> list[dict[str, str]]:
+    """Response rows keyed by lowercased question, so the forms' wording can change a bit."""
+    if not sheet_csv:
+        return []
+    return [{k.strip().lower(): v for k, v in row.items() if k}
+            for row in csv.DictReader(io.StringIO(get_text(sheet_csv)))]
+
+
+def _answer(row: dict[str, str], word: str) -> str:
+    return next((v.strip() for k, v in row.items() if word in k), "")
+
+
+def _form_body(fields: dict[str, str], stamp: str) -> str:
+    answers = "".join(f"### {label}\n\n{_quiet(value) or '_No response_'}\n\n"
+                      for label, value in fields.items())
+    return f"{answers}_Sent through the Google Form ({stamp})._"
+
+
+def from_forms(config: dict, gh=_gh) -> None:
+    c = config.get("community", {})
+    issues = json.loads(gh("issue", "list", "--state", "all", "--limit", "1000",
+                           "--json", "title,body"))
+    filed = "\n".join(f"{i['title']}\n{i['body']}" for i in issues)
+    made = 0
+    for row in _rows(c.get("source_sheet_csv")):
+        link = _answer(row, "link")
+        if not link or link in filed or made >= FORM_BATCH:
+            continue
+        fields = {"Club or calendar name": _answer(row, "name"), "Calendar link": link,
+                  "Where are the events?": _answer(row, "where"),
+                  "Anything else?": _answer(row, "anything")}
+        body = _form_body(fields, row.get("timestamp", ""))
+        url = gh("issue", "create", "--title", f"Add source: {_quiet(fields['Club or calendar name'], 80)}",
+                 "--label", "new-source", "--body", body)
+        _, comment = check(parse_issue(body), config)
+        gh("issue", "comment", url.strip().rsplit("/", 1)[1], "--body", comment)
+        filed += "\n" + link
+        made += 1
+    for row in _rows(c.get("report_sheet_csv")):
+        stamp, event = row.get("timestamp", ""), _answer(row, "event")
+        body = _form_body({"What's wrong?": _answer(row, "wrong"),
+                           "Anything else?": _answer(row, "anything")}, stamp)
+        if not event or (f"({stamp})" in filed and event in filed) or made >= FORM_BATCH:
+            continue
+        gh("issue", "create", "--title", f"Report: {_quiet(event, 150)}", "--label", "report",
+           "--body", body)
+        filed += f"\n{event}\n({stamp})"
+        made += 1
+
+
 def main(command: str) -> int:
+    if command == "forms":
+        from_forms(load_config())
+        return 0
     fields = parse_issue(os.environ.get("ISSUE_BODY", ""))
     issue = int(os.environ["ISSUE_NUMBER"])
     labels = set(json.loads(os.environ.get("ISSUE_LABELS", "[]")))
@@ -214,7 +287,9 @@ def main(command: str) -> int:
             return 0
         source, text = check(fields, load_config())
         if command == "approve" and source:
-            path = save_source(source, os.environ.get("ISSUE_AUTHOR", ""), issue)
+            author = os.environ.get("ISSUE_AUTHOR", "")
+            # Form submissions are filed by the bot; the person who sent them is anonymous.
+            path = save_source(source, "" if author.endswith("[bot]") else author, issue)
             text = (f"Added as `{path.relative_to(ROOT)}`. Its events show up on the site within a "
                     "few minutes. Thanks for contributing!")
         comment.write_text(text)

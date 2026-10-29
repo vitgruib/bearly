@@ -221,10 +221,13 @@ function card(e) {
   node.querySelector(".ical").onclick = () => downloadIcs(e);
   if (data.repo) {
     const flag = node.querySelector(".flag");
-    // GitHub's issue page drops prefilled form fields but keeps the title, so the id rides there.
-    const q = new URLSearchParams({ template: "report-event.yml",
-      title: `Report: ${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]` });
-    flag.href = `https://github.com/${data.repo}/issues/new?${q}`;
+    // The bot finds the event by the [id] at the end. GitHub's issue page drops prefilled form
+    // fields but keeps the title, so on GitHub the id rides there.
+    const label = `${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]`;
+    const q = new URLSearchParams({ template: "report-event.yml", title: `Report: ${label}` });
+    flag.href = data.forms?.report_form
+      ? data.forms.report_form.replace("EVENT", encodeURIComponent(label))
+      : `https://github.com/${data.repo}/issues/new?${q}`;
     flag.hidden = false;
   }
   return node;
@@ -350,10 +353,7 @@ async function boot() {
     $("#report a").href = data.report_url;
     $("#report").hidden = false;
   }
-  if (data.repo) {
-    $("#report .add-source a").href = `https://github.com/${data.repo}/issues/new?template=add-source.yml`;
-    $("#report .add-source").hidden = false;
-  }
+  if (data.repo) $("#report .add-source").hidden = false;
 
   new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting && rendered < filtered.length) renderMore();

@@ -4,10 +4,14 @@ name: Community sources and reports
 # issue gets a bot comment with what the calendar contains; the maintainer's `approved` label
 # saves the source (contributed/) or hides the event (moderation.toml), commits it, and starts a
 # scrape. Only people with triage access can add labels, so approval stays with maintainers.
+# Google Form responses (the no-account path) are filed as the same issues every 30 minutes.
 # Issue text is untrusted: it reaches scraper.contribute only through env vars.
 on:
   issues:
     types: [opened, edited, labeled]
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,9 +19,27 @@ permissions:
   actions: write
 
 jobs:
+  forms:
+    if: github.event_name != 'issues'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: forms
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --no-dev
+      - name: File new form responses as issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run python -m scraper.contribute forms
+
   check:
     if: >-
-      github.event.action != 'labeled' && github.event.issue.state == 'open' &&
+      github.event_name == 'issues' && github.event.action != 'labeled' && github.event.issue.state == 'open' &&
       contains(github.event.issue.labels.*.name, 'new-source')
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -43,7 +65,7 @@ jobs:
 
   approve:
     if: >-
-      github.event.action == 'labeled' && github.event.label.name == 'approved' &&
+      github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'approved' &&
       (contains(github.event.issue.labels.*.name, 'new-source') ||
        contains(github.event.issue.labels.*.name, 'report'))
     runs-on: ubuntu-latest

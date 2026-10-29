@@ -1,7 +1,9 @@
+import json
 from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from scraper import contribute
 from scraper.contribute import Rejected, hide_event, normalize, parse_issue, save_source
 from scraper.models import Event
 from scraper.run import build, hidden_ids, load_config
@@ -93,3 +95,52 @@ def test_hidden_events_are_dropped_from_the_published_list():
     keep, spam = (Event(title=t, start=now + timedelta(days=1), url=f"https://x.test/{t}", source="feeds",
                         city="Berkeley") for t in ("Study night", "Crypto giveaway"))
     assert [e.title for e in build([keep, spam], 30, now, hidden={spam.id})] == ["Study night"]
+
+
+SOURCE_SHEET = """Timestamp,Club or calendar name,Calendar link,Where are the events?,Anything else?
+10/29/2026 9:00:00,Cal Hiking Club,https://luma.com/calhiking,On or near campus,
+10/29/2026 9:05:00,Already filed,https://luma.com/filed,On or near campus,
+10/29/2026 9:10:00,@everyone spam,https://spam.test/cal.ics,Mostly online,ping @maintainer
+"""
+REPORT_SHEET = """Timestamp,Event,What's wrong?,Anything else?
+10/29/2026 9:20:00,Fake party (Oct 30) [0123456789ab],Spam or not a real event,
+"""
+
+
+class FakeGitHub:
+    def __init__(self, existing):
+        self.existing, self.created, self.comments = existing, [], []
+
+    def __call__(self, *args):
+        if args[:2] == ("issue", "list"):
+            return json.dumps(self.existing)
+        if args[:2] == ("issue", "create"):
+            opts = dict(zip(args[2::2], args[3::2], strict=False))
+            self.created.append(opts)
+            return f"https://github.com/o/r/issues/{len(self.created) + 40}\n"
+        self.comments.append(args)
+        return ""
+
+
+def test_form_responses_become_issues_once(monkeypatch):
+    sheets = {"src.csv": SOURCE_SHEET, "rep.csv": REPORT_SHEET}
+    monkeypatch.setattr(contribute, "get_text", lambda url: sheets[url])
+    monkeypatch.setattr(contribute, "check", lambda fields, config: (None, "bot says hi"))
+    gh = FakeGitHub([{"title": "Add source: x", "body": "https://luma.com/filed"}])
+    config = {"community": {"source_sheet_csv": "src.csv", "report_sheet_csv": "rep.csv"}}
+
+    contribute.from_forms(config, gh)
+
+    titles = [c["--title"] for c in gh.created]
+    assert titles == ["Add source: Cal Hiking Club", "Add source: @\u200beveryone spam",
+                      "Report: Fake party (Oct 30) [0123456789ab]"]
+    first = parse_issue(gh.created[0]["--body"])
+    assert first["calendar link"] == "https://luma.com/calhiking"
+    assert "@maintainer" not in gh.created[1]["--body"]  # form text can't notify anyone
+    assert [c["--label"] for c in gh.created] == ["new-source", "new-source", "report"]
+    assert ("issue", "comment", "41", "--body", "bot says hi") in gh.comments
+
+    gh.existing += [{"title": c["--title"], "body": c["--body"]} for c in gh.created]
+    gh.created.clear()
+    contribute.from_forms(config, gh)
+    assert gh.created == []  # a row already turned into an issue is skipped next run

@@ -97,6 +97,12 @@ replies with the events it found. Adding the `approved` label saves it as
 already parses are accepted, and only people with triage access can add labels, so
 nothing a stranger submits runs as code or goes up without a maintainer.
 
+No GitHub account? The same two flows run from Google Forms (`[community]` in
+`sources.toml`). Forms can't trigger GitHub, so every 30 minutes the workflow reads each
+form's published response sheet and files new rows as the same issues, with the bot's
+check as a comment. The submitter gets no reply, which is why the site calls GitHub the
+fast path.
+
 Reports work the same way: each event's **Report** link opens a prefilled issue, and
 `approved` adds the event's id to `moderation.toml`, which hides it from then on.
 

@@ -598,6 +598,15 @@ sheet_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZmUmfNT7L2r6xr9X0
 days_back = 60
 block = []  # event or report URLs that should never be listed
 
+[community]
+# The no-account path for adding sources and reporting events (contribute.py). Each is a Google
+# Form; its response sheet is published via File > Share > Publish to web > CSV, and every 30
+# minutes new rows are filed as the same GitHub issues the bot reviews. Empty = GitHub only.
+source_form = ""       # share link of the "Add a calendar" form
+source_sheet_csv = ""
+report_form = ""       # Get pre-filled link, with the Event answer set to EVENT
+report_sheet_csv = ""
+
 [slack]
 days_back = 14
 channels = []  # empty = every channel the bot has been added to

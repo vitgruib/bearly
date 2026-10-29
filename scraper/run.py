@@ -143,6 +143,7 @@ def main(argv: list[str]) -> None:
         "report_url": config.get("reports", {}).get("form_url") or None,
         "repo": config.get("repo"),
         "contributed": config.get("contributed", []),
+        "forms": {k: config.get("community", {}).get(k) or None for k in ("source_form", "report_form")},
         "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
                      "last_ok": state.source(n).get("last_ok"),
                      "last_run": state.source(n).get("last_run"),

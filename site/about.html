@@ -176,12 +176,19 @@
       <code>site/</code>. The current data is public too:
       <a href="data/events.json">events.json</a>.</p>
 
-    <h2>Add a source</h2>
-    <p>Anyone can add a calendar. <a href="https://github.com/vitgruib/bearly/issues/new?template=add-source.yml">Open
-      an “Add a source” issue</a> with a link to a public Google Calendar, a Luma calendar, an .ics or
-      RSS feed, or an events page. A bot fetches it and replies with the events it found; once a
-      maintainer approves it, it's checked every few hours like every other source.
-      <span id="contributed"></span></p>
+    <h2 id="add-source">Add a source</h2>
+    <p>Anyone can add a calendar: a public Google Calendar, a Luma calendar, an .ics or RSS feed,
+      or an events page. Once a maintainer approves it, it's checked every few hours like every
+      other source. Two ways to send one:</p>
+    <ul class="ways">
+      <li><a id="source-github" href="https://github.com/vitgruib/bearly/issues/new?template=add-source.yml"><strong>On GitHub</strong></a>
+        (free account). <strong>Fastest:</strong> a bot replies within a minute with the events it
+        found, so a wrong link can be fixed right away.</li>
+      <li id="source-form-item" hidden><a id="source-form"><strong>With a Google Form</strong></a>
+        (no account). The bot checks it within about half an hour, but can't reply to you; your
+        club appears in the list below once it's approved.</li>
+    </ul>
+    <p><span id="contributed"></span></p>
     <p>See something wrong? Every event has a <strong>Report</strong> link for spam, cancellations
       and mistakes; an approved report takes the event down. For one event we missed, the
       <a class="report-link" href="#">missing-event form</a> needs no account.</p>
@@ -227,6 +234,10 @@
       document.getElementById("updated").textContent =
         `${data.events.length.toLocaleString()} upcoming events right now. Tap a source to see how it's read.`;
       if (data.report_url) for (const a of document.querySelectorAll(".report-link")) a.href = data.report_url;
+      if (data.forms?.source_form) {
+        document.getElementById("source-form").href = data.forms.source_form;
+        document.getElementById("source-form-item").hidden = false;
+      }
       if (data.contributed?.length) {
         document.getElementById("contributed").textContent = `Added by the community so far: ${
           data.contributed.map((c) => c.by ? `${c.name} (@${c.by})` : c.name).join(", ")}.`;
