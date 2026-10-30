@@ -9,25 +9,29 @@
   const KEY = "bearly-ui";
   const SHOW = "bearly-ui-panel";
   const OPTIONS = [
-    { id: "font", label: "Font", attr: true, choices: [["default", "Serif"], ["inter", "Inter"], ["instrument", "Instr."], ["bricolage", "Brico."], ["franklin", "Franklin"], ["schibsted", "Schib."], ["hanken", "Hanken"]] },
+    { id: "font", label: "Font", attr: true, choices: [["default", "Serif"], ["inter", "Inter"], ["instrument", "Instr."], ["bricolage", "Brico."], ["franklin", "Franklin"], ["schibsted", "Schib."], ["hanken", "Hanken"], ["geist", "Geist"], ["manrope", "Manrope"], ["jakarta", "Jakarta"], ["figtree", "Figtree"], ["archivo", "Archivo"], ["public", "Public"], ["plex", "Plex"], ["familjen", "Familjen"], ["mona", "Mona"], ["onest", "Onest"], ["albert", "Albert"], ["redhat", "Red Hat"]] },
     { id: "theme", label: "Theme", attr: true, choices: [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]] },
-    { id: "accent", label: "Accent", choices: [["default", "Cal blue"], ["gold", "Gold"], ["green", "Green"], ["rose", "Rose"]] },
-    { id: "layout", label: "Events", attr: true, choices: [["cards", "Cards"], ["list", "List"]] },
-    { id: "density", label: "Density", attr: true, choices: [["comfortable", "Comfy"], ["compact", "Compact"]] },
-    { id: "thumbs", label: "Images", attr: true, choices: [["on", "On"], ["off", "Off"]] },
-    { id: "radius", label: "Corners", choices: [["default", "Round"], ["soft", "Soft"], ["square", "Square"]] },
-    { id: "width", label: "Width", choices: [["narrow", "Narrow"], ["default", "Normal"], ["wide", "Wide"]] },
   ];
-  // [accent, text on accent]
-  const ACCENTS = { gold: ["#fdb515", "#14161a"], green: ["#1f7a4d", "#ffffff"], rose: ["#c2410c", "#ffffff"] };
   // Families for the Font option, fetched only once picked.
   const FONTS = {
-    instrument: "Instrument+Sans:wght@400;500;600;700", bricolage: "Bricolage+Grotesque:wght@400;500;600;700;800",
-    franklin: "Libre+Franklin:wght@400;500;600;700;800", schibsted: "Schibsted+Grotesk:wght@400;500;600;700;800",
+    instrument: "Instrument+Sans:wght@400;500;600;700",
+    bricolage: "Bricolage+Grotesque:wght@400;500;600;700;800",
+    franklin: "Libre+Franklin:wght@400;500;600;700;800",
+    schibsted: "Schibsted+Grotesk:wght@400;500;600;700;800",
     hanken: "Hanken+Grotesk:wght@400;500;600;700;800",
+    geist: "Geist:wght@400;500;600;700;800",
+    manrope: "Manrope:wght@400;500;600;700;800",
+    jakarta: "Plus+Jakarta+Sans:wght@400;500;600;700;800",
+    figtree: "Figtree:wght@400;500;600;700;800",
+    archivo: "Archivo:wght@400;500;600;700;800",
+    public: "Public+Sans:wght@400;500;600;700;800",
+    plex: "IBM+Plex+Sans:wght@400;500;600;700",
+    familjen: "Familjen+Grotesk:wght@400;500;600;700",
+    mona: "Mona+Sans:wght@400;500;600;700;800",
+    onest: "Onest:wght@400;500;600;700;800",
+    albert: "Albert+Sans:wght@400;500;600;700;800",
+    redhat: "Red+Hat+Display:wght@400;500;600;700;800",
   };
-  const RADII = { soft: "8px", square: "2px" };
-  const WIDTHS = { narrow: "700px", wide: "1080px" };
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -46,14 +50,6 @@
       const v = value(o);
       v === dflt(o) ? root.removeAttribute(`data-${o.id}`) : root.setAttribute(`data-${o.id}`, v);
     }
-    const accent = ACCENTS[prefs.accent];
-    if (accent) {
-      root.style.setProperty("--accent", accent[0]);
-      root.style.setProperty("--accent-ink", accent[1]);
-    } else {
-      root.style.removeProperty("--accent");
-      root.style.removeProperty("--accent-ink");
-    }
     if (FONTS[prefs.font] && !document.getElementById("ui-font-" + prefs.font)) {
       const link = document.createElement("link");
       link.id = "ui-font-" + prefs.font;
@@ -61,8 +57,6 @@
       link.href = `https://fonts.googleapis.com/css2?family=${FONTS[prefs.font]}&display=swap`;
       document.head.append(link);
     }
-    RADII[prefs.radius] ? root.style.setProperty("--radius", RADII[prefs.radius]) : root.style.removeProperty("--radius");
-    WIDTHS[prefs.width] ? root.style.setProperty("--wrap", WIDTHS[prefs.width]) : root.style.removeProperty("--wrap");
   }
   apply(); // before first paint: this script loads in <head>
 
@@ -91,9 +85,9 @@
     header button:hover { color: #16181d; }
     .opt { margin-top: 9px; }
     .opt span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #6b6f78; margin-bottom: 4px; }
-    .seg { display: flex; background: #f1f1f1; border-radius: 8px; padding: 2px; gap: 2px; }
+    .seg { display: flex; flex-wrap: wrap; background: #f1f1f1; border-radius: 8px; padding: 2px; gap: 2px; }
     .seg button {
-      flex: 1; border: 0; background: none; border-radius: 6px; padding: 5px 4px; cursor: pointer;
+      flex: 1 0 auto; border: 0; background: none; border-radius: 6px; padding: 5px 4px; cursor: pointer;
       font: 500 12px system-ui, sans-serif; color: #3a3d44;
     }
     .seg button[aria-pressed="true"] { background: #fff; color: #16181d; box-shadow: 0 1px 3px rgb(0 0 0 / 15%); }

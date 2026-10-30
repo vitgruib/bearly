@@ -77,7 +77,6 @@ body {
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.day h2, .time) { color: var(--gold); } }
 :root[data-theme="dark"] :is(.day h2, .time) { color: var(--gold); }
 .day h2 { color: var(--blue); }
-.wordmark b { font-weight: 700; }
 .tagline { margin: 10px 0 0; color: var(--muted); font-size: 17px; }
 .tagline em { font: italic 400 20px var(--display); color: var(--ink); }
 
@@ -289,21 +288,6 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .facts ol.found { margin: 2px 0 0; padding-left: 18px; }
 .facts ol.found li { margin: 2px 0; font-size: 14px; }
 .facts dd code { overflow-wrap: anywhere; }  /* long API paths would push past a phone screen */
-
-/* Options from the UI panel (tweaks.js), set as attributes on <html>. */
-[data-density="compact"] .card { padding: 9px 12px; gap: 5px 12px; margin-bottom: 6px; }
-[data-density="compact"] .desc { display: none; }
-[data-density="compact"] .thumb { width: 56px; height: 56px; }
-[data-density="compact"] .day { margin: 16px 0 6px; }
-
-[data-layout="list"] .card {
-  background: transparent; border: 0; border-bottom: 1px solid var(--faint);
-  border-radius: 0; box-shadow: none; margin: 0;
-}
-[data-layout="list"] .card:hover { transform: none; background: var(--surface); }
-
-[data-thumbs="off"] .thumb { display: none; }
-[data-thumbs="off"] .card { grid-template-columns: 74px 1fr; }
 
 @media (max-width: 600px) {
   .facts { grid-template-columns: 1fr; gap: 0; padding-left: 14px; }

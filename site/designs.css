@@ -6,6 +6,18 @@
 [data-font="franklin"] { --display: "Libre Franklin", system-ui, sans-serif; --body: "Libre Franklin", system-ui, sans-serif; }
 [data-font="schibsted"] { --display: "Schibsted Grotesk", system-ui, sans-serif; --body: "Schibsted Grotesk", system-ui, sans-serif; }
 [data-font="hanken"] { --display: "Hanken Grotesk", system-ui, sans-serif; --body: "Hanken Grotesk", system-ui, sans-serif; }
+[data-font="geist"] { --display: "Geist", system-ui, sans-serif; --body: "Geist", system-ui, sans-serif; }
+[data-font="manrope"] { --display: "Manrope", system-ui, sans-serif; --body: "Manrope", system-ui, sans-serif; }
+[data-font="jakarta"] { --display: "Plus Jakarta Sans", system-ui, sans-serif; --body: "Plus Jakarta Sans", system-ui, sans-serif; }
+[data-font="figtree"] { --display: "Figtree", system-ui, sans-serif; --body: "Figtree", system-ui, sans-serif; }
+[data-font="archivo"] { --display: "Archivo", system-ui, sans-serif; --body: "Archivo", system-ui, sans-serif; }
+[data-font="public"] { --display: "Public Sans", system-ui, sans-serif; --body: "Public Sans", system-ui, sans-serif; }
+[data-font="plex"] { --display: "IBM Plex Sans", system-ui, sans-serif; --body: "IBM Plex Sans", system-ui, sans-serif; }
+[data-font="familjen"] { --display: "Familjen Grotesk", system-ui, sans-serif; --body: "Familjen Grotesk", system-ui, sans-serif; }
+[data-font="mona"] { --display: "Mona Sans", system-ui, sans-serif; --body: "Mona Sans", system-ui, sans-serif; }
+[data-font="onest"] { --display: "Onest", system-ui, sans-serif; --body: "Onest", system-ui, sans-serif; }
+[data-font="albert"] { --display: "Albert Sans", system-ui, sans-serif; --body: "Albert Sans", system-ui, sans-serif; }
+[data-font="redhat"] { --display: "Red Hat Display", system-ui, sans-serif; --body: "Red Hat Display", system-ui, sans-serif; }
 [data-font] .wordmark { font-weight: 800; letter-spacing: -0.045em; font-size: clamp(46px, 8vw, 72px); }
 [data-font] .title { font-weight: 600; font-size: 17px; letter-spacing: -0.01em; line-height: 1.3; }
 [data-font] :is(.day h2, .prose h2, .empty strong) { font-weight: 700; letter-spacing: -0.025em; }

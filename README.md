@@ -1,4 +1,4 @@
-# The Calendar
+# Bearly
 
 Berkeley's open-source calendar. Everything happening around Berkeley in one filterable
 list: talks, hackathons, parties, club meetings, free food. Anyone can add a calendar or
