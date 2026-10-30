@@ -1,0 +1,103 @@
+/* Candidate designs, all in Berkeley's palette. Inactive unless the UI panel (?ui) sets
+   data-design on <html>; the chosen one gets folded into styles.css and this file removed. */
+:root {
+  --founders: #3b7ea1;
+  --medalist: #c4820e;
+  --bayfog: #ddd5c7;
+  --deep: #001a52;
+}
+
+/* Blue band: a Berkeley Blue masthead, gold wordmark dot, the rest stays light. */
+:root[data-design="band"] {
+  --bg: #f7f6f2; --surface: #fff; --ink: #121a2e; --muted: #5d6578; --faint: #e3e1da;
+  --accent: #002676; --accent-ink: #fff; --chip: #eef0f5; color-scheme: light;
+}
+[data-design="band"] .masthead { background: var(--blue); color: #fff; padding-bottom: 30px; margin-bottom: 18px; }
+[data-design="band"] .wordmark { color: #fff; }
+[data-design="band"] .tagline { color: #c9d3ea; }
+[data-design="band"] .nav a { color: #c9d3ea; }
+[data-design="band"] .nav a:hover, [data-design="band"] .nav a[aria-current="page"] { color: #fff; background: rgb(255 255 255 / 12%); }
+[data-design="band"] .report { color: #c9d3ea; }
+[data-design="band"] .report a { color: var(--gold); }
+[data-design="band"] .day h2 { color: var(--blue); }
+[data-design="band"] .day h2::after { content: ""; display: block; width: 28px; height: 3px; background: var(--gold); margin-top: 4px; border-radius: 2px; }
+[data-design="band"] .time { color: var(--blue); }
+
+/* Gold: a gold rule up top, gold for whatever is selected, blue for type. */
+:root[data-design="gold"] {
+  --bg: #fffdf7; --surface: #fff; --ink: #0f1d3d; --muted: #5f6474; --faint: #ece6d6;
+  --accent: #fdb515; --accent-ink: #002676; --chip: #f6f1e3; color-scheme: light;
+}
+[data-design="gold"] body { border-top: 6px solid var(--gold); }
+[data-design="gold"] .wordmark { font-family: Inter, system-ui, sans-serif; font-weight: 800; letter-spacing: -0.05em; }
+[data-design="gold"] .wordmark .dot { color: var(--gold); }
+[data-design="gold"] .chip[aria-pressed="true"] { font-weight: 600; }
+[data-design="gold"] .day h2 { font: 800 21px/1.1 Inter, system-ui, sans-serif; letter-spacing: -0.02em; color: var(--blue); }
+[data-design="gold"] .card { border-left: 4px solid transparent; }
+[data-design="gold"] .card:hover { border-color: var(--faint); border-left-color: var(--gold); }
+[data-design="gold"] .time { color: var(--blue); }
+[data-design="gold"] .search:focus-within { border-color: var(--gold); }
+
+/* Bay Fog: an editorial list on warm grey paper, serif titles, rules instead of boxes. */
+:root[data-design="fog"] {
+  --bg: #f2eee6; --surface: #faf8f3; --ink: #1d2433; --muted: #6a6658; --faint: #d8d0c1;
+  --accent: #002676; --accent-ink: #fff; --chip: #e7e1d4; --shadow: none; color-scheme: light;
+}
+[data-design="fog"] .masthead { border-bottom: 1px solid var(--ink); }
+[data-design="fog"] .wordmark { font-size: clamp(60px, 11vw, 104px); }
+[data-design="fog"] .wordmark .dot { color: var(--medalist); }
+[data-design="fog"] .search { border-radius: 4px; box-shadow: none; }
+[data-design="fog"] .chip, [data-design="fog"] #when, [data-design="fog"] #when button { border-radius: 4px; }
+[data-design="fog"] .card { background: transparent; border: 0; border-bottom: 1px solid var(--faint); border-radius: 0; margin: 0; padding: 16px 4px; }
+[data-design="fog"] .card:hover { transform: none; background: var(--surface); }
+[data-design="fog"] .title { font: 400 21px/1.2 var(--display); }
+[data-design="fog"] .day { border-bottom: 1px solid var(--ink); }
+[data-design="fog"] .day h2 { font-size: 34px; color: var(--blue); }
+[data-design="fog"] .thumb { border-radius: 2px; filter: saturate(.85); }
+
+/* Night: Berkeley Blue as the page, gold as the light. */
+:root[data-design="night"] {
+  --bg: #001a52; --surface: #002676; --ink: #f5f2ea; --muted: #a8b5d6; --faint: #1c3d86;
+  --accent: #fdb515; --accent-ink: #002676; --chip: #0c3183; --shadow: 0 4px 18px rgb(0 0 0 / 25%);
+  color-scheme: dark;
+}
+[data-design="night"] .wordmark { color: #fff; }
+[data-design="night"] .day h2 { color: var(--gold); }
+[data-design="night"] .time { color: var(--gold); }
+[data-design="night"] .badge.food { background: #4a3a0c; color: #ffd978; }
+[data-design="night"] .badge.free { background: #0f3d3a; color: #8fe0c4; }
+[data-design="night"] .card:hover { border-color: var(--gold); }
+
+/* Signage: campus wayfinding. Heavy sans, square corners, day headers as blue bars. */
+:root[data-design="sign"] {
+  --bg: #f4f4f1; --surface: #fff; --ink: #111827; --muted: #5b6170; --faint: #dcdcd6;
+  --accent: #002676; --accent-ink: #fff; --chip: #e9e9e4; --radius: 3px; --shadow: none; color-scheme: light;
+}
+[data-design="sign"] .wordmark { font: 800 clamp(44px, 8vw, 68px)/0.95 Inter, system-ui, sans-serif; letter-spacing: -0.04em; text-transform: uppercase; }
+[data-design="sign"] .wordmark .dot { color: var(--gold); }
+[data-design="sign"] :is(.search, .chip, #when, #when button, .nav a, .range input) { border-radius: 3px; }
+[data-design="sign"] .day { background: var(--blue); color: #fff; padding: 8px 12px; margin: 22px 0 8px; border-left: 6px solid var(--gold); }
+[data-design="sign"] .day h2 { font: 800 15px/1.2 Inter, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+[data-design="sign"] .day span { color: #c9d3ea; }
+[data-design="sign"] .card { margin-bottom: 6px; }
+[data-design="sign"] .card:hover { transform: none; border-color: var(--blue); }
+[data-design="sign"] .time { font-weight: 800; color: var(--blue); }
+[data-design="sign"] .thumb { border-radius: 2px; }
+
+/* Pennant: a gold masthead, blue type, big soft cards. */
+:root[data-design="pennant"] {
+  --bg: #f6f8fc; --surface: #fff; --ink: #0d1a3a; --muted: #5c6886; --faint: #e1e6f0;
+  --accent: #002676; --accent-ink: #fff; --chip: #e9eef8; --radius: 20px;
+  --shadow: 0 2px 6px rgb(0 38 118 / 6%), 0 10px 30px rgb(0 38 118 / 7%); color-scheme: light;
+}
+[data-design="pennant"] .masthead { background: var(--gold); padding-bottom: 34px; margin-bottom: 18px; border-radius: 0 0 28px 28px; }
+[data-design="pennant"] .wordmark { color: var(--blue); }
+[data-design="pennant"] .wordmark .dot { color: #fff; }
+[data-design="pennant"] .tagline, [data-design="pennant"] .report { color: #3d3410; }
+[data-design="pennant"] .report a { color: var(--blue); }
+[data-design="pennant"] .nav a { color: #3d3410; }
+[data-design="pennant"] .nav a:hover, [data-design="pennant"] .nav a[aria-current="page"] { color: var(--blue); background: rgb(255 255 255 / 45%); }
+[data-design="pennant"] .day h2 { font-style: italic; color: var(--blue); }
+[data-design="pennant"] .card { border-color: transparent; padding: 16px 18px; }
+[data-design="pennant"] .thumb { border-radius: 14px; }
+[data-design="gold"] :is(.report a, .empty a) { color: var(--blue); text-decoration-color: var(--gold); text-decoration-thickness: 2px; }

@@ -9,6 +9,7 @@
   const KEY = "bearly-ui";
   const SHOW = "bearly-ui-panel";
   const OPTIONS = [
+    { id: "design", label: "Design", attr: true, choices: [["current", "Now"], ["band", "Band"], ["gold", "Gold"], ["fog", "Fog"], ["night", "Night"], ["sign", "Sign"], ["pennant", "Pennant"]] },
     { id: "theme", label: "Theme", attr: true, choices: [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]] },
     { id: "accent", label: "Accent", choices: [["default", "Cal blue"], ["gold", "Gold"], ["green", "Green"], ["rose", "Rose"]] },
     { id: "headings", label: "Headings", attr: true, choices: [["serif", "Serif"], ["sans", "Sans"]] },
