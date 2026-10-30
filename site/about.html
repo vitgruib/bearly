@@ -82,7 +82,7 @@
         <dt>Gets</dt><dd>Title, time, location, description, and image where the feed has one.</dd>
         <dt class="tech">Found by</dt><dd class="tech">Club calendars linked from CalLink and club websites, the Haas clubs
           calendar, and departments and nearby institutions such as Berkeley Law, BAMPFA and the
-          Berkeley Public Library. Anyone can <a href="#add-source">add one</a>.</dd>
+          Berkeley Public Library.</dd>
       </dl>
     </details>
 
@@ -166,8 +166,7 @@
     </div>
 
     <h2 id="tags">How events are tagged</h2>
-    <p>Every event goes through the same fixed rules, whatever the source
-      (<a href="https://github.com/vitgruib/bearly/blob/main/scraper/enrich.py">scraper/enrich.py</a>).</p>
+    <p>Every event goes through the same fixed rules, whatever the source.</p>
 
     <h3>Location</h3>
     <p>The first rule that fits decides:</p>
@@ -204,12 +203,10 @@
     <p>Code at <a href="https://github.com/vitgruib/bearly">GitHub</a>. Event data is available on
       request through the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform?usp=pp_url&amp;entry.983668865=Send+feedback">form</a>.</p>
 
-    <h2 id="add-source">Add a source</h2>
-    <p>Add a calendar or a single event with the
-      <a id="form" href="https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform">Google Form</a>.
-      A maintainer approves everything before it goes up. You can also open a
-      <a href="https://github.com/vitgruib/bearly/pulls">pull request</a> on GitHub.</p>
-    <p><span id="contributed"></span></p>
+    <h2 id="suggest-source">Suggest a source</h2>
+    <p>Know a calendar we should read? Open a pull request that adds it to
+      <a href="https://github.com/vitgruib/bearly/edit/main/sources.toml">sources.toml</a>.
+      A maintainer reviews every suggestion.</p>
   </main>
 
   <footer class="wrap footer">
@@ -279,13 +276,6 @@
         p.textContent = patterns.map((w) => w.replace(/\\b/g, "").replace(/(\w)s\?/g, "$1(s)")).join(", ");
         d.append(sum, p);
         words.insertBefore(d, document.getElementById("free-tag"));
-      }
-      if (data.forms?.form) {
-        for (const a of document.querySelectorAll("#form")) a.href = data.forms.form;
-      }
-      if (data.contributed?.length) {
-        document.getElementById("contributed").textContent = `Added by the community so far: ${
-          data.contributed.map((c) => c.by ? `${c.name} (@${c.by})` : c.name).join(", ")}.`;
       }
     }).catch(() => {});
   </script>

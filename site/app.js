@@ -206,9 +206,6 @@ function toggle(set, v) {
 
 /* ---------- List ---------- */
 
-// The form when it's set up (no account needed), otherwise the GitHub issue.
-const addEvent = () => data.forms?.form
-  || (data.repo ? `https://github.com/${data.repo}/issues/new?template=add-event.yml` : null);
 const sourceName = (id) => data.sources.find((s) => s.id === id)?.name || id;
 
 function dayLabel(key) {
@@ -231,8 +228,19 @@ function card(e) {
   const a = node.querySelector(".title");
   a.textContent = e.title;
   if (e.url) a.href = e.url;
-  const where = [e.online ? "Online" : e.venue || e.address || e.city, e.host].filter(Boolean);
-  node.querySelector(".where").textContent = where.join(" · ");
+  const whereEl = node.querySelector(".where");
+  const place = e.online ? "" : e.venue || e.address || e.city || "";
+  if (place) {
+    const map = document.createElement("a");
+    map.className = "map";
+    map.textContent = place;
+    map.title = "Open in Google Maps";
+    const query = e.lat != null ? `${e.lat},${e.lng}` : [e.venue, e.address || e.city].filter(Boolean).join(", ");
+    Object.assign(map, { href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, target: "_blank", rel: "noopener" });
+    whereEl.append(map);
+  }
+  const rest = [e.online ? "Online" : "", e.host].filter(Boolean).join(" · ");
+  if (rest) whereEl.append(`${place ? " · " : ""}${rest}`);
   node.querySelector(".desc").textContent = e.description || "";
   const badges = node.querySelector(".badges");
   const add = (text, cls = "") => {
@@ -267,13 +275,13 @@ function card(e) {
   if (e.image) img.src = e.image; else img.remove();
   img.onerror = () => img.remove();
   const end = e._end || e._start + 2 * 3600e3;
-  const place = e.address || e.venue || "";
+  const calPlace = e.address || e.venue || "";
   const details = `${e.description || ""}\n\n${e.url || ""}`.trim().slice(0, 1500);
   node.querySelector(".gcal").href = `https://calendar.google.com/calendar/render?${new URLSearchParams({
-    action: "TEMPLATE", text: e.title, dates: `${icsDate(e._start)}/${icsDate(end)}`, details, location: place })}`;
+    action: "TEMPLATE", text: e.title, dates: `${icsDate(e._start)}/${icsDate(end)}`, details, location: calPlace })}`;
   node.querySelector(".ocal").href = `https://outlook.live.com/calendar/0/action/compose?${new URLSearchParams({
     subject: e.title, startdt: new Date(e._start).toISOString(), enddt: new Date(end).toISOString(),
-    body: details, location: place })}`;
+    body: details, location: calPlace })}`;
   node.querySelector(".ics").onclick = () => downloadIcs(e);
   if (data.repo) {
     const flag = node.querySelector(".flag");
@@ -323,7 +331,7 @@ function update() {
   rendered = 0;
   lastDay = null;
   if (!filtered.length) {
-    $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.${addEvent() ? ` Know of one we missed? <a href="${addEvent()}" target="_blank" rel="noopener">Add it</a>.` : ""}</div>`;
+    $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.</div>`;
     return;
   }
   renderMore();
@@ -413,11 +421,6 @@ async function boot() {
   const notes = data.sources.filter((s) => s.health !== "ok" && !(s.health === "off" && s.count)).map((s) =>
     `${s.name} (${s.health === "off" ? "not connected" : `having trouble; showing results from ${s.last_ok ? relTime(s.last_ok) : "earlier"}`})`);
   $("#status").textContent = notes.length ? `Also: ${notes.join(", ")}.` : "";
-  if (addEvent()) {
-    $("#report a").href = addEvent();
-    $("#report").hidden = false;
-  }
-  if (data.repo) $("#report .add-source").hidden = false;
 
   new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting && rendered < filtered.length) renderMore();
