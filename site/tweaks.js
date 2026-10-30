@@ -9,29 +9,8 @@
   const KEY = "bearly-ui";
   const SHOW = "bearly-ui-panel";
   const OPTIONS = [
-    { id: "font", label: "Font", attr: true, choices: [["default", "Serif"], ["inter", "Inter"], ["instrument", "Instr."], ["bricolage", "Brico."], ["franklin", "Franklin"], ["schibsted", "Schib."], ["hanken", "Hanken"], ["geist", "Geist"], ["manrope", "Manrope"], ["jakarta", "Jakarta"], ["figtree", "Figtree"], ["archivo", "Archivo"], ["public", "Public"], ["plex", "Plex"], ["familjen", "Familjen"], ["mona", "Mona"], ["onest", "Onest"], ["albert", "Albert"], ["redhat", "Red Hat"]] },
     { id: "theme", label: "Theme", attr: true, choices: [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]] },
   ];
-  // Families for the Font option, fetched only once picked.
-  const FONTS = {
-    instrument: "Instrument+Sans:wght@400;500;600;700",
-    bricolage: "Bricolage+Grotesque:wght@400;500;600;700;800",
-    franklin: "Libre+Franklin:wght@400;500;600;700;800",
-    schibsted: "Schibsted+Grotesk:wght@400;500;600;700;800",
-    hanken: "Hanken+Grotesk:wght@400;500;600;700;800",
-    geist: "Geist:wght@400;500;600;700;800",
-    manrope: "Manrope:wght@400;500;600;700;800",
-    jakarta: "Plus+Jakarta+Sans:wght@400;500;600;700;800",
-    figtree: "Figtree:wght@400;500;600;700;800",
-    archivo: "Archivo:wght@400;500;600;700;800",
-    public: "Public+Sans:wght@400;500;600;700;800",
-    plex: "IBM+Plex+Sans:wght@400;500;600;700",
-    familjen: "Familjen+Grotesk:wght@400;500;600;700",
-    mona: "Mona+Sans:wght@400;500;600;700;800",
-    onest: "Onest:wght@400;500;600;700;800",
-    albert: "Albert+Sans:wght@400;500;600;700;800",
-    redhat: "Red+Hat+Display:wght@400;500;600;700;800",
-  };
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -49,13 +28,6 @@
       if (!o.attr) continue;
       const v = value(o);
       v === dflt(o) ? root.removeAttribute(`data-${o.id}`) : root.setAttribute(`data-${o.id}`, v);
-    }
-    if (FONTS[prefs.font] && !document.getElementById("ui-font-" + prefs.font)) {
-      const link = document.createElement("link");
-      link.id = "ui-font-" + prefs.font;
-      link.rel = "stylesheet";
-      link.href = `https://fonts.googleapis.com/css2?family=${FONTS[prefs.font]}&display=swap`;
-      document.head.append(link);
     }
   }
   apply(); // before first paint: this script loads in <head>
