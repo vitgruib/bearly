@@ -24,22 +24,28 @@
   </header>
 
   <main class="wrap prose">
-    <h2>Sources</h2>
+    <div class="sources-head">
+      <h2>Sources</h2>
+      <div class="view" role="radiogroup" aria-label="Detail">
+        <button type="button" role="radio" data-view="simple" aria-checked="true">Simple</button>
+        <button type="button" role="radio" data-view="tech" aria-checked="false">Technical</button>
+      </div>
+    </div>
     <p class="note" id="updated">A Python script on GitHub Actions reads every source with ordinary
       HTTPS requests: no login, no browser. Tap a source to see what it calls.</p>
 
-    <div class="sources">
+    <div class="sources" id="source-list" data-view="simple">
     <details class="source" data-source="luma">
       <summary><span class="name">Luma</span></summary>
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://luma.com/discover">luma.com</a></dd>
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>GET requests to Luma's JSON API at <code>api.lu.ma</code>:
+        <dt class="tech">How</dt><dd class="tech">GET requests to Luma's JSON API at <code>api.lu.ma</code>:
           <code>/discover/get-paginated-events</code> for events near campus,
           <code>/calendar/get-items</code> for each followed calendar, and
           <code>/user/profile/events-hosting</code> for each organizer.</dd>
         <dt>Gets</dt><dd>Title, time, venue and map location, host, description, cover image, free or paid.</dd>
-        <dt>Found by</dt><dd>Three ways:
+        <dt class="tech">Found by</dt><dd class="tech">Three ways:
           <ol class="found">
             <li>Luma's discover feed: the events nearest campus, plus its AI, Tech, Climate and
               Arts feeds.</li>
@@ -58,10 +64,10 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://events.berkeley.edu">events.berkeley.edu</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>A GET request to the JSON API behind the campus calendar,
+        <dt class="tech">How</dt><dd class="tech">A GET request to the JSON API behind the campus calendar,
           <code>events.berkeley.edu/live/json/v2/events</code>.</dd>
         <dt>Gets</dt><dd>Title, time, room and building, department, description, image, event type, cost.</dd>
-        <dt>Found by</dt><dd>It's the official campus calendar.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">It's the official campus calendar.</dd>
       </dl>
     </details>
 
@@ -70,11 +76,11 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://callink.berkeley.edu/organizations">CalLink</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>A GET request to each of about 60 public feeds: the calendar's iCal (.ics) file,
+        <dt class="tech">How</dt><dd class="tech">A GET request to each of about 60 public feeds: the calendar's iCal (.ics) file,
           its RSS feed, its WordPress or Localist events API (JSON), or the event data
           (JSON-LD) embedded in its calendar page.</dd>
         <dt>Gets</dt><dd>Title, time, location, description, and image where the feed has one.</dd>
-        <dt>Found by</dt><dd>Club calendars linked from CalLink and club websites, the Haas clubs
+        <dt class="tech">Found by</dt><dd class="tech">Club calendars linked from CalLink and club websites, the Haas clubs
           calendar, and departments and nearby institutions such as Berkeley Law, BAMPFA and the
           Berkeley Public Library. Anyone can <a href="#add-source">add one</a>.</dd>
       </dl>
@@ -85,11 +91,11 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://www.instagram.com">instagram.com</a></dd>
         <dt>Checked</dt><dd>Each club about every 9 days</dd>
-        <dt>How</dt><dd>A POST request to Apify's API (<code>api.apify.com</code>) starts its Instagram post
+        <dt class="tech">How</dt><dd class="tech">A POST request to Apify's API (<code>api.apify.com</code>) starts its Instagram post
           scraper on a list of club accounts; the posts come back as JSON.</dd>
         <dt>Gets</dt><dd>Date, time, room and free food from the caption ("GBM Thursday 10/29 7pm in
           Soda 306"). An event link in the caption is followed to the full event.</dd>
-        <dt>Found by</dt><dd>The Instagram handle on each club's CalLink profile, about 880 accounts.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">The Instagram handle on each club's CalLink profile, about 880 accounts.</dd>
       </dl>
     </details>
 
@@ -97,11 +103,11 @@
       <summary><span class="name">Mailing lists</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>An email inbox subscribed to department and club listservs, read over IMAP (the
+        <dt class="tech">How</dt><dd class="tech">An email inbox subscribed to department and club listservs, read over IMAP (the
           standard mail protocol).</dd>
         <dt>Gets</dt><dd>The full event from any event link, otherwise the date, time and room from
           the email.</dd>
-        <dt>Found by</dt><dd>Subscribing the inbox to a list.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">Subscribing the inbox to a list.</dd>
       </dl>
     </details>
 
@@ -110,10 +116,10 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://cerebralvalley.ai/events">cerebralvalley.ai</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>A GET request to Cerebral Valley's public API,
+        <dt class="tech">How</dt><dd class="tech">A GET request to Cerebral Valley's public API,
           <code>api.cerebralvalley.ai/v1/public/event/pull</code>.</dd>
         <dt>Gets</dt><dd>Title, time, venue, city, description, image, event type.</dd>
-        <dt>Found by</dt><dd>It's the main Bay Area AI community calendar.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">It's the main Bay Area AI community calendar.</dd>
       </dl>
     </details>
 
@@ -122,11 +128,11 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://partiful.com/explore">partiful.com/explore</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>A GET request for the page <code>partiful.com/explore</code>; the Bay Area
+        <dt class="tech">How</dt><dd class="tech">A GET request for the page <code>partiful.com/explore</code>; the Bay Area
           "trending" events are in the JSON the page ships with. A shared
           <code>partiful.com/e/…</code> link is read the same way.</dd>
         <dt>Gets</dt><dd>Title, time, venue and address, description, image, free or paid.</dd>
-        <dt>Found by</dt><dd>Trending events, plus any partiful.com/e/ link found in another source.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">Trending events, plus any partiful.com/e/ link found in another source.</dd>
       </dl>
     </details>
 
@@ -135,11 +141,11 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://devpost.com/hackathons">Devpost</a>, <a class="site" href="https://agihouse.org/events/">AGI House</a>, <a class="site" href="https://www.ycombinator.com/events">Y Combinator</a>, <a class="site" href="https://www.mlh.com">MLH</a></dd>
         <dt>Checked</dt><dd>Daily</dd>
-        <dt>How</dt><dd>GET requests to Devpost's JSON API (<code>devpost.com/api/hackathons</code>), AGI
+        <dt class="tech">How</dt><dd class="tech">GET requests to Devpost's JSON API (<code>devpost.com/api/hackathons</code>), AGI
           House's events API, and the event pages of Y Combinator
           (<code>ycombinator.com/events</code>) and MLH, which carry their events as JSON.</dd>
         <dt>Gets</dt><dd>Title, dates, venue and address, host, description, image.</dd>
-        <dt>Found by</dt><dd>In-person Bay Area hackathons on those four platforms.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">In-person Bay Area hackathons on those four platforms.</dd>
       </dl>
     </details>
 
@@ -148,12 +154,12 @@
       <dl class="facts">
         <dt>Site</dt><dd><a class="site" href="https://www.ashkenaz.com/">Ashkenaz</a>, <a class="site" href="https://www.ivyroom.com/">Ivy Room</a>, <a class="site" href="https://thefoxoakland.com/">The Fox</a>, <a class="site" href="https://thegreekberkeley.com/event-listing/">The Greek</a>, <a class="site" href="https://www.theuctheatre.org">UC Theatre</a>, <a class="site" href="https://ra.co/events/us/sanfrancisco">Resident Advisor</a>, <a class="site" href="https://dothebay.com">DoTheBay</a></dd>
         <dt>Checked</dt><dd>Every 12 hours</dd>
-        <dt>How</dt><dd>Ashkenaz and Ivy Room: their ticketing system's API (VenuePilot, a GraphQL POST).
+        <dt class="tech">How</dt><dd class="tech">Ashkenaz and Ivy Room: their ticketing system's API (VenuePilot, a GraphQL POST).
           The Fox, the Greek and the UC Theatre: a GET request for each venue's events page.
           Resident Advisor: its GraphQL API at <code>ra.co/graphql</code>. DoTheBay: each
           venue's page as JSON.</dd>
         <dt>Gets</dt><dd>Show name, time, venue and address, description, image, price.</dd>
-        <dt>Found by</dt><dd>East Bay venues listed by hand, plus 17 more through DoTheBay.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">East Bay venues listed by hand, plus 17 more through DoTheBay.</dd>
       </dl>
     </details>
 
@@ -210,6 +216,22 @@
     <p><a href="./">← Back to events</a></p>
   </footer>
 
+  <script>
+    // Simple hides the API and discovery details; the choice is remembered per browser.
+    (() => {
+      const list = document.getElementById("source-list");
+      const buttons = document.querySelectorAll(".view button");
+      const set = (v) => {
+        list.dataset.view = v;
+        for (const b of buttons) b.setAttribute("aria-checked", b.dataset.view === v);
+        try { localStorage.setItem("bearly-sources-view", v); } catch { /* private mode */ }
+      };
+      let saved = null;
+      try { saved = localStorage.getItem("bearly-sources-view"); } catch { /* private mode */ }
+      if (saved) set(saved);
+      for (const b of buttons) b.onclick = () => set(b.dataset.view);
+    })();
+  </script>
   <script>
     const ago = (iso) => {
       const min = Math.round((Date.now() - Date.parse(iso)) / 60000);
