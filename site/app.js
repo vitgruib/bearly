@@ -3,7 +3,7 @@
 const TZ = "America/Los_Angeles";
 const PAGE = 60;
 const WHEN = [
-  ["today", "Today"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"],
+  ["today", "Today (not started)"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"],
   ["week", "Next 7 days"], ["all", "Everything"], ["custom", "Custom"],
 ];
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -106,6 +106,8 @@ function base(skip) {
     (e._end || e._start + 2 * 3600e3) > now &&
     (skip === "src" || !state.src.size || state.src.has(e.source) || e.also_on?.some((s) => state.src.has(s))) &&
     matchesWhen(e, range) &&
+    // Today means what you can still go to; all-day events count as not started.
+    (state.when !== "today" || e._start > now || (e.all_day && e._day === range[0])) &&
     matchesSearch(e, terms) &&
     (!state.free || e.free === true) &&
     (skip === "regions" || !state.regions.size || state.regions.has(e.region)) &&
