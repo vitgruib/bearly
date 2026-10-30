@@ -10,6 +10,7 @@
   const SHOW = "bearly-ui-panel";
   const OPTIONS = [
     { id: "design", label: "Design", attr: true, choices: [["current", "Now"], ["band", "Band"], ["gold", "Gold"], ["fog", "Fog"], ["night", "Night"], ["sign", "Sign"], ["pennant", "Pennant"]] },
+    { id: "font", label: "Font", attr: true, choices: [["default", "Serif"], ["inter", "Inter"], ["instrument", "Instr."], ["bricolage", "Brico."], ["franklin", "Franklin"], ["schibsted", "Schib."], ["hanken", "Hanken"]] },
     { id: "theme", label: "Theme", attr: true, choices: [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]] },
     { id: "accent", label: "Accent", choices: [["default", "Cal blue"], ["gold", "Gold"], ["green", "Green"], ["rose", "Rose"]] },
     { id: "headings", label: "Headings", attr: true, choices: [["serif", "Serif"], ["sans", "Sans"]] },
@@ -21,6 +22,12 @@
   ];
   // [accent, text on accent]
   const ACCENTS = { gold: ["#fdb515", "#14161a"], green: ["#1f7a4d", "#ffffff"], rose: ["#c2410c", "#ffffff"] };
+  // Families for the Font option, fetched only once picked.
+  const FONTS = {
+    instrument: "Instrument+Sans:wght@400;500;600;700", bricolage: "Bricolage+Grotesque:wght@400;500;600;700;800",
+    franklin: "Libre+Franklin:wght@400;500;600;700;800", schibsted: "Schibsted+Grotesk:wght@400;500;600;700;800",
+    hanken: "Hanken+Grotesk:wght@400;500;600;700;800",
+  };
   const RADII = { soft: "8px", square: "2px" };
   const WIDTHS = { narrow: "700px", wide: "1080px" };
 
@@ -48,6 +55,13 @@
     } else {
       root.style.removeProperty("--accent");
       root.style.removeProperty("--accent-ink");
+    }
+    if (FONTS[prefs.font] && !document.getElementById("ui-font-" + prefs.font)) {
+      const link = document.createElement("link");
+      link.id = "ui-font-" + prefs.font;
+      link.rel = "stylesheet";
+      link.href = `https://fonts.googleapis.com/css2?family=${FONTS[prefs.font]}&display=swap`;
+      document.head.append(link);
     }
     RADII[prefs.radius] ? root.style.setProperty("--radius", RADII[prefs.radius]) : root.style.removeProperty("--radius");
     WIDTHS[prefs.width] ? root.style.setProperty("--wrap", WIDTHS[prefs.width]) : root.style.removeProperty("--wrap");

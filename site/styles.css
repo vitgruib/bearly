@@ -13,6 +13,7 @@
   --radius: 14px;
   --wrap: 1160px;
   --display: "Instrument Serif", Georgia, serif;
+  --body: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
 
@@ -50,7 +51,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font: 15px/1.5 var(--body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -116,14 +117,14 @@ body {
 .range { display: flex; align-items: center; gap: 6px; margin-right: auto; color: var(--muted); font-size: 13px; }
 .range[hidden] { display: none; }
 .range input {
-  font: 500 13px Inter, system-ui, sans-serif; color: var(--ink); background: var(--surface);
+  font: 500 13px var(--body); color: var(--ink); background: var(--surface);
   border: 1px solid var(--faint); border-radius: 999px; padding: 6px 10px; color-scheme: light dark;
 }
 
 #when { display: flex; gap: 2px; background: var(--chip); border-radius: 999px; padding: 3px; }
 #when button, .chip {
   flex: none;
-  font: 500 13px/1 Inter, system-ui, sans-serif;
+  font: 500 13px/1 var(--body);
   color: var(--ink);
   background: var(--chip);
   border: 1px solid transparent;
@@ -144,7 +145,7 @@ body {
 #regions .chip[aria-pressed="true"], #sources .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
 
 .meta-row { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 8px; }
-.link { font: 500 12.5px Inter, system-ui, sans-serif; color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.link { font: 500 12.5px var(--body); color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
 .link[hidden] { display: none; }
 .count { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
@@ -210,7 +211,7 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .ical {
   list-style: none; display: block;
   position: relative; z-index: 1;
-  font: 500 12px Inter, system-ui, sans-serif; color: var(--muted);
+  font: 500 12px var(--body); color: var(--muted);
   background: none; border: 0; padding: 4px 6px; border-radius: 6px; cursor: pointer; white-space: nowrap;
 }
 .ical::-webkit-details-marker { display: none; }
@@ -221,13 +222,13 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   background: var(--surface); border: 1px solid var(--faint); border-radius: 10px; box-shadow: 0 6px 20px rgb(0 0 0 / 14%);
 }
 .calmenu a, .calmenu button {
-  font: 500 13px Inter, system-ui, sans-serif; color: var(--ink); text-decoration: none; text-align: left;
+  font: 500 13px var(--body); color: var(--ink); text-decoration: none; text-align: left;
   background: none; border: 0; padding: 7px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap;
 }
 .calmenu a:hover, .calmenu button:hover { background: var(--chip); }
 .flag {
   position: relative; z-index: 1;
-  font: 500 12px Inter, system-ui, sans-serif; color: var(--muted); opacity: .7;
+  font: 500 12px var(--body); color: var(--muted); opacity: .7;
   padding: 4px 6px; border-radius: 6px; text-decoration: none; white-space: nowrap;
 }
 .flag:hover { opacity: 1; color: var(--ink); background: var(--chip); }
@@ -287,7 +288,7 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .facts dd code { overflow-wrap: anywhere; }  /* long API paths would push past a phone screen */
 
 /* Options from the UI panel (tweaks.js), set as attributes on <html>. */
-[data-headings="sans"] { --display: Inter, system-ui, sans-serif; }
+[data-headings="sans"] { --display: var(--body); }
 [data-headings="sans"] .wordmark { font-weight: 700; letter-spacing: -0.045em; }
 [data-headings="sans"] :is(.day h2, .prose h2, .empty strong) { font-weight: 650; letter-spacing: -0.02em; font-size: 22px; }
 [data-headings="sans"] .tagline em { font-weight: 600; font-style: normal; font-size: 17px; }
