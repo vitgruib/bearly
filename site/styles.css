@@ -1,15 +1,15 @@
 :root {
-  --bg: #fbfaf6;
-  --surface: #ffffff;
-  --ink: #16181d;
-  --muted: #6b6f78;
-  --faint: #e9e6de;
+  --bg: #f2eee6;
+  --surface: #faf8f3;
+  --ink: #1d2433;
+  --muted: #6a6658;
+  --faint: #d8d0c1;
   --blue: #002676;
   --gold: #fdb515;
   --accent: #002676;
   --accent-ink: #ffffff;
-  --chip: #f1eee6;
-  --shadow: 0 1px 2px rgb(20 20 30 / 4%), 0 4px 16px rgb(20 20 30 / 4%);
+  --chip: #e7e1d4;
+  --shadow: none;
   --radius: 14px;
   --wrap: 1160px;
   --display: "Instrument Serif", Georgia, serif;
@@ -17,31 +17,31 @@
   color-scheme: light;
 }
 
-/* Dark follows the system unless the UI panel (tweaks.js) pins a theme on <html>. */
+/* Light is Bay Fog, dark is Berkeley Blue. Dark follows the system unless the UI panel (tweaks.js) pins a theme on <html>. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #101216;
-    --surface: #181b21;
-    --ink: #eceae4;
-    --muted: #9a9ea8;
-    --faint: #262a32;
+    --bg: #001a52;
+    --surface: #002676;
+    --ink: #f5f2ea;
+    --muted: #a8b5d6;
+    --faint: #1c3d86;
     --accent: #fdb515;
-    --accent-ink: #14161a;
-    --chip: #20242c;
-    --shadow: none;
+    --accent-ink: #002676;
+    --chip: #0c3183;
+    --shadow: 0 4px 18px rgb(0 0 0 / 25%);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #101216;
-  --surface: #181b21;
-  --ink: #eceae4;
-  --muted: #9a9ea8;
-  --faint: #262a32;
+  --bg: #001a52;
+  --surface: #002676;
+  --ink: #f5f2ea;
+  --muted: #a8b5d6;
+  --faint: #1c3d86;
   --accent: #fdb515;
-  --accent-ink: #14161a;
-  --chip: #20242c;
-  --shadow: none;
+  --accent-ink: #002676;
+  --chip: #0c3183;
+  --shadow: 0 4px 18px rgb(0 0 0 / 25%);
   color-scheme: dark;
 }
 
@@ -74,7 +74,9 @@ body {
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark { color: var(--ink); } }
 :root[data-theme="dark"] .wordmark { color: var(--ink); }
-.wordmark .dot { color: var(--gold); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.day h2, .time) { color: var(--gold); } }
+:root[data-theme="dark"] :is(.day h2, .time) { color: var(--gold); }
+.day h2 { color: var(--blue); }
 .tagline { margin: 10px 0 0; color: var(--muted); font-size: 17px; }
 .tagline em { font: italic 400 20px var(--display); color: var(--ink); }
 
@@ -202,11 +204,11 @@ body {
 a.badge.src { position: relative; z-index: 1; text-decoration: none; }
 a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .badge.food { background: #3a2f12; color: #f6d27a; }
-  :root:not([data-theme="light"]) .badge.free { background: #15301f; color: #8fd8a8; }
+  :root:not([data-theme="light"]) .badge.food { background: #4a3a0c; color: #ffd978; }
+  :root:not([data-theme="light"]) .badge.free { background: #0f3d3a; color: #8fe0c4; }
 }
-:root[data-theme="dark"] .badge.food { background: #3a2f12; color: #f6d27a; }
-:root[data-theme="dark"] .badge.free { background: #15301f; color: #8fd8a8; }
+:root[data-theme="dark"] .badge.food { background: #4a3a0c; color: #ffd978; }
+:root[data-theme="dark"] .badge.free { background: #0f3d3a; color: #8fe0c4; }
 .addcal { margin-left: auto; position: relative; z-index: 2; }
 .ical {
   list-style: none; display: block;
