@@ -67,13 +67,13 @@ body {
 .nav a:hover { color: var(--ink); background: var(--chip); }
 .nav a[aria-current="page"] { color: var(--ink); background: var(--chip); }
 .wordmark {
-  font: 800 clamp(46px, 8vw, 72px)/0.9 var(--display);
-  letter-spacing: -0.045em;
+  font: 300 clamp(46px, 8vw, 72px)/0.9 var(--display);
+  letter-spacing: -0.03em;
   margin: 0;
   color: var(--blue);
 }
-/* The Cal script logo stands in for "cal" in Locale. */
-.wordmark .cal { height: 1.08em; width: auto; vertical-align: -0.2em; margin: 0 -0.14em 0 -0.04em; fill: var(--gold); }
+/* The Cal script logo stands in for "cal" in Locale; light letters leave it the only heavy shape. */
+.wordmark .cal { height: 1.3em; width: auto; vertical-align: -0.28em; margin: 0 -0.14em 0 -0.04em; fill: var(--gold); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark { color: var(--ink); } }
 :root[data-theme="dark"] .wordmark { color: var(--ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.day h2, .time) { color: var(--gold); } }
