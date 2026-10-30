@@ -71,20 +71,11 @@ body {
   letter-spacing: -0.045em;
   margin: 0;
   color: var(--blue);
-  display: flex; align-items: center; gap: 0.16em;
 }
-/* "cal" in Locale gets a gold highlighter swipe; on navy the gold reads as text colour instead. */
-.wordmark .cal { background: linear-gradient(transparent 48%, var(--gold) 48% 84%, transparent 84%); padding: 0 0.03em; }
-.wordmark .mark { width: 0.82em; height: 0.82em; flex: none; }
-.mark .page { fill: var(--blue); }
-.mark .band { fill: var(--gold); }
-.mark .ring { fill: var(--blue); }
-.mark text { font: 800 22px var(--display); letter-spacing: 0; fill: #fff; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark .cal { background: none; color: var(--gold); } }
-:root[data-theme="dark"] .wordmark .cal { background: none; color: var(--gold); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mark :is(.page, .ring) { fill: #f5f2ea; } :root:not([data-theme="light"]) .mark text { fill: #002676; } }
-:root[data-theme="dark"] .mark :is(.page, .ring) { fill: #f5f2ea; }
-:root[data-theme="dark"] .mark text { fill: #002676; }
+/* "cal" in Locale is set in a sports script, a nod to the Cal script without copying the logo. */
+.wordmark .cal { font: 400 1.12em/1 "Yellowtail", cursive; letter-spacing: 0; color: var(--gold); -webkit-text-stroke: 0.012em var(--blue); padding: 0 0.04em 0 0.02em; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark .cal { -webkit-text-stroke: 0; } }
+:root[data-theme="dark"] .wordmark .cal { -webkit-text-stroke: 0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark { color: var(--ink); } }
 :root[data-theme="dark"] .wordmark { color: var(--ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.day h2, .time) { color: var(--gold); } }
