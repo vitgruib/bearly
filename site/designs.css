@@ -1,4 +1,4 @@
-/* Candidate designs, all in Berkeley's palette. Inactive unless the UI panel (?ui) sets
+/* Candidate designs (colors and layout), all in Berkeley's palette. Inactive unless the UI panel (?ui) sets
    data-design on <html>; the chosen one gets folded into styles.css and this file removed. */
 :root {
   --founders: #3b7ea1;
@@ -29,10 +29,9 @@
   --accent: #fdb515; --accent-ink: #002676; --chip: #f6f1e3; color-scheme: light;
 }
 [data-design="gold"] body { border-top: 6px solid var(--gold); }
-[data-design="gold"] .wordmark { font-family: Inter, system-ui, sans-serif; font-weight: 800; letter-spacing: -0.05em; }
 [data-design="gold"] .wordmark .dot { color: var(--gold); }
 [data-design="gold"] .chip[aria-pressed="true"] { font-weight: 600; }
-[data-design="gold"] .day h2 { font: 800 21px/1.1 Inter, system-ui, sans-serif; letter-spacing: -0.02em; color: var(--blue); }
+[data-design="gold"] .day h2 { color: var(--blue); }
 [data-design="gold"] .card { border-left: 4px solid transparent; }
 [data-design="gold"] .card:hover { border-color: var(--faint); border-left-color: var(--gold); }
 [data-design="gold"] .time { color: var(--blue); }
@@ -50,7 +49,6 @@
 [data-design="fog"] .chip, [data-design="fog"] #when, [data-design="fog"] #when button { border-radius: 4px; }
 [data-design="fog"] .card { background: transparent; border: 0; border-bottom: 1px solid var(--faint); border-radius: 0; margin: 0; padding: 16px 4px; }
 [data-design="fog"] .card:hover { transform: none; background: var(--surface); }
-[data-design="fog"] .title { font: 400 21px/1.2 var(--display); }
 [data-design="fog"] .day { border-bottom: 1px solid var(--ink); }
 [data-design="fog"] .day h2 { font-size: 34px; color: var(--blue); }
 [data-design="fog"] .thumb { border-radius: 2px; filter: saturate(.85); }
@@ -73,11 +71,11 @@
   --bg: #f4f4f1; --surface: #fff; --ink: #111827; --muted: #5b6170; --faint: #dcdcd6;
   --accent: #002676; --accent-ink: #fff; --chip: #e9e9e4; --radius: 3px; --shadow: none; color-scheme: light;
 }
-[data-design="sign"] .wordmark { font: 800 clamp(44px, 8vw, 68px)/0.95 Inter, system-ui, sans-serif; letter-spacing: -0.04em; text-transform: uppercase; }
+[data-design="sign"] .wordmark { text-transform: uppercase; }
 [data-design="sign"] .wordmark .dot { color: var(--gold); }
 [data-design="sign"] :is(.search, .chip, #when, #when button, .nav a, .range input) { border-radius: 3px; }
 [data-design="sign"] .day { background: var(--blue); color: #fff; padding: 8px 12px; margin: 22px 0 8px; border-left: 6px solid var(--gold); }
-[data-design="sign"] .day h2 { font: 800 15px/1.2 Inter, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+[data-design="sign"] .day h2 { font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
 [data-design="sign"] .day span { color: #c9d3ea; }
 [data-design="sign"] .card { margin-bottom: 6px; }
 [data-design="sign"] .card:hover { transform: none; border-color: var(--blue); }
@@ -102,14 +100,14 @@
 [data-design="pennant"] .thumb { border-radius: 14px; }
 [data-design="gold"] :is(.report a, .empty a) { color: var(--blue); text-decoration-color: var(--gold); text-decoration-thickness: 2px; }
 
-/* Sans candidates for Fog. tweaks.js loads the chosen family from Google Fonts. */
+/* Fonts, independent of the design above. tweaks.js loads the chosen family from Google Fonts. */
 [data-font="inter"] { --display: Inter, system-ui, sans-serif; }
 [data-font="instrument"] { --display: "Instrument Sans", system-ui, sans-serif; --body: "Instrument Sans", system-ui, sans-serif; }
 [data-font="bricolage"] { --display: "Bricolage Grotesque", system-ui, sans-serif; --body: "Bricolage Grotesque", system-ui, sans-serif; }
 [data-font="franklin"] { --display: "Libre Franklin", system-ui, sans-serif; --body: "Libre Franklin", system-ui, sans-serif; }
 [data-font="schibsted"] { --display: "Schibsted Grotesk", system-ui, sans-serif; --body: "Schibsted Grotesk", system-ui, sans-serif; }
 [data-font="hanken"] { --display: "Hanken Grotesk", system-ui, sans-serif; --body: "Hanken Grotesk", system-ui, sans-serif; }
-[data-font] .wordmark { font-weight: 800; letter-spacing: -0.045em; }
+[data-font] .wordmark { font-weight: 800; letter-spacing: -0.045em; font-size: clamp(46px, 8vw, 72px); }
 [data-font] .title { font-weight: 600; font-size: 17px; letter-spacing: -0.01em; line-height: 1.3; }
 [data-font] :is(.day h2, .prose h2, .empty strong) { font-weight: 700; letter-spacing: -0.025em; }
 [data-font][data-design="fog"] .day h2 { font-size: 26px; }

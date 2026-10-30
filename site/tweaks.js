@@ -9,11 +9,10 @@
   const KEY = "bearly-ui";
   const SHOW = "bearly-ui-panel";
   const OPTIONS = [
-    { id: "design", label: "Design", attr: true, choices: [["current", "Now"], ["band", "Band"], ["gold", "Gold"], ["fog", "Fog"], ["night", "Night"], ["sign", "Sign"], ["pennant", "Pennant"]] },
+    { id: "design", label: "Colors", attr: true, choices: [["current", "Now"], ["band", "Band"], ["gold", "Gold"], ["fog", "Fog"], ["night", "Night"], ["sign", "Sign"], ["pennant", "Pennant"]] },
     { id: "font", label: "Font", attr: true, choices: [["default", "Serif"], ["inter", "Inter"], ["instrument", "Instr."], ["bricolage", "Brico."], ["franklin", "Franklin"], ["schibsted", "Schib."], ["hanken", "Hanken"]] },
     { id: "theme", label: "Theme", attr: true, choices: [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]] },
     { id: "accent", label: "Accent", choices: [["default", "Cal blue"], ["gold", "Gold"], ["green", "Green"], ["rose", "Rose"]] },
-    { id: "headings", label: "Headings", attr: true, choices: [["serif", "Serif"], ["sans", "Sans"]] },
     { id: "layout", label: "Events", attr: true, choices: [["cards", "Cards"], ["list", "List"]] },
     { id: "density", label: "Density", attr: true, choices: [["comfortable", "Comfy"], ["compact", "Compact"]] },
     { id: "thumbs", label: "Images", attr: true, choices: [["on", "On"], ["off", "Off"]] },

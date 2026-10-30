@@ -288,11 +288,6 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .facts dd code { overflow-wrap: anywhere; }  /* long API paths would push past a phone screen */
 
 /* Options from the UI panel (tweaks.js), set as attributes on <html>. */
-[data-headings="sans"] { --display: var(--body); }
-[data-headings="sans"] .wordmark { font-weight: 700; letter-spacing: -0.045em; }
-[data-headings="sans"] :is(.day h2, .prose h2, .empty strong) { font-weight: 650; letter-spacing: -0.02em; font-size: 22px; }
-[data-headings="sans"] .tagline em { font-weight: 600; font-style: normal; font-size: 17px; }
-
 [data-density="compact"] .card { padding: 9px 12px; gap: 5px 12px; margin-bottom: 6px; }
 [data-density="compact"] .desc { display: none; }
 [data-density="compact"] .thumb { width: 56px; height: 56px; }
