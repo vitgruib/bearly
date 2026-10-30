@@ -17,17 +17,13 @@
     <div class="wrap">
       <nav class="nav" aria-label="Site">
         <a href="./">Events</a>
-        <a href="about.html" aria-current="page">Sources &amp; Code</a>
+        <a href="about.html" aria-current="page">How it works</a>
       </nav>
       <p class="wordmark">Bearly</p>
     </div>
   </header>
 
   <main class="wrap prose">
-    <p>Every few hours a scraper reads the places Berkeley events get posted and merges
-      them into one list. Anyone can <a href="#add-source">add a calendar</a> or report an
-      event. The code is <a href="https://github.com/vitgruib/bearly">on GitHub</a>.</p>
-
     <h2>Sources</h2>
     <p class="note" id="updated">A Python script on GitHub Actions reads every source with ordinary
       HTTPS requests: no login, no browser. Tap a source to see what it calls.</p>
@@ -183,16 +179,16 @@
         or Instagram, since those are local. From anywhere else it is not listed.</li>
     </ol>
 
-    <h3>Event type</h3>
+    <h3>Auto tagging</h3>
     <p>The title, description, host and any category the source gives (such as the campus
       calendar's event type) are searched for the keywords below, ignoring case. An event gets every
-      type with a match, so it can have several types or none. A keyword also matches longer words
+      tag with a match, so it can have several or none. A keyword also matches longer words
       ("recruit" matches "recruiting"), except short ones like AI, DJ or run, which must be whole words.</p>
-    <div class="sources" id="topic-words"></div>
-
-    <h3>Free</h3>
-    <p><b>Free only</b> keeps events the source lists as free or $0, plus events whose description says
-      "free admission", "free entry", "free event", "free to attend" or "no cost".</p>
+    <div class="sources" id="topic-words">
+      <details class="source" id="free-tag"><summary><span class="name">Free</span></summary>
+        <p class="words">Listed as free or $0 by the source, or the description says free admission,
+          free entry, free event, free to attend or no cost. <b>Free only</b> shows these.</p></details>
+    </div>
 
     <h3>Source</h3>
     <p>Where the event was found. The same event found in several places is merged into one, and the
@@ -260,7 +256,7 @@
         p.className = "words";
         p.textContent = patterns.map((w) => w.replace(/\\b/g, "").replace(/(\w)s\?/g, "$1(s)")).join(", ");
         d.append(sum, p);
-        words.append(d);
+        words.insertBefore(d, document.getElementById("free-tag"));
       }
       if (data.forms?.form) {
         for (const a of document.querySelectorAll("#form")) a.href = data.forms.form;
