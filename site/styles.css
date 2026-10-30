@@ -234,7 +234,14 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 /* About page */
 .prose { max-width: 680px; padding-bottom: 30px; }
 .prose p, .prose li { font-size: 15.5px; }
-.prose a { color: var(--accent); }
+.prose a { color: var(--accent); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+.prose a:hover { text-decoration-thickness: 2.5px; }
+.facts a.site { white-space: nowrap; }
+.facts a.site::after { content: " ↗"; font-size: .85em; }
+.prose h3 { font-size: 16px; font-weight: 600; margin: 20px 0 4px; }
+.prose ol { padding-left: 22px; }
+.prose ol li { margin: 6px 0; }
+.source .words { padding-bottom: 12px; }
 .prose h2 { font: 400 28px var(--display); margin: 26px 0 6px; }
 .prose ul { padding-left: 20px; }
 .prose li { margin: 6px 0; }

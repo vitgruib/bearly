@@ -36,6 +36,7 @@
     <details class="source" data-source="luma">
       <summary><span class="name">Luma</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://luma.com/discover">luma.com</a></dd>
         <dt>Checked</dt><dd>Every 3 hours</dd>
         <dt>How</dt><dd>GET requests to Luma's JSON API at <code>api.lu.ma</code>:
           <code>/discover/get-paginated-events</code> for events near campus,
@@ -50,6 +51,7 @@
     <details class="source" data-source="berkeley_calendar">
       <summary><span class="name">UC Berkeley Events</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://events.berkeley.edu">events.berkeley.edu</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
         <dt>How</dt><dd>A GET request to the JSON API behind the campus calendar,
           <code>events.berkeley.edu/live/json/v2/events</code>.</dd>
@@ -61,6 +63,7 @@
     <details class="source" data-source="feeds">
       <summary><span class="name">Club &amp; department calendars</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://callink.berkeley.edu/organizations">CalLink</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
         <dt>How</dt><dd>A GET request to each of about 60 public feeds: the calendar's iCal (.ics) file,
           its RSS feed, its WordPress or Localist events API (JSON), or the event data
@@ -75,6 +78,7 @@
     <details class="source" data-source="instagram">
       <summary><span class="name">Club Instagram</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://www.instagram.com">instagram.com</a></dd>
         <dt>Checked</dt><dd>Each club about every 9 days</dd>
         <dt>How</dt><dd>A POST request to Apify's API (<code>api.apify.com</code>) starts its Instagram post
           scraper on a list of club accounts; the posts come back as JSON.</dd>
@@ -99,6 +103,7 @@
     <details class="source" data-source="cerebral_valley">
       <summary><span class="name">Cerebral Valley</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://cerebralvalley.ai/events">cerebralvalley.ai</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
         <dt>How</dt><dd>A GET request to Cerebral Valley's public API,
           <code>api.cerebralvalley.ai/v1/public/event/pull</code>.</dd>
@@ -110,6 +115,7 @@
     <details class="source" data-source="partiful">
       <summary><span class="name">Partiful</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://partiful.com/explore">partiful.com/explore</a></dd>
         <dt>Checked</dt><dd>Every 6 hours</dd>
         <dt>How</dt><dd>A GET request for the page <code>partiful.com/explore</code>; the Bay Area
           "trending" events are in the JSON the page ships with. A shared
@@ -122,6 +128,7 @@
     <details class="source" data-source="hackathons">
       <summary><span class="name">Hackathons</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://devpost.com/hackathons">Devpost</a>, <a class="site" href="https://agihouse.org/events/">AGI House</a>, <a class="site" href="https://www.ycombinator.com/events">Y Combinator</a>, <a class="site" href="https://www.mlh.com">MLH</a></dd>
         <dt>Checked</dt><dd>Daily</dd>
         <dt>How</dt><dd>GET requests to Devpost's JSON API (<code>devpost.com/api/hackathons</code>), AGI
           House's events API, and the event pages of Y Combinator
@@ -134,6 +141,7 @@
     <details class="source" data-source="venues">
       <summary><span class="name">Music &amp; venues</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://www.ashkenaz.com/">Ashkenaz</a>, <a class="site" href="https://www.ivyroom.com/">Ivy Room</a>, <a class="site" href="https://thefoxoakland.com/">The Fox</a>, <a class="site" href="https://thegreekberkeley.com/event-listing/">The Greek</a>, <a class="site" href="https://www.theuctheatre.org">UC Theatre</a>, <a class="site" href="https://ra.co/events/us/sanfrancisco">Resident Advisor</a>, <a class="site" href="https://dothebay.com">DoTheBay</a></dd>
         <dt>Checked</dt><dd>Every 12 hours</dd>
         <dt>How</dt><dd>Ashkenaz and Ivy Room: their ticketing system's API (VenuePilot, a GraphQL POST).
           The Fox, the Greek and the UC Theatre: a GET request for each venue's events page.
@@ -147,6 +155,7 @@
     <details class="source" data-source="reports">
       <summary><span class="name">Added by students</span></summary>
       <dl class="facts">
+        <dt>Site</dt><dd><a class="site report-link" href="#">the form</a></dd>
         <dt>Checked</dt><dd>Every 3 hours</dd>
         <dt>How</dt><dd>A GET request for each approved event link: Luma links go through Luma's API, and
           other pages (Partiful, Eventbrite, Meetup...) are read for the event data embedded
@@ -156,6 +165,41 @@
       </dl>
     </details>
     </div>
+
+    <h2 id="tags">How events are tagged</h2>
+    <p>Every event goes through the same fixed rules, whatever the source
+      (<a href="https://github.com/vitgruib/bearly/blob/main/scraper/enrich.py">scraper/enrich.py</a>).</p>
+
+    <h3>Location</h3>
+    <p>The first rule that fits decides:</p>
+    <ol>
+      <li>Marked online: <b>Online</b>.</li>
+      <li>Has map coordinates: within 1.3 km of the center of campus is <b>Campus</b>; within 4 km,
+        or the city is Berkeley, is <b>Berkeley</b>. More than 110 km away is not listed.</li>
+      <li>Has a city: Berkeley; Oakland, Emeryville, Albany, Richmond, Alameda, Walnut Creek and 19
+        other East Bay cities are <b>East Bay</b>; <b>San Francisco</b>; Palo Alto, Stanford, Mountain
+        View, San Jose and 18 other cities are <b>Peninsula &amp; South Bay</b>.</li>
+      <li>Coordinates but an unknown city: west of longitude −122.36 between latitudes 37.70 and 37.82
+        is San Francisco; north of 37.95 is <b>North Bay</b>; south of 37.70 is Peninsula &amp; South
+        Bay; anything else is East Bay.</li>
+      <li>No location at all: <b>Berkeley</b> if it came from a club or campus calendar, a mailing list
+        or Instagram, since those are local. From anywhere else it is not listed.</li>
+    </ol>
+
+    <h3>Event type</h3>
+    <p>The title, description, host and any category the source gives (such as the campus
+      calendar's event type) are searched for the keywords below, ignoring case. An event gets every
+      type with a match, so it can have several types or none. A keyword also matches longer words
+      ("recruit" matches "recruiting"), except short ones like AI, DJ or run, which must be whole words.</p>
+    <div class="sources" id="topic-words"></div>
+
+    <h3>Free</h3>
+    <p><b>Free only</b> keeps events the source lists as free or $0, plus events whose description says
+      "free admission", "free entry", "free event", "free to attend" or "no cost".</p>
+
+    <h3>Source</h3>
+    <p>Where the event was found. The same event found in several places is merged into one, and the
+      card shows every source.</p>
 
     <h2 id="code">Code</h2>
     <p>Code at <a href="https://github.com/vitgruib/bearly">GitHub</a>. Event data is available on
@@ -209,6 +253,19 @@
       }
       document.getElementById("updated").textContent =
         `${data.events.length.toLocaleString()} upcoming events right now. Tap a source to see how it's read.`;
+      const words = document.getElementById("topic-words");
+      for (const [topic, patterns] of Object.entries(data.topic_words || {})) {
+        const d = document.createElement("details");
+        d.className = "source";
+        const sum = document.createElement("summary");
+        sum.innerHTML = '<span class="name"></span>';
+        sum.firstChild.textContent = topic;
+        const p = document.createElement("p");
+        p.className = "words";
+        p.textContent = patterns.map((w) => w.replace(/\\b/g, "").replace(/(\w)s\?/g, "$1(s)")).join(", ");
+        d.append(sum, p);
+        words.append(d);
+      }
       if (data.forms?.form) {
         for (const a of document.querySelectorAll("#form, .report-link")) a.href = data.forms.form;
       }

@@ -170,6 +170,7 @@ def main(argv: list[str]) -> None:
                     for n in enabled],
         "regions": REGIONS,
         "topics": list(TOPICS),
+        "topic_words": TOPICS,
         "events": [e.to_json() for e in final],
     }, ensure_ascii=False, separators=(",", ":")))
     log.info("wrote %d events (from %d raw); http %s", len(final), len(events), http.stats)
