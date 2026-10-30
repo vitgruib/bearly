@@ -43,8 +43,17 @@
           <code>/calendar/get-items</code> for each followed calendar, and
           <code>/user/profile/events-hosting</code> for each organizer.</dd>
         <dt>Gets</dt><dd>Title, time, venue and map location, host, description, cover image, free or paid.</dd>
-        <dt>Found by</dt><dd>About 70 calendars and organizers listed by hand, plus any calendar the
-          discover feed shows hosting near campus.</dd>
+        <dt>Found by</dt><dd>Three ways:
+          <ol class="found">
+            <li>Luma's discover feed: the events nearest campus, plus its AI, Tech, Climate and
+              Arts feeds.</li>
+            <li>48 calendars and 17 organizer profiles followed by name: campus clubs and programs,
+              and Bay Area tech, startup and hackathon groups. The list is in
+              <a href="https://github.com/vitgruib/bearly/blob/main/sources.toml">sources.toml</a>.</li>
+            <li>Automatically: once an organization's calendar has two events within 3 km of campus
+              in the discover feed, all of its events are followed. It's dropped after 120 days
+              with no events near campus.</li>
+          </ol></dd>
       </dl>
     </details>
 

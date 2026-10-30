@@ -266,6 +266,8 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .facts { display: grid; grid-template-columns: 76px 1fr; gap: 6px 12px; margin: 2px 0 0; padding: 0 14px 4px 35px; font-size: 14px; }
 .facts dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
 .facts dd { margin: 0; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); }
+.facts ol.found { margin: 2px 0 0; padding-left: 18px; }
+.facts ol.found li { margin: 2px 0; font-size: 14px; }
 .facts dd code { overflow-wrap: anywhere; }  /* long API paths would push past a phone screen */
 
 /* Options from the UI panel (tweaks.js), set as attributes on <html>. */
