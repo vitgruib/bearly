@@ -29,15 +29,18 @@
       event. The code is <a href="https://github.com/vitgruib/bearly">on GitHub</a>.</p>
 
     <h2>Sources</h2>
-    <p class="note" id="updated">Tap a source to see how it's read.</p>
+    <p class="note" id="updated">A Python script on GitHub Actions reads every source with ordinary
+      HTTPS requests: no login, no browser. Tap a source to see what it calls.</p>
 
     <div class="sources">
     <details class="source" data-source="luma">
       <summary><span class="name">Luma</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>Luma's JSON API: the discover feed around campus, followed calendars, and
-          organizer profiles.</dd>
+        <dt>How</dt><dd>GET requests to Luma's JSON API at <code>api.lu.ma</code>:
+          <code>/discover/get-paginated-events</code> for events near campus,
+          <code>/calendar/get-items</code> for each followed calendar, and
+          <code>/user/profile/events-hosting</code> for each organizer.</dd>
         <dt>Gets</dt><dd>Title, time, venue and map location, host, description, cover image, free or paid.</dd>
         <dt>Found by</dt><dd>About 70 calendars and organizers listed by hand, plus any calendar the
           discover feed shows hosting near campus.</dd>
@@ -48,7 +51,8 @@
       <summary><span class="name">UC Berkeley Events</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>The JSON API behind <a href="https://events.berkeley.edu">events.berkeley.edu</a>.</dd>
+        <dt>How</dt><dd>A GET request to the JSON API behind the campus calendar,
+          <code>events.berkeley.edu/live/json/v2/events</code>.</dd>
         <dt>Gets</dt><dd>Title, time, room and building, department, description, image, event type, cost.</dd>
         <dt>Found by</dt><dd>It's the official campus calendar.</dd>
       </dl>
@@ -58,8 +62,9 @@
       <summary><span class="name">Club &amp; department calendars</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>About 60 public feeds: Google Calendar and other iCal feeds, RSS, and event
-          data on calendar pages.</dd>
+        <dt>How</dt><dd>A GET request to each of about 60 public feeds: the calendar's iCal (.ics) file,
+          its RSS feed, its WordPress or Localist events API (JSON), or the event data
+          (JSON-LD) embedded in its calendar page.</dd>
         <dt>Gets</dt><dd>Title, time, location, description, and image where the feed has one.</dd>
         <dt>Found by</dt><dd>Club calendars linked from CalLink and club websites, the Haas clubs
           calendar, and departments and nearby institutions such as Berkeley Law, BAMPFA and the
@@ -71,7 +76,8 @@
       <summary><span class="name">Club Instagram</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Each club about every 9 days</dd>
-        <dt>How</dt><dd>Apify's Instagram scraper reads each club's recent posts.</dd>
+        <dt>How</dt><dd>A POST request to Apify's API (<code>api.apify.com</code>) starts its Instagram post
+          scraper on a list of club accounts; the posts come back as JSON.</dd>
         <dt>Gets</dt><dd>Date, time, room and free food from the caption ("GBM Thursday 10/29 7pm in
           Soda 306"). An event link in the caption is followed to the full event.</dd>
         <dt>Found by</dt><dd>The Instagram handle on each club's CalLink profile, about 880 accounts.</dd>
@@ -82,7 +88,8 @@
       <summary><span class="name">Mailing lists</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>An inbox subscribed to department and club listservs, read over IMAP.</dd>
+        <dt>How</dt><dd>An email inbox subscribed to department and club listservs, read over IMAP (the
+          standard mail protocol).</dd>
         <dt>Gets</dt><dd>The full event from any event link, otherwise the date, time and room from
           the email.</dd>
         <dt>Found by</dt><dd>Subscribing the inbox to a list.</dd>
@@ -93,7 +100,8 @@
       <summary><span class="name">Cerebral Valley</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>Cerebral Valley's public events API.</dd>
+        <dt>How</dt><dd>A GET request to Cerebral Valley's public API,
+          <code>api.cerebralvalley.ai/v1/public/event/pull</code>.</dd>
         <dt>Gets</dt><dd>Title, time, venue, city, description, image, event type.</dd>
         <dt>Found by</dt><dd>It's the main Bay Area AI community calendar.</dd>
       </dl>
@@ -103,7 +111,9 @@
       <summary><span class="name">Partiful</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 6 hours</dd>
-        <dt>How</dt><dd>The Bay Area "trending" section of partiful.com/explore.</dd>
+        <dt>How</dt><dd>A GET request for the page <code>partiful.com/explore</code>; the Bay Area
+          "trending" events are in the JSON the page ships with. A shared
+          <code>partiful.com/e/…</code> link is read the same way.</dd>
         <dt>Gets</dt><dd>Title, time, venue and address, description, image, free or paid.</dd>
         <dt>Found by</dt><dd>Trending events, plus any partiful.com/e/ link found in another source.</dd>
       </dl>
@@ -113,7 +123,9 @@
       <summary><span class="name">Hackathons</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Daily</dd>
-        <dt>How</dt><dd>Devpost's API and the Y Combinator, MLH and AGI House event listings.</dd>
+        <dt>How</dt><dd>GET requests to Devpost's JSON API (<code>devpost.com/api/hackathons</code>), AGI
+          House's events API, and the event pages of Y Combinator
+          (<code>ycombinator.com/events</code>) and MLH, which carry their events as JSON.</dd>
         <dt>Gets</dt><dd>Title, dates, venue and address, host, description, image.</dd>
         <dt>Found by</dt><dd>In-person Bay Area hackathons on those four platforms.</dd>
       </dl>
@@ -123,8 +135,10 @@
       <summary><span class="name">Music &amp; venues</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 12 hours</dd>
-        <dt>How</dt><dd>Each venue's own calendar (Ashkenaz, Ivy Room, the Fox, the Greek, the UC
-          Theatre), Resident Advisor, and DoTheBay.</dd>
+        <dt>How</dt><dd>Ashkenaz and Ivy Room: their ticketing system's API (VenuePilot, a GraphQL POST).
+          The Fox, the Greek and the UC Theatre: a GET request for each venue's events page.
+          Resident Advisor: its GraphQL API at <code>ra.co/graphql</code>. DoTheBay: each
+          venue's page as JSON.</dd>
         <dt>Gets</dt><dd>Show name, time, venue and address, description, image, price.</dd>
         <dt>Found by</dt><dd>East Bay venues listed by hand, plus 17 more through DoTheBay.</dd>
       </dl>
@@ -134,8 +148,9 @@
       <summary><span class="name">Added by students</span></summary>
       <dl class="facts">
         <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>Each approved event link (Luma, Partiful, Eventbrite, Meetup...) is read from
-          its page.</dd>
+        <dt>How</dt><dd>A GET request for each approved event link: Luma links go through Luma's API, and
+          other pages (Partiful, Eventbrite, Meetup...) are read for the event data embedded
+          in them.</dd>
         <dt>Gets</dt><dd>The full event from its page.</dd>
         <dt>Found by</dt><dd>The <a class="report-link" href="#">form</a> or a GitHub issue, approved by a maintainer.</dd>
       </dl>
