@@ -264,7 +264,15 @@ function card(e) {
   const img = node.querySelector(".thumb");
   if (e.image) img.src = e.image; else img.remove();
   img.onerror = () => img.remove();
-  node.querySelector(".ical").onclick = () => downloadIcs(e);
+  const end = e._end || e._start + 2 * 3600e3;
+  const place = e.address || e.venue || "";
+  const details = `${e.description || ""}\n\n${e.url || ""}`.trim().slice(0, 1500);
+  node.querySelector(".gcal").href = `https://calendar.google.com/calendar/render?${new URLSearchParams({
+    action: "TEMPLATE", text: e.title, dates: `${icsDate(e._start)}/${icsDate(end)}`, details, location: place })}`;
+  node.querySelector(".ocal").href = `https://outlook.live.com/calendar/0/action/compose?${new URLSearchParams({
+    subject: e.title, startdt: new Date(e._start).toISOString(), enddt: new Date(end).toISOString(),
+    body: details, location: place })}`;
+  node.querySelector(".ics").onclick = () => downloadIcs(e);
   if (data.repo) {
     const flag = node.querySelector(".flag");
     // The bot finds the event by the [id] at the end. GitHub's issue page drops prefilled form
@@ -355,6 +363,12 @@ function relTime(iso) {
   if (mins < 48 * 60) return `${Math.round(mins / 60)} h ago`;
   return `${Math.round(mins / 1440)} days ago`;
 }
+
+document.addEventListener("click", (ev) => {
+  for (const d of document.querySelectorAll("details.addcal[open]")) {
+    if (!d.contains(ev.target) || ev.target.closest(".calmenu")) d.open = false;
+  }
+});
 
 async function boot() {
   readHash();

@@ -67,11 +67,18 @@
         <a class="title" target="_blank" rel="noopener"></a>
         <p class="where"></p>
         <p class="desc"></p>
-        <div class="foot">
-          <span class="badges"></span>
-          <button class="ical" type="button" title="Add to calendar">+ Calendar</button>
-          <a class="flag" target="_blank" rel="noopener" title="Spam, cancelled or wrong? Report it" hidden>Report</a>
-        </div>
+      </div>
+      <div class="foot">
+        <span class="badges"></span>
+        <details class="addcal">
+          <summary class="ical" title="Add to calendar">+ Calendar</summary>
+          <div class="calmenu">
+            <a class="gcal" target="_blank" rel="noopener">Google Calendar</a>
+            <a class="ocal" target="_blank" rel="noopener">Outlook</a>
+            <button class="ics" type="button">Apple &amp; others (.ics)</button>
+          </div>
+        </details>
+        <a class="flag" target="_blank" rel="noopener" title="Spam, cancelled or wrong? Report it" hidden>Report</a>
       </div>
       <img class="thumb" alt="" loading="lazy" decoding="async">
     </article>
