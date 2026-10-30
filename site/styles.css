@@ -77,6 +77,7 @@ body {
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.day h2, .time) { color: var(--gold); } }
 :root[data-theme="dark"] :is(.day h2, .time) { color: var(--gold); }
 .day h2 { color: var(--blue); }
+.wordmark b { font-weight: 700; }
 .tagline { margin: 10px 0 0; color: var(--muted); font-size: 17px; }
 .tagline em { font: italic 400 20px var(--display); color: var(--ink); }
 
