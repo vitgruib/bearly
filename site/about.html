@@ -152,18 +152,6 @@
       </dl>
     </details>
 
-    <details class="source" data-source="reports">
-      <summary><span class="name">Added by students</span></summary>
-      <dl class="facts">
-        <dt>Site</dt><dd><a class="site report-link" href="#">the form</a></dd>
-        <dt>Checked</dt><dd>Every 3 hours</dd>
-        <dt>How</dt><dd>A GET request for each approved event link: Luma links go through Luma's API, and
-          other pages (Partiful, Eventbrite, Meetup...) are read for the event data embedded
-          in them.</dd>
-        <dt>Gets</dt><dd>The full event from its page.</dd>
-        <dt>Found by</dt><dd>The <a class="report-link" href="#">form</a> or a GitHub issue, approved by a maintainer.</dd>
-      </dl>
-    </details>
     </div>
 
     <h2 id="tags">How events are tagged</h2>
@@ -267,7 +255,7 @@
         words.append(d);
       }
       if (data.forms?.form) {
-        for (const a of document.querySelectorAll("#form, .report-link")) a.href = data.forms.form;
+        for (const a of document.querySelectorAll("#form")) a.href = data.forms.form;
       }
       if (data.contributed?.length) {
         document.getElementById("contributed").textContent = `Added by the community so far: ${
