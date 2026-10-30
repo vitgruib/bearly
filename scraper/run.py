@@ -40,25 +40,8 @@ def _run_one(name: str, cfg: dict, ctx: Context) -> tuple[list[Event] | None, st
         return None, f"{type(exc).__name__}: {exc}"
 
 
-EVENTS_FILE = "events.toml"  # approved single events, in contributed/ beside the sources
-
-
 def load_config(root: Path = ROOT) -> dict:
-    """sources.toml plus every community source and event in contributed/ (see contribute.py)."""
-    config = tomllib.loads((root / "sources.toml").read_text())
-    events = root / "contributed" / EVENTS_FILE
-    if events.exists():
-        config.setdefault("reports", {})["events"] = tomllib.loads(events.read_text()).get("events", [])
-    for path in sorted((root / "contributed").glob("*.toml")):
-        if path.name == EVENTS_FILE:
-            continue
-        feed = tomllib.loads(path.read_text())
-        config.setdefault("contributed", []).append({"name": feed["name"], "by": feed.get("added_by")})
-        if feed["type"] == "luma":
-            config.setdefault("luma", {}).setdefault("calendars", []).append(feed["url"])
-        else:
-            config.setdefault("feeds", {}).setdefault("list", []).append(feed)
-    return config
+    return tomllib.loads((root / "sources.toml").read_text())
 
 
 def hidden_ids(root: Path = ROOT) -> set[str]:
@@ -82,7 +65,7 @@ def build(events: list[Event], days_ahead: int, now: datetime,
             continue
         if PLACEHOLDER.search(e.title):
             continue
-        # Feeds and reports are written by strangers: a javascript: or data: link in an href
+        # Feeds and posts are written by strangers: a javascript: or data: link in an href
         # or img src would run on the site, so those never get through.
         if UNSAFE_LINK.match(e.url):
             continue
@@ -160,8 +143,7 @@ def main(argv: list[str]) -> None:
     EVENTS.write_text(json.dumps({
         "generated_at": now.isoformat(timespec="seconds"),
         "repo": config.get("repo"),
-        "contributed": config.get("contributed", []),
-        "forms": {k: config.get("community", {}).get(k) or None for k in ("form", "report_prefill")},
+        "forms": {"report_prefill": config.get("community", {}).get("report_prefill") or None},
         "sources": [{"id": n, "name": SOURCES[n].label, "count": counts.get(n, 0),
                      "last_ok": state.source(n).get("last_ok"),
                      "last_run": state.source(n).get("last_run"),

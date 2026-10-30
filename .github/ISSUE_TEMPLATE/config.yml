@@ -2,4 +2,4 @@ blank_issues_enabled: true
 contact_links:
   - name: No GitHub account? Use the Google Form
     url: https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform
-    about: Add an event or calendar, report an event, or send feedback without signing in.
+    about: Report an event or send feedback without signing in.

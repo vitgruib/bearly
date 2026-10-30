@@ -1,8 +1,7 @@
 # Bearly
 
 Berkeley's open-source calendar. Everything happening around Berkeley in one filterable
-list: talks, hackathons, parties, club meetings, free food. Anyone can add a calendar or
-report a listing ([Adding a source](#adding-a-source)), no code needed. A scraper pulls from every place student events get posted,
+list: talks, hackathons, parties, club meetings, free food. A scraper pulls from every place student events get posted,
 merges duplicates, tags each event by topic and area, and publishes one JSON file. A static
 page lets students filter it.
 
@@ -21,7 +20,6 @@ Live: https://vitgruib.github.io/bearly/
 | Partiful | Bay Area "trending" on `/explore`, plus any `partiful.com/e/…` link seen elsewhere | nothing |
 | Instagram | ~850 student-org accounts (`clubs/instagram.txt`, from CalLink) via Apify; captions parsed for date/time/place | `APIFY_TOKEN` |
 | Mailing lists | IMAP inbox subscribed to listservs | `IMAP_USER`, `IMAP_PASSWORD` |
-| Added by students | single events sent through the form or an "Add an event" issue, once a maintainer approves them (`contributed/events.toml`) | nothing |
 | Slack | channels the bot is in, across any number of workspaces | `SLACK_TOKENS` |
 
 Emails, Slack posts, RSS items and Instagram captions go through two passes, both free.
@@ -89,28 +87,10 @@ its secret skips itself quietly.
 
 ## Adding a source
 
-Anyone, no code, and nothing goes up until a maintainer adds the `approved` label:
+Sources come only by pull request: suggest one by adding it to `sources.toml`, and a maintainer
+reviews it. There is no way to add a calendar or a single event from the site.
 
-- [Add a source](https://github.com/vitgruib/bearly/issues/new?template=add-source.yml): a
-  calendar link. `.github/workflows/community.yml` runs `scraper/contribute.py`, which
-  recognizes the feed (Google Calendar share links become their iCal address; Luma, .ics, RSS,
-  WordPress, Localist and schema.org pages are detected), fetches it once and replies with the
-  events it found. Approved, it's saved as `contributed/<name>.toml`, committed, and a scrape
-  starts. Only feed types the scraper already parses are accepted, so nothing a stranger
-  submits runs as code.
-- [Add an event](https://github.com/vitgruib/bearly/issues/new?template=add-event.yml): one
-  event link. The bot replies with a preview, or closes the issue if the site already lists it.
-  Approved, the link goes in `contributed/events.toml` and is re-read every run.
-- **Report**: each event's Report link opens a prefilled issue. Approved, the event's id goes in
-  `moderation.toml`, which hides it from then on.
-
-No GitHub account? One Google Form (`[community]` in `sources.toml`) covers all three plus
-feedback. Forms can't trigger GitHub, so every 30 minutes the workflow reads the form's
-published response sheet and files new rows as the same issues (feedback gets a `feedback`
-label), with the bot's check as a comment. The submitter gets no reply, which is why the site
-calls GitHub the fast path.
-
-By hand: add a `[[feeds.list]]` entry, or a Luma slug under
+In the pull request, add a `[[feeds.list]]` entry, or a Luma slug under
 `[luma] calendars`, or an Instagram handle to `clubs/instagram.txt`.
 
 A new kind of site: add a module under `scraper/sources/` with
@@ -118,3 +98,10 @@ A new kind of site: add a module under `scraper/sources/` with
 and `warn()`), register it in `scraper/registry.py`, and give it a section in
 `sources.toml`. Region, topic tags, dedupe and the frontend all work from the normalized
 `Event`, so nothing else changes.
+
+## Reporting an event
+
+Each event's Report link opens a prefilled issue. Once a maintainer adds the `approved` label,
+`.github/workflows/community.yml` puts the event's id in `moderation.toml`, which hides it from
+then on. Without a GitHub account, the Google Form (`[community]` in `sources.toml`) takes
+reports and feedback; every 30 minutes the workflow files new responses as issues.
