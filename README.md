@@ -1,4 +1,4 @@
-# Locale
+# Lo-Cal
 
 Berkeley's open-source calendar. Everything happening around Berkeley in one filterable
 list: talks, hackathons, parties, club meetings, free food. A scraper pulls from every place student events get posted,
