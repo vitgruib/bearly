@@ -67,7 +67,7 @@ body {
 .nav a:hover { color: var(--ink); background: var(--chip); }
 .nav a[aria-current="page"] { color: var(--ink); background: var(--chip); }
 .wordmark {
-  font: 700 clamp(46px, 8vw, 72px)/1 "Oleo Script", var(--display);
+  font: var(--wordmark-weight, 700) clamp(46px, 8vw, 72px)/1 var(--wordmark-font, "Oleo Script"), var(--display);
   margin: 0;
   color: var(--blue);
 }
