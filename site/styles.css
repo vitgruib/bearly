@@ -112,6 +112,13 @@ body {
 .showing b { color: var(--ink); font-weight: 600; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
 .pick-group { color: var(--ink); }
 .fchips > #when { margin-right: auto; }
+.fchips:has(> .range:not([hidden])) > #when { margin-right: 0; }
+.range { display: flex; align-items: center; gap: 6px; margin-right: auto; color: var(--muted); font-size: 13px; }
+.range[hidden] { display: none; }
+.range input {
+  font: 500 13px Inter, system-ui, sans-serif; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--faint); border-radius: 999px; padding: 6px 10px; color-scheme: light dark;
+}
 
 #when { display: flex; gap: 2px; background: var(--chip); border-radius: 999px; padding: 3px; }
 #when button, .chip {

@@ -4,8 +4,9 @@ const TZ = "America/Los_Angeles";
 const PAGE = 60;
 const WHEN = [
   ["today", "Today"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"],
-  ["week", "Next 7 days"], ["all", "Everything"],
+  ["week", "Next 7 days"], ["all", "Everything"], ["custom", "Custom"],
 ];
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const TOPIC_EMOJI = {
   "AI & Tech": "🤖", "Startups": "🚀", "Hackathons": "🛠️", "Career": "💼", "Talks": "🎤",
   "Social": "🎉", "Arts & Music": "🎨", "Sports & Wellness": "🏃", "Community": "🤝",
@@ -25,7 +26,7 @@ const fmtDay = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long" 
 const fmtDate = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
 
 let data = { events: [], sources: [], topics: [], regions: [] };
-let state = { q: "", when: "week", topics: new Set(), regions: new Set(), free: false, src: new Set() };
+let state = { q: "", when: "week", from: "", to: "", topics: new Set(), regions: new Set(), free: false, src: new Set() };
 let filtered = [];
 let rendered = 0;
 let lastDay = null;
@@ -36,6 +37,8 @@ function readHash() {
   const p = new URLSearchParams(location.hash.slice(1));
   state.q = p.get("q") || "";
   state.when = WHEN.some(([k]) => k === p.get("when")) ? p.get("when") : "week";
+  state.from = DAY.test(p.get("from")) ? p.get("from") : "";
+  state.to = DAY.test(p.get("to")) ? p.get("to") : "";
   state.topics = new Set((p.get("t") || "").split(",").filter(Boolean));
   state.regions = new Set((p.get("r") || "").split(",").filter(Boolean));
   state.free = p.get("free") === "1";
@@ -46,6 +49,10 @@ function writeHash() {
   const p = new URLSearchParams();
   if (state.q) p.set("q", state.q);
   if (state.when !== "week") p.set("when", state.when);
+  if (state.when === "custom") {
+    if (state.from) p.set("from", state.from);
+    if (state.to) p.set("to", state.to);
+  }
   if (state.topics.size) p.set("t", [...state.topics].join(","));
   if (state.regions.size) p.set("r", [...state.regions].join(","));
   if (state.free) p.set("free", "1");
@@ -72,6 +79,11 @@ function whenRange(when) {
       const dow = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(weekdayOf.format(new Date()));
       if (dow === 0) return [today, today];
       return [dow === 6 ? today : addDays(today, 5 - dow), addDays(today, 7 - dow)];
+    }
+    // An empty end means open-ended; dates picked backwards still read as a range.
+    case "custom": {
+      const from = state.from || today, to = state.to || "9999";
+      return from <= to ? [from, to] : [to, from];
     }
     default: return ["0000", "9999"];
   }
@@ -125,6 +137,9 @@ function renderControls() {
     b.onclick = () => { state.when = k; update(); };
     return b;
   }));
+  $("#range").hidden = state.when !== "custom";
+  $("#from").value = state.from || dayKey.format(new Date());
+  $("#to").value = state.to;
 
   const forTopics = base("topics");
   const grouped = TOPIC_GROUPS.flat();
@@ -350,6 +365,8 @@ async function boot() {
     t = setTimeout(() => { state.q = ev.target.value.trim(); update(); }, 120);
   });
   $("#free").onclick = () => { state.free = !state.free; update(); };
+  $("#from").onchange = (ev) => { state.from = ev.target.value; update(); };
+  $("#to").onchange = (ev) => { state.to = ev.target.value; update(); };
   $("#clear").onclick = () => {
     state.topics.clear(); state.regions.clear(); state.src.clear(); state.free = false;
     update();

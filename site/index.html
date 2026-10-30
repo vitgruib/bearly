@@ -17,8 +17,7 @@
     <div class="wrap">
       <nav class="nav" aria-label="Site">
         <a href="./" aria-current="page">Events</a>
-        <a href="about.html">Sources</a>
-        <a href="about.html#code">Code</a>
+        <a href="about.html">Sources &amp; Code</a>
       </nav>
       <h1 class="wordmark">Bearly Missed<span class="dot">.</span></h1>
       <p class="tagline">Berkeley's open source event calendar</p>
@@ -34,7 +33,7 @@
       </label>
       <div class="filters">
         <div class="frow"><span class="flabel">When</span>
-          <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><button class="chip" id="free" type="button" aria-pressed="false">Free only</button></div>
+          <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><span class="range" id="range" hidden><input type="date" id="from" aria-label="From"><span>to</span><input type="date" id="to" aria-label="To"></span><button class="chip" id="free" type="button" aria-pressed="false">Free only</button></div>
         </div>
         <div class="frow"><span class="flabel">Event type</span>
           <div class="fsubs">
