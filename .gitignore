@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 site/data/
 .cache/
+site/e/
+site/sitemap.xml

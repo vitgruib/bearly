@@ -21,6 +21,7 @@ from .enrich import REGIONS, TOPICS, enrich
 from .ics import write_feeds
 from .llms import write_llms_full
 from .models import Event
+from .pages import write_pages
 from .registry import SOURCES
 from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
 
@@ -159,7 +160,9 @@ def main(argv: list[str]) -> None:
     }, ensure_ascii=False, separators=(",", ":")))
     write_feeds(final, list(TOPICS), EVENTS.parent / "cal", now)
     owner, name = config["repo"].split("/")
-    write_llms_full(final, f"https://{owner}.github.io/{name}/", EVENTS.parent / "llms-full.txt", now)
+    site_url = f"https://{owner}.github.io/{name}/"
+    write_llms_full(final, site_url, EVENTS.parent / "llms-full.txt", now)
+    write_pages(final, site_url, EVENTS.parent.parent, now)
     log.info("wrote %d events (from %d raw); http %s", len(final), len(events), http.stats)
 
 

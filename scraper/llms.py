@@ -9,7 +9,7 @@ from .models import Event
 PACIFIC = ZoneInfo("America/Los_Angeles")
 
 
-def _when(e: Event) -> str:
+def time_range(e: Event) -> str:
     if e.all_day:
         return "All day"
     start = e.start.astimezone(PACIFIC)
@@ -34,7 +34,7 @@ def write_llms_full(events: list[Event], site_url: str, path: Path, now: datetim
         if d != day:
             day = d
             lines += ["", f"## {d:%A %B %-d, %Y}", ""]
-        facts = [_when(e), e.title, e.venue or e.address or ("Online" if e.online else ""), e.host or "",
+        facts = [time_range(e), e.title, e.venue or e.address or ("Online" if e.online else ""), e.host or "",
                  e.region or "", ", ".join(e.tags), "Free" if e.free else "",
                  f"Getting in: {'; '.join(e.access)}" if e.access else "",
                  e.url, f"{site_url}#event={e.id}"]

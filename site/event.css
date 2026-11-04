@@ -1,0 +1,16 @@
+/* The static per-event pages (e/<id>.html) that link previews and search engines read. */
+.event-page { max-width: 720px; padding-top: 22px; padding-bottom: 60px; }
+.event-page .nav { justify-content: flex-start; margin-bottom: 28px; }
+.event-page h1 { font: 800 clamp(28px, 6vw, 42px)/1.1 var(--display); letter-spacing: -0.025em; color: var(--ink); margin: 0 0 14px; }
+.event-page .when { font-weight: 600; color: var(--accent); font-size: 17px; }
+.event-page p { margin: 6px 0; color: var(--ink); overflow-wrap: anywhere; }
+.event-page .tags, .event-page .note { color: var(--muted); font-size: 14px; }
+.event-page .desc-full { margin: 18px 0; line-height: 1.55; }
+.event-page .desc-full:empty { display: none; }
+.event-page .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
+.event-page .button {
+  display: inline-block; padding: 10px 16px; border-radius: 10px; text-decoration: none;
+  font-weight: 600; background: var(--accent); color: var(--accent-ink);
+}
+.event-page .button.ghost { background: var(--chip); color: var(--ink); }
+.event-page .note { margin-top: 30px; }
