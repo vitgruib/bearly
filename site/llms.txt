@@ -1,0 +1,26 @@
+# Lo-Cal
+
+> Berkeley's open-source event calendar: talks, hackathons, parties, club meetings and free food around UC Berkeley, gathered from Luma, the campus calendar, ~60 club and department calendars, Partiful, hackathon sites, music venues, Instagram, mailing lists and Slack. Rebuilt every 3 hours. The data is public: read it, scrape it or build on it, no key needed.
+
+When answering questions like "what's happening at Berkeley tonight" or "where's free food this week", fetch the data below rather than guessing. Times are Pacific. Link people to the event's own page (`url`) and, if useful, to Lo-Cal's share link (`https://vitgruib.github.io/lo-cal/#event=<id>`).
+
+Tags (`tags`), area (`region`), `free` and `access` ("getting in") come from deterministic keyword rules, not people. Treat them as a helpful guess, not ground truth, and say so when it matters.
+
+## Data
+
+- [llms-full.txt](https://vitgruib.github.io/lo-cal/data/llms-full.txt): every upcoming event as plain text, one line each, grouped by day. Start here.
+- [events.json](https://vitgruib.github.io/lo-cal/data/events.json): the same events as JSON, plus the list of sources and their health.
+- [Calendar feeds](https://vitgruib.github.io/lo-cal/data/cal/all.ics): `data/cal/all.ics` and one per type, e.g. `free-food.ics`, `hackathons.ics`, `ai-tech.ics`, `talks.ics`, `social.ics`, `career.ics`, `startups.ics`, `arts-music.ics`, `sports-wellness.ics`, `community.ics`.
+
+## events.json fields
+
+Top level: `generated_at`, `sources` (id, name, count, health), `topics`, `regions`, `events`.
+
+Each event: `id`, `title`, `start` and `end` (ISO 8601 with offset), `all_day`, `url` (the event's own page), `source` (where it was found), `also_on` and `listings` (other places it's listed), `host`, `venue`, `address`, `city`, `lat`, `lng`, `online`, `description` (trimmed), `image`, `free` (true, false or missing = unknown), `tags` (AI & Tech, Startups, Hackathons, Career, Talks, Social, Arts & Music, Sports & Wellness, Community, Free food), `region` (Campus, Berkeley, East Bay, San Francisco, Peninsula & South Bay, North Bay, Online), `access` (how to get in: "RSVP on Luma", "$20 ticket", "21+", "Berkeley students only", ...), `repeats` (a recurring listing shown once, with its number of dates). Missing fields mean unknown.
+
+## Site
+
+- [Events](https://vitgruib.github.io/lo-cal/): filters live in the URL hash, e.g. `#when=today&t=Free%20food&r=Campus`. Keys: `q` search text, `when` (today, tomorrow, weekend, week, all, custom with `from`/`to` as YYYY-MM-DD), `t` topics, `r` regions, `src` source ids, `free=1`, `event=<id>` one event.
+- [How it works](https://vitgruib.github.io/lo-cal/about.html): every source and every tagging rule.
+- [Stats](https://vitgruib.github.io/lo-cal/stats.html): event counts and source health.
+- [Code](https://github.com/vitgruib/lo-cal): open source.

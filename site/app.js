@@ -28,7 +28,7 @@ const fmtDay = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long" 
 const fmtDate = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
 
 let data = { events: [], sources: [], topics: [], regions: [] };
-let state = { q: "", when: "week", from: "", to: "", topics: new Set(), regions: new Set(), free: false, src: new Set() };
+let state = { q: "", when: "week", from: "", to: "", topics: new Set(), regions: new Set(), free: false, src: new Set(), event: "" };
 let filtered = [];
 let rendered = 0;
 let lastDay = null;
@@ -45,10 +45,12 @@ function readHash() {
   state.regions = new Set((p.get("r") || "").split(",").filter(Boolean));
   state.free = p.get("free") === "1";
   state.src = new Set((p.get("src") || "").split(",").filter(Boolean));
+  state.event = p.get("event") || "";
 }
 
 function writeHash() {
   const p = new URLSearchParams();
+  if (state.event) p.set("event", state.event);
   if (state.q) p.set("q", state.q);
   if (state.when !== "week") p.set("when", state.when);
   if (state.when === "custom") {
@@ -101,6 +103,8 @@ function matchesSearch(e, terms) {
 }
 
 function base(skip) {
+  // A shared link shows just that event, whatever filters the viewer had.
+  if (state.event) return data.events.filter((e) => e.id === state.event);
   const range = whenRange(state.when);
   const terms = state.q.toLowerCase().split(/\s+/).filter(Boolean);
   const now = Date.now();
@@ -292,6 +296,23 @@ function card(e) {
     subject: e.title, startdt: new Date(e._start).toISOString(), enddt: new Date(end).toISOString(),
     body: details, location: calPlace })}`;
   node.querySelector(".ics").onclick = () => downloadIcs(e);
+  const share = node.querySelector(".share");
+  share.onclick = async () => {
+    const url = `${location.origin}${location.pathname}#event=${e.id}`;
+    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      try { await navigator.share({ title: e.title, url }); } catch { /* closed the share sheet */ }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      share.textContent = "Link copied";
+    } catch {
+      // No clipboard access: put the link in the address bar to copy from there.
+      history.replaceState(null, "", `#event=${e.id}`);
+      share.textContent = "Link in address bar";
+    }
+    setTimeout(() => { share.textContent = "Share"; }, 1800);
+  };
   if (data.repo) {
     const flag = node.querySelector(".flag");
     // The bot finds the event by the [id] at the end. GitHub's issue page drops prefilled form
@@ -339,6 +360,14 @@ function update() {
   $("#list").replaceChildren();
   rendered = 0;
   lastDay = null;
+  if (state.event) {
+    const back = document.createElement("div");
+    back.className = "shared";
+    back.innerHTML = `<span>${filtered.length ? "A shared event." : "This event has ended or was removed."}</span><button class="link" type="button">See all events</button>`;
+    back.querySelector("button").onclick = () => { state.event = ""; update(); };
+    $("#list").append(back);
+    if (!filtered.length) return;
+  }
   if (!filtered.length) {
     $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.</div>`;
     return;
@@ -420,6 +449,7 @@ async function boot() {
   $("#from").onchange = (ev) => { state.from = ev.target.value; update(); };
   $("#to").onchange = (ev) => { state.to = ev.target.value; update(); };
   $("#clear").onclick = () => {
+    state.event = "";
     state.topics.clear(); state.regions.clear(); state.src.clear(); state.free = false;
     update();
   };
@@ -455,6 +485,8 @@ async function boot() {
   }, { rootMargin: "800px" }).observe($("#sentinel"));
 
   renderFeeds();
+  // A shared link pasted into an open tab only changes the hash.
+  addEventListener("hashchange", () => { readHash(); $("#q").value = state.q; update(); });
   update();
 }
 
