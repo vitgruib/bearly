@@ -42,6 +42,8 @@ calendars = [
   "cal-gINV7gyDozAG9wG",  # Berkeley Abundance
   "cal-I1txDD8RUmcAAqt",  # Girls into VC
   "cal-OJnfOpxupHUmL1x",  # NixOS (meets at OCF)
+  "cal-zpmXtN6vl2q126O",  # Notion @ UC Berkeley (checked 2026-11-03)
+  "cal-hBMWrE0GDEt47fE",  # Berkeley Master of Design (MDes)
   # Bay Area tech, startup and hackathon communities (checked 2026-10-27)
   "genai-sf", "build-with-ai-club", "foundersbay", "ai-sf", "9zero", "thesanfranciscotechscene",
   "Big-Brain-Bay", "sf-hackersquad", "aisafety-sf", "southparkcommons-events", "grayarea",
@@ -236,6 +238,88 @@ type = "ics"
 url = "https://calendar.google.com/calendar/ical/berkeley.edu_5ub63m118v3el3jv78ejcjak7g%40group.calendar.google.com/public/basic.ics"
 campus = true
 max_repeats = 5
+
+# --- Centers, programs and departments with their own calendar (checked 2026-11-03) ---
+# Found by probing ~820 berkeley.edu sites (the Open Berkeley site list plus the campus
+# research-unit, school and department pages they link to) for The Events Calendar's API
+# and embedded public Google Calendars. Sites that only embed events.berkeley.edu are left out.
+
+[[feeds.list]]
+name = "BEGIN (Berkeley innovation & entrepreneurship)"
+type = "ics"
+url = "https://begin.berkeley.edu/api/public/events.ics"
+campus = true
+
+[[feeds.list]]
+name = "Berkeley AI Risk speaker series"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/c_992469c1c480dfe373c829ec7ee02fda1c89c676f3162cf672d5d7a8292f9690%40group.calendar.google.com/public/basic.ics"
+campus = true
+
+[[feeds.list]]
+name = "Berkeley Risk and Security Lab"
+type = "tribe"
+url = "https://brsl.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Graduate Division"
+type = "tribe"
+url = "https://grad.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Berkeley Law Executive Education"
+type = "tribe"
+url = "https://executive.law.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "University & Jepson Herbaria"
+type = "tribe"
+url = "https://herbaria.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Magnes Collection of Jewish Art and Life"
+type = "tribe"
+url = "https://magnes.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+
+[[feeds.list]]
+name = "Berkeley Emerging Technologies Research Center"
+type = "tribe"
+url = "https://betr.berkeley.edu/wp-json/tribe/events/v1/events"
+campus = true
+exclude = "^TBA( |$)"
+
+[[feeds.list]]
+name = "Anthropology"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_qod5hc5thsjkf3480ol1qs1fak%40group.calendar.google.com/public/basic.ics"
+campus = true
+
+[[feeds.list]]
+name = "Undocumented Student Program"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/berkeley.edu_p4ib8gb1jajq9gf3vruire8iqc%40group.calendar.google.com/public/basic.ics"
+campus = true
+exclude = "^(VIRTUAL |USP )?PAC Appointments|^EBCLC Drop In|^e-Hub Drop-in|^UCRC Closed"  # advising slots
+
+[[feeds.list]]
+name = "Native American Student Development"
+type = "ics"
+url = "https://calendar.google.com/calendar/ical/nasd%40berkeley.edu/public/basic.ics"
+campus = true
+exclude = "^NCC (CLOSED|Closed)|^NCC Drop-In Tutoring|^Academic and Administrative Holiday|^Non-Instructional Day|^Formal Classes End"
+
+[[feeds.list]]
+name = "Berkeley Hillel"
+type = "tribe"
+url = "https://www.berkeleyhillel.org/wp-json/tribe/events/v1/events"
+city = "Berkeley"
+max_repeats = 11  # keeps Shabbat dinners, drops the weekly drop-in snacks
+exclude = "^Hillel Student Board Meetings"
 
 # --- City and community ---
 
