@@ -26,6 +26,7 @@ const weekdayOf = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "sho
 const fmtTime = new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
 const fmtDay = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long" });
 const fmtDate = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
+const hourOf = new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", hourCycle: "h23" });
 
 let data = { events: [], sources: [], topics: [], regions: [] };
 let state = { q: "", when: "week", from: "", to: "", topics: new Set(), regions: new Set(), free: false, src: new Set(), event: "" };
@@ -98,26 +99,287 @@ function matchesWhen(e, [from, to]) {
   return e._day <= to && (e._endDay || e._day) >= from;
 }
 
-function matchesSearch(e, terms) {
-  return terms.every((t) => e._text.includes(t));
+// Matched at word starts in e._norm, so "hack" finds "hackathon" but "thon" doesn't.
+function termMatches(e, t) {
+  return t.alts.some((a) => e._norm.includes(` ${a}`)) || t.tags.some((g) => e.tags?.includes(g));
 }
 
-function base(skip) {
+function base(skip, wide) {
   // A shared link shows just that event, whatever filters the viewer had.
   if (state.event) return data.events.filter((e) => e.id === state.event);
-  const range = whenRange(state.when);
-  const terms = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+  const q = parseQuery();
+  const today = dayKey.format(new Date());
+  // Typed dates narrow the When row rather than replace it; "wide" is every upcoming date.
+  let range = wide ? ["0000", "9999"] : whenRange(state.when);
+  if (q.days && !wide) range = [q.days[0] > range[0] ? q.days[0] : range[0], q.days[1] < range[1] ? q.days[1] : range[1]];
+  if (range[0] > range[1]) return [];
+  // Today means what you can still go to; all-day events count as not started.
+  const fresh = !wide && range[0] === today && range[1] === today && (state.when === "today" || q.days);
+  const evening = !wide && q.evening;
+  const free = state.free || q.free;
   const now = Date.now();
   return data.events.filter((e) =>
     (e._end || e._start + 2 * 3600e3) > now &&
     (skip === "src" || !state.src.size || state.src.has(e.source) || e.also_on?.some((s) => state.src.has(s))) &&
     matchesWhen(e, range) &&
-    // Today means what you can still go to; all-day events count as not started.
-    (state.when !== "today" || e._start > now || (e.all_day && e._day === range[0])) &&
-    matchesSearch(e, terms) &&
-    (!state.free || e.free === true) &&
+    (!fresh || e._start > now || (e.all_day && e._day === today)) &&
+    (!evening || (!e.all_day && e._hour >= EVENING && e._day >= range[0])) &&
+    q.terms.every((t) => termMatches(e, t)) &&
+    (!free || e.free === true) &&
+    (!q.regions.size || q.regions.has(e.region)) &&
+    q.topics.every((t) => e.tags?.includes(t)) &&
     (skip === "regions" || !state.regions.size || state.regions.has(e.region)) &&
     (skip === "topics" || !state.topics.size || e.tags?.some((t) => state.topics.has(t))));
+}
+
+/* ---------- Search words ---------- */
+
+// The query is read fresh from state.q on every filter, so the URL's raw text alone
+// reproduces the view. Words that name a time, place or event type become filters; a word
+// in "quotes" is always searched as typed, which is how removing a filter chip works.
+
+const EVENING = 17;
+const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+const FILLER = new Set(["on", "in", "at", "near", "around", "the", "a", "an", "and", "&", "of", "this",
+  "events", "event", "for", "me", "whats", "happening"]);
+const TOPIC_ALIASES = {
+  "AI & Tech": ["ai", "tech", "ml", "llm", "machine learning", "artificial intelligence"],
+  "Startups": ["startup", "founder", "vc"],
+  "Hackathons": ["hackathon", "hack night", "build night", "buildathon"],
+  "Career": ["career", "job", "internship", "recruiting"],
+  "Talks": ["talk", "lecture", "seminar", "panel", "colloquium"],
+  "Social": ["party", "parties", "social", "mixer", "happy hour"],
+  "Arts & Music": ["art", "music", "concert"],
+  "Sports & Wellness": ["sport", "workout", "yoga", "fitness", "wellness"],
+  "Community": ["community", "volunteer", "volunteering"],
+  // The scraper's own food words (data.topic_words) are added at load.
+  [FOOD]: ["food", "free food", "snack", "refreshment"],
+};
+const PLACE_ALIASES = [
+  // Campus is in Berkeley, so "berkeley" covers both.
+  [["Campus"], ["campus"]],
+  [["Berkeley", "Campus"], ["berkeley"]],
+  [["East Bay"], ["east bay", "oakland"]],
+  [["San Francisco"], ["sf", "san francisco"]],
+  [["Peninsula & South Bay"], ["peninsula", "south bay", "palo alto", "san jose"]],
+  [["North Bay"], ["north bay"]],
+  [["Online"], ["online", "virtual", "zoom"]],
+];
+// Words close enough in meaning to search alongside, for words left as plain text.
+const SYNONYMS = {
+  food: ["pizza", "boba", "snacks", "refreshments", "lunch", "dinner"],
+  hackathon: ["hack night", "build night"],
+  talk: ["lecture", "seminar", "panel", "speaker"],
+  lecture: ["talk", "seminar"],
+  party: ["social", "mixer"],
+  concert: ["music"],
+};
+
+const aliases = new Map();
+let maxAlias = 1;
+let vocab = null;
+let parsed = { key: null };
+
+// Same treatment for event text and typed words: "Women's Café" -> "womens cafe".
+function norm(s) {
+  return s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+    .replace(/['’.]/g, "").replace(/[^\p{L}\p{N}&]+/gu, " ").trim();
+}
+
+function buildAliases() {
+  const add = (phrase, hit) => {
+    aliases.set(phrase, hit);
+    maxAlias = Math.max(maxAlias, phrase.split(" ").length);
+  };
+  const food = (data.topic_words?.[FOOD] || []).map((p) => p.replace(/\\b/g, "")).filter((p) => /^[a-z ]+$/.test(p));
+  for (const [topic, words] of Object.entries(TOPIC_ALIASES)) {
+    if (!data.topics.includes(topic)) continue;
+    const hit = { key: `t:${topic}`, topic, label: `${TOPIC_EMOJI[topic] || ""} ${topic}`.trim() };
+    for (const w of [topic, ...words, ...(topic === FOOD ? food : [])]) add(norm(w), hit);
+  }
+  for (const [regions, words] of PLACE_ALIASES) {
+    const hit = { key: `r:${regions}`, regions, label: `📍 ${regions[0]}` };
+    for (const w of [regions.join(" "), ...words]) add(norm(w), hit);
+  }
+}
+
+// Singular or plural both hit: "hackathons", "talks", "snacks".
+function aliasOf(phrase) {
+  return aliases.get(phrase) || aliases.get(phrase.replace(/s$/, "")) || aliases.get(`${phrase}s`);
+}
+
+function aliasAt(toks, i) {
+  for (let n = Math.min(maxAlias, toks.length - i); n > 0; n--) {
+    const run = toks.slice(i, i + n);
+    if (run.some((t) => t.quoted)) continue;
+    const hit = aliasOf(run.map((t) => t.w).join(" "));
+    if (hit) return { ...hit, n };
+  }
+  return null;
+}
+
+// A time phrase starting at toks[i]: "tonight", "this weekend", "friday night".
+function timeAt(toks, i, today) {
+  const w = (k) => (toks[i + k] && !toks[i + k].quoted ? toks[i + k].w : "");
+  const lead = w(0) === "this" ? 1 : 0;
+  const word = w(lead);
+  const day = (n) => [addDays(today, n), addDays(today, n)];
+  let t = null;
+  if (word === "today") t = { days: day(0), label: "Today", phrase: "today" };
+  else if (word === "tonight" || (lead && word === "evening")) t = { days: day(0), evening: true, label: "Tonight", phrase: "tonight" };
+  else if (word === "tomorrow") t = { days: day(1), label: "Tomorrow", phrase: "tomorrow" };
+  else if (word === "weekend") t = { days: whenRange("weekend"), label: "This weekend", phrase: "this weekend" };
+  else if (word === "week") t = { days: whenRange("week"), label: "This week", phrase: "this week" };
+  else if (WEEKDAYS.includes(word)) {
+    const label = word[0].toUpperCase() + word.slice(1);
+    const dow = WEEKDAYS.findIndex((d) => d.startsWith(weekdayOf.format(new Date()).toLowerCase()));
+    t = { days: day((WEEKDAYS.indexOf(word) - dow + 7) % 7), label, phrase: `on ${label}` };
+  }
+  if (!t) return null;
+  t.n = lead + 1;
+  if (!t.evening && t.days[0] === t.days[1] && ["night", "evening"].includes(w(t.n))) {
+    t.n++;
+    t.evening = true;
+    t.label += " night";
+    t.phrase += " night";
+  }
+  return t;
+}
+
+// Search alternatives for one plain word: itself, close synonyms, and the event type it names.
+function related(w) {
+  const tags = [aliasOf(w)?.topic].filter(Boolean);
+  return { alts: [w, ...(SYNONYMS[w] || SYNONYMS[w.replace(/s$/, "")] || [])], tags };
+}
+
+function oneEdit(a, b) {
+  if (a === b) return true;
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0;
+  while (a[i] === b[i]) i++;
+  if (a.length === b.length) {
+    return a.slice(i + 1) === b.slice(i + 1) || (a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2));
+  }
+  const [s, l] = a.length < b.length ? [a, b] : [b, a];
+  return s.slice(i) === l.slice(i + 1);
+}
+
+// Words seen in titles and tags: the spellings a typo is most likely aiming for.
+function vocabulary() {
+  if (!vocab) {
+    const words = new Set();
+    for (const e of data.events) {
+      for (const w of norm([e.title, ...(e.tags || [])].join(" ")).split(" ")) if (w.length >= 4) words.add(w);
+    }
+    vocab = [...words];
+  }
+  return vocab;
+}
+
+function parseQuery() {
+  const today = dayKey.format(new Date());
+  const key = `${state.q}|${today}`;
+  if (parsed.key === key) return parsed;
+  const toks = [];
+  for (const m of state.q.matchAll(/"([^"]*)"?|[^\s"]+/g)) {
+    const span = [m.index, m.index + m[0].length];
+    if (m[0].startsWith('"')) {
+      const w = norm(m[1]);
+      if (w) toks.push({ w, span, quoted: true });
+    } else {
+      for (const w of norm(m[0]).split(" ").filter(Boolean)) toks.push({ w, span });
+    }
+  }
+  const p = { key, days: null, evening: true, free: false, topics: [], regions: new Set(), terms: [], chips: new Map(), fixes: [], times: [] };
+  const chipFor = (id, label, from, to) => {
+    const c = p.chips.get(id) || { label, spans: [] };
+    const span = [toks[from].span[0], toks[to - 1].span[1]];
+    if (!c.spans.some((s) => s[0] === span[0])) c.spans.push(span);
+    p.chips.set(id, c);
+  };
+  for (let i = 0; i < toks.length;) {
+    const tok = toks[i];
+    if (tok.quoted) {
+      p.terms.push(related(tok.w));
+      i++;
+      continue;
+    }
+    const time = timeAt(toks, i, today);
+    if (time) {
+      // Several times ("friday saturday") widen to cover them all.
+      p.days = p.days ? [p.days[0] < time.days[0] ? p.days[0] : time.days[0], p.days[1] > time.days[1] ? p.days[1] : time.days[1]] : time.days;
+      p.evening = p.evening && !!time.evening;
+      p.times.push(time.phrase);
+      chipFor(`w:${time.label}`, time.label, i, i + time.n);
+      i += time.n;
+      continue;
+    }
+    // "free pizza" means free food, not "free" and "pizza".
+    const next = tok.w === "free" ? aliasAt(toks, i + 1) : null;
+    const hit = next?.topic === FOOD ? { ...next, n: next.n + 1 } : tok.w === "free" ? null : aliasAt(toks, i);
+    if (hit) {
+      if (hit.topic && !p.topics.includes(hit.topic)) p.topics.push(hit.topic);
+      for (const r of hit.regions || []) p.regions.add(r);
+      chipFor(hit.key, hit.label, i, i + hit.n);
+      i += hit.n;
+      continue;
+    }
+    if (tok.w === "free") {
+      p.free = true;
+      chipFor("free", "Free", i, i + 1);
+    } else if (!FILLER.has(tok.w)) {
+      p.terms.push({ ...related(tok.w), loose: true });
+    }
+    i++;
+  }
+  if (!p.days) p.evening = false;
+  // A long word nothing contains is probably misspelled: try words one edit away.
+  for (const t of p.terms) {
+    const w = t.alts[0];
+    if (!t.loose || w.length < 5 || w.includes(" ") || data.events.some((e) => termMatches(e, t))) continue;
+    const near = vocabulary().filter((v) => oneEdit(w, v));
+    for (const v of near) {
+      const r = related(v);
+      t.alts.push(...r.alts);
+      t.tags.push(...r.tags);
+    }
+    if (near.length) p.fixes.push([w, near.slice(0, 3)]);
+  }
+  parsed = p;
+  return p;
+}
+
+// Removing a chip quotes the words behind it, so they're searched as plain text instead.
+function unfilter(spans) {
+  let q = state.q;
+  for (const [a, b] of [...spans].sort((x, y) => y[0] - x[0])) q = `${q.slice(0, a)}"${q.slice(a, b)}"${q.slice(b)}`;
+  setQuery(q);
+}
+
+function setQuery(q) {
+  state.q = q;
+  $("#q").value = q;
+  update();
+}
+
+function renderQueryChips() {
+  const q = parseQuery();
+  const el = $("#qchips");
+  const chips = [...q.chips.values()].map(({ label, spans }) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qchip";
+    b.textContent = label;
+    b.append(Object.assign(document.createElement("span"), { textContent: "✕", ariaHidden: "true" }));
+    b.title = `Search the word${spans.length > 1 ? "s" : ""} as typed instead`;
+    b.setAttribute("aria-label", `Remove filter ${label}`);
+    b.onclick = () => unfilter(spans);
+    return b;
+  });
+  const fixes = q.fixes.map(([typed, near]) =>
+    Object.assign(document.createElement("span"), { className: "qnote", textContent: `“${typed}” → ${near.join(", ")}` }));
+  el.replaceChildren(...chips, ...fixes);
+  el.hidden = state.event || !(chips.length || fixes.length);
 }
 
 /* ---------- Controls ---------- */
@@ -178,6 +440,7 @@ function renderControls() {
   $("#food").setAttribute("aria-pressed", state.topics.has(FOOD));
   $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
   renderShowing();
+  renderQueryChips();
 }
 
 // Spells out how the picks combine: any chip within a row, every row that has one.
@@ -298,7 +561,8 @@ function card(e) {
   node.querySelector(".ics").onclick = () => downloadIcs(e);
   const share = node.querySelector(".share");
   share.onclick = async () => {
-    const url = `${location.origin}${location.pathname}#event=${e.id}`;
+    // The event's own page, not #event=: chat apps read that page for the preview card.
+    const url = new URL(`e/${e.id}.html`, location.href).href;
     if (navigator.share && matchMedia("(pointer: coarse)").matches) {
       try { await navigator.share({ title: e.title, url }); } catch { /* closed the share sheet */ }
       return;
@@ -369,10 +633,44 @@ function update() {
     if (!filtered.length) return;
   }
   if (!filtered.length) {
-    $("#list").innerHTML = `<div class="empty"><strong>No events match.</strong>Try a wider date range or fewer filters.</div>`;
+    renderEmpty();
     return;
   }
   renderMore();
+}
+
+const WHEN_PHRASE = { today: "today", tomorrow: "tomorrow", weekend: "this weekend", week: "in the next 7 days", custom: "in those dates" };
+
+// Before giving up, check whether the same search finds anything on any upcoming date.
+function renderEmpty() {
+  const wider = state.event ? [] : base(undefined, true);
+  const box = document.createElement("div");
+  box.className = "empty";
+  const strong = document.createElement("strong");
+  box.append(strong);
+  if (!wider.length) {
+    strong.textContent = "No events match.";
+    box.append("Try fewer words or filters.");
+  } else {
+    const q = parseQuery();
+    // The search minus its time words is what to look for on other dates.
+    const timeSpans = [...q.chips].filter(([id]) => id.startsWith("w:")).flatMap(([, c]) => c.spans);
+    let rest = state.q;
+    for (const [a, b] of timeSpans.sort((x, y) => y[0] - x[0])) rest = rest.slice(0, a) + rest.slice(b);
+    rest = rest.replace(/\s+/g, " ").trim();
+    const when = q.times.length ? q.times.join(" or ") : WHEN_PHRASE[state.when];
+    strong.textContent = `Nothing ${when}${rest ? ` for “${rest}”` : " with these filters"}.`;
+    const widen = document.createElement("button");
+    widen.type = "button";
+    widen.className = "widen";
+    widen.textContent = `${wider.length.toLocaleString()} upcoming →`;
+    widen.onclick = () => {
+      state.when = "all";
+      setQuery(rest);
+    };
+    box.append(widen);
+  }
+  $("#list").replaceChildren(box);
 }
 
 /* ---------- Calendar export ---------- */
@@ -470,9 +768,12 @@ async function boot() {
     e._end = e.end ? Date.parse(e.end) : null;
     e._day = dayKey.format(new Date(e._start));
     e._endDay = e._end ? dayKey.format(new Date(e._end - 1)) : null;
-    e._text = [e.title, e.host, e.venue, e.address, e.description, e.region, ...(e.tags || [])]
-      .join(" ").toLowerCase();
+    e._hour = Number(hourOf.format(new Date(e._start)));
+    // Spaces at both ends let one includes(" word") check mean "a word starting with this".
+    e._norm = ` ${norm([e.title, e.host, e.venue, e.address, e.description, e.region, ...(e.tags || [])]
+      .filter(Boolean).join(" "))} `;
   }
+  buildAliases();
 
   const live = data.sources.filter((s) => s.count > 0).map((s) => `${s.name} (${s.count})`);
   $("#updated").textContent = `Updated ${relTime(data.generated_at)} · ${data.events.length.toLocaleString()} upcoming events from ${live.join(", ")}.`;

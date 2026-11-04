@@ -99,6 +99,22 @@ body {
   font: inherit; font-size: 16px; padding: 12px 0;
 }
 
+/* Words the search read as filters; they wrap rather than scroll so every ✕ stays reachable. */
+.qchips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.qchips[hidden] { display: none; }
+.qchip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 500 13px/1 var(--body); color: var(--accent-ink); background: var(--accent);
+  border: 0; border-radius: 999px; padding: 7px 10px 7px 12px; cursor: pointer; white-space: nowrap;
+}
+.qchip span { font-size: 11px; opacity: .7; }
+.qchip:hover span { opacity: 1; }
+.qnote { color: var(--muted); font-size: 12.5px; }
+.widen {
+  margin-top: 12px; font: 600 14px var(--body); color: var(--accent-ink); background: var(--accent);
+  border: 0; border-radius: 999px; padding: 9px 16px; cursor: pointer;
+}
+
 .filters { margin-top: 12px; display: grid; gap: 8px; }
 .frow { display: grid; grid-template-columns: 104px 1fr; align-items: start; gap: 10px; }
 .flabel {

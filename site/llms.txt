@@ -2,7 +2,7 @@
 
 > Berkeley's open-source event calendar: talks, hackathons, parties, club meetings and free food around UC Berkeley, gathered from Luma, the campus calendar, ~60 club and department calendars, Partiful, hackathon sites, music venues, Instagram, mailing lists and Slack. Rebuilt every 3 hours. The data is public: read it, scrape it or build on it, no key needed.
 
-When answering questions like "what's happening at Berkeley tonight" or "where's free food this week", fetch the data below rather than guessing. Times are Pacific. Link people to the event's own page (`url`) and, if useful, to Lo-Cal's share link (`https://vitgruib.github.io/lo-cal/#event=<id>`).
+When answering questions like "what's happening at Berkeley tonight" or "where's free food this week", fetch the data below rather than guessing. Times are Pacific. Link people to the event's own page (`url`) and, if useful, to Lo-Cal's page for it (`https://vitgruib.github.io/lo-cal/e/<id>.html`).
 
 Tags (`tags`), area (`region`), `free` and `access` ("getting in") come from deterministic keyword rules, not people. Treat them as a helpful guess, not ground truth, and say so when it matters.
 
@@ -20,7 +20,8 @@ Each event: `id`, `title`, `start` and `end` (ISO 8601 with offset), `all_day`, 
 
 ## Site
 
-- [Events](https://vitgruib.github.io/lo-cal/): filters live in the URL hash, e.g. `#when=today&t=Free%20food&r=Campus`. Keys: `q` search text, `when` (today, tomorrow, weekend, week, all, custom with `from`/`to` as YYYY-MM-DD), `t` topics, `r` regions, `src` source ids, `free=1`, `event=<id>` one event.
+- [Events](https://vitgruib.github.io/lo-cal/): filters live in the URL hash, e.g. `#when=today&t=Free%20food&r=Campus`. Keys: `q` search text (words like "tonight", "free food", "sf" become filters), `when` (today, tomorrow, weekend, week, all, custom with `from`/`to` as YYYY-MM-DD), `t` topics, `r` regions, `src` source ids, `free=1`, `event=<id>` one event.
 - [How it works](https://vitgruib.github.io/lo-cal/about.html): every source and every tagging rule.
+- Event pages: `e/<id>.html`, one per event, listed in [sitemap.xml](https://vitgruib.github.io/lo-cal/sitemap.xml).
 - [Stats](https://vitgruib.github.io/lo-cal/stats.html): event counts and source health.
 - [Code](https://github.com/vitgruib/lo-cal): open source.

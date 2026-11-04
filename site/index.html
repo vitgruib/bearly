@@ -40,8 +40,9 @@
     <div class="wrap">
       <label class="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" placeholder="Search talks, parties, hackathons, clubs…" autocomplete="off">
+        <input id="q" type="search" placeholder="Try “food tonight” or “hackathon sf”" autocomplete="off">
       </label>
+      <div class="qchips" id="qchips" aria-label="Filters read from your search" hidden></div>
       <div class="filters">
         <div class="frow"><span class="flabel">When</span>
           <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><span class="range" id="range" hidden><input type="date" id="from" aria-label="From"><span>to</span><input type="date" id="to" aria-label="To"></span><button class="chip" id="free" type="button" aria-pressed="false">Free only</button><button class="chip" id="food" type="button" aria-pressed="false">🍕 Free food</button></div>
