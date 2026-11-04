@@ -23,6 +23,7 @@ class Event:
     image: str | None = None
     description: str = ""
     free: bool | None = None
+    access: list[str] = field(default_factory=list)  # how to get in: RSVP, price, age, ID
     tags: list[str] = field(default_factory=list)
     region: str | None = None
     also_on: list[str] = field(default_factory=list)

@@ -187,6 +187,7 @@ body {
 .where { margin: 3px 0 0; color: var(--muted); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .where .map { color: inherit; text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 3px; }
 .where .map:hover { color: var(--ink); text-decoration-color: currentColor; }
+.access { margin: 3px 0 0; color: var(--ink); font-size: 13.5px; font-weight: 500; }
 .desc {
   margin: 6px 0 0; font-size: 13.5px; color: color-mix(in srgb, var(--ink) 78%, var(--muted));
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;

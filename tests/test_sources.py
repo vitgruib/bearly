@@ -5,6 +5,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from scraper.schema_org import events_from_html
 from scraper.sources import berkeley_calendar, feeds, luma, partiful
 
@@ -35,6 +37,25 @@ def test_cerebral_valley_json_ld_marks_online_and_free():
     assert by_title["Agents in Context Toronto: a MongoDB Hackathon"].city == "Toronto"
 
 
+@pytest.mark.parametrize(("availability", "ticket", "expected"), [
+    ("open", {"is_free": True, "require_approval": False}, ["RSVP on Luma"]),
+    ("open", {"is_free": True, "require_approval": True}, ["Request to join on Luma, host approves"]),
+    ("waitlist", {"is_free": True, "require_approval": True}, ["Full, join the waitlist on Luma"]),
+    ("sold-out", {"is_free": True, "require_approval": False}, ["Sold out"]),
+    ("open", {"is_free": False, "require_approval": False,
+              "price": {"cents": 3500, "currency": "usd", "is_flexible": False}},
+     ["RSVP on Luma", "$35 ticket"]),
+    ("open", {"is_free": False, "require_approval": False,
+              "price": {"cents": 1500, "currency": "usd", "min_cents": 0, "is_flexible": True}},
+     ["RSVP on Luma", "Pay what you want, $15 suggested"]),
+])
+def test_luma_entry_says_how_to_get_in(availability, ticket, expected):
+    entry = json.loads((FIX / "luma_discover.json").read_text())["entries"][0]
+    entry = {**entry, "registration_availability": availability, "ticket_info": ticket}
+
+    assert luma.parse_entry(entry).access == expected
+
+
 def test_partiful_explore_takes_only_bay_area_section():
     events = partiful.parse_explore((FIX / "partiful_explore.html").read_text())
 
@@ -57,6 +78,13 @@ def test_campus_calendar_item_becomes_free_campus_event():
 
     assert e.start == datetime(2026, 10, 28, 12, tzinfo=PT)
     assert (e.free, e.venue, e.description) == (True, "Geballe Room", "A talk & Q&A")
+
+
+def test_campus_calendar_cost_says_what_a_ticket_costs():
+    assert berkeley_calendar.parse_item(_livewhale(cost="100")).access == ["$100 ticket"]
+    assert berkeley_calendar.parse_item(_livewhale(cost="$10 general, free for students")).access \
+        == ["$10 general, free for students"]
+    assert berkeley_calendar.parse_item(_livewhale()).access == []
 
 
 def test_campus_calendar_drops_gym_hours_and_daily_exhibits():

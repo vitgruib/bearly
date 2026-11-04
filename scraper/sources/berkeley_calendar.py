@@ -29,7 +29,8 @@ def parse_item(it: dict) -> Event | None:
             and not HOME_VENUE.search(it.get("location_title") or it.get("location") or "")):
         return None
     start = parse_dt(it["date_iso"])
-    cost = str(it.get("cost") or "").lower()
+    raw_cost = clean_text(str(it.get("cost") or ""), 160)
+    cost = raw_cost.lower()
     return Event(
         title=clean_text(it["title"], 200),
         start=start,
@@ -48,6 +49,8 @@ def parse_item(it: dict) -> Event | None:
                                                   "/width/640/height/360/") or None,
         description=clean_text(it.get("summary")),
         free=True if "free" in cost else (False if "$" in cost else None),
+        access=([f"${raw_cost} ticket"] if re.fullmatch(r"\d+(\.\d\d)?", raw_cost)
+                else [raw_cost] if "$" in raw_cost else []),
         tags=[*types, *(it.get("tags") or [])],
     )
 

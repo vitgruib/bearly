@@ -64,6 +64,41 @@ TOPICS: dict[str, list[str]] = {
 _TOPIC_RES = {t: re.compile("|".join(p), re.IGNORECASE) for t, p in TOPICS.items()}
 
 
+# Ordered: the card lists them in this order, after what the source itself says.
+ACCESS: list[tuple[str, str]] = [
+    ("RSVP required", r"\bplease rsvp|\brsvp (is )?required|\bmust rsvp|\brsvp (at|here|by|to|on|now|below)\b"),
+    ("Registration required", (r"\bregistration (is )?(required|necessary)|\bmust register\b|\bpre-?regist"
+                              r"|\bregister (at|here|by|now|online|in advance|ahead)\b"
+                              r"|\bsign up (at|here|by|in advance|ahead)\b")),
+    ("Open to everyone", r"\bopen to (the public|all|everyone)\b|\ball are welcome|\beveryone (is )?welcome"),
+    ("No RSVP needed", (r"\bno (rsvp|registration|tickets?|sign-?up)s? (is |are )?(needed|required|necessary)"
+                       r"|\bdrop[- ]in\b|\bjust show up\b|\bwalk-?ins? welcome")),
+    ("Berkeley students only", (r"\b(cal|berkeley|ucb) students only\b"
+                               r"|\bonly (open )?to (current )?(uc )?(cal|berkeley|ucb) students\b")),
+    ("Members only", r"\bmembers[- ]only\b"),
+    ("Invite only", r"\binvite[- ]only\b|\bby invitation\b"),
+    ("21+", r"\b21\+|\b21 ?(and|&) ?(over|up)\b|\bmust be 21\b"),
+    ("18+", r"\b18\+|\b18 ?(and|&) ?(over|up)\b|\bmust be 18\b"),
+    ("Bring your Cal ID", r"\b(bring|show|present|with) (your |a )?(valid )?(cal|student|berkeley) id\b"),
+    ("First come, first served", r"\bfirst[- ]come,? first[- ]serve"),
+]
+_ACCESS_RES = [(label, re.compile(rx, re.IGNORECASE)) for label, rx in ACCESS]
+_SIGN_UP = re.compile(r"rsvp|regist|ticket|waitlist|sold out|request to join", re.IGNORECASE)
+
+
+def access_for(e: Event) -> list[str]:
+    text = f"{e.title} {e.description}"
+    out = list(e.access)
+    for label, rx in _ACCESS_RES:
+        if label in out or not rx.search(text):
+            continue
+        # A platform that takes RSVPs knows better than wording that says to just show up.
+        if label == "No RSVP needed" and any(_SIGN_UP.search(a) for a in out):
+            continue
+        out.append(label)
+    return out
+
+
 def haversine_km(a: tuple[float, float], b: tuple[float, float]) -> float:
     lat1, lng1, lat2, lng2 = map(math.radians, (*a, *b))
     h = (math.sin((lat2 - lat1) / 2) ** 2
@@ -115,6 +150,7 @@ def enrich(e: Event) -> Event | None:
     if e.region is None:
         return None
     e.tags = topics_for(e)
+    e.access = access_for(e)
     if e.free is None and re.search(r"\bfree (admission|entry|event|to attend)\b|\bno cost\b",
                                     e.description, re.IGNORECASE):
         e.free = True

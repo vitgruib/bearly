@@ -195,13 +195,26 @@
           free entry, free event, free to attend or no cost. <b>Free only</b> shows these.</p></details>
     </div>
 
+    <h3 id="getting-in">Getting in</h3>
+    <p>Each card says how to get in when the source or the description tells us. Luma and Partiful
+      say whether to RSVP, whether the host approves guests, whether it's sold out or has a
+      waitlist, and the ticket price; the campus calendar gives the cost. The title and
+      description are also read for: RSVP required, registration required, open to everyone, no
+      RSVP needed, Berkeley students only, members only, invite only, 21+, 18+, bring your Cal ID,
+      and first come, first served. When a platform takes RSVPs, wording like "drop in" doesn't
+      override it. Nothing listed means nobody said, so check the event's page.</p>
+
     <h3>Source</h3>
     <p>Where the event was found. The same event found in several places is merged into one, and the
       card shows every source.</p>
 
-    <h2 id="code">Code</h2>
-    <p>Code at <a href="https://github.com/vitgruib/bearly">GitHub</a>. Event data is available on
-      request through the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform?usp=pp_url&amp;entry.983668865=Send+feedback">form</a>.</p>
+    <h2 id="code">Open data and code</h2>
+    <p>Lo-Cal is transparent and scrapable. Every event on the site is in one public file,
+      <a href="data/events.json">data/events.json</a>, rebuilt every 3 hours. It needs no key and no
+      login, so read it, scrape it, mirror it or build on it. Each source's health is in
+      <a href="data/state.json">data/state.json</a>. Every scraper and every rule on this page is
+      open source on <a href="https://github.com/vitgruib/bearly">GitHub</a>, and events are
+      sorted by time only.</p>
 
     <h2 id="suggest-source">Suggest a source</h2>
     <p>Know a calendar we should read? Open a pull request that adds it to
@@ -221,10 +234,10 @@
       const set = (v) => {
         list.dataset.view = v;
         for (const b of buttons) b.setAttribute("aria-checked", b.dataset.view === v);
-        try { localStorage.setItem("bearly-sources-view", v); } catch { /* private mode */ }
+        try { localStorage.setItem("lo-cal-sources-view", v); } catch { /* private mode */ }
       };
       let saved = null;
-      try { saved = localStorage.getItem("bearly-sources-view"); } catch { /* private mode */ }
+      try { saved = localStorage.getItem("lo-cal-sources-view"); } catch { /* private mode */ }
       if (saved) set(saved);
       for (const b of buttons) b.onclick = () => set(b.dataset.view);
     })();

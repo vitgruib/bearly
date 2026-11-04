@@ -43,6 +43,7 @@ def _merge(group: list[Event]) -> Event:
         if not best.description:
             best.description = other.description
         best.tags += [t for t in other.tags if t not in best.tags]
+        best.access += [a for a in other.access if a not in best.access]
     seen = {best.source}
     for other in group:
         for s in [other.source, *other.also_on]:

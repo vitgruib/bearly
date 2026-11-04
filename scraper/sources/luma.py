@@ -13,6 +13,20 @@ API = "https://api.lu.ma"
 DISCOVERY_KM = 3.0
 
 
+def access(entry: dict) -> list[str]:
+    ticket = entry.get("ticket_info") or {}
+    out = [{"sold-out": "Sold out", "waitlist": "Full, join the waitlist on Luma"}.get(
+        entry.get("registration_availability"))
+        or ("Request to join on Luma, host approves" if ticket.get("require_approval")
+            else "RSVP on Luma")]
+    price = ticket.get("price") or {}
+    if not ticket.get("is_free") and price.get("cents"):
+        dollars = f"${price['cents'] / 100:g}"
+        out.append(f"Pay what you want, {dollars} suggested" if price.get("is_flexible")
+                   else f"{dollars} ticket")
+    return out
+
+
 def parse_entry(entry: dict) -> Event:
     ev = entry["event"]
     geo = ev.get("geo_address_info") or {}
@@ -37,6 +51,7 @@ def parse_entry(entry: dict) -> Event:
         image=ev.get("cover_url"),
         description=clean_text(cal.get("description_short")),
         free=ticket.get("is_free"),
+        access=access(entry),
     )
 
 

@@ -28,6 +28,7 @@ def parse_event(ev: dict) -> Event | None:
         image=image,
         description=clean_text(ev.get("description")),
         free=not ticketing.get("enabled") if ticketing else None,
+        access=["Tickets on Partiful" if ticketing.get("enabled") else "RSVP on Partiful"],
     )
 
 

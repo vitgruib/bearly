@@ -241,6 +241,11 @@ function card(e) {
   }
   const rest = [e.online ? "Online" : "", e.host].filter(Boolean).join(" · ");
   if (rest) whereEl.append(`${place ? " · " : ""}${rest}`);
+  if (e.access?.length) {
+    const access = node.querySelector(".access");
+    access.textContent = `Getting in: ${e.access.join(" · ")}`;
+    access.hidden = false;
+  }
   node.querySelector(".desc").textContent = e.description || "";
   const badges = node.querySelector(".badges");
   const add = (text, cls = "") => {
@@ -351,7 +356,7 @@ function downloadIcs(e) {
   const end = e._end || e._start + 2 * 3600e3;
   const ics = [
     "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Lo-Cal//berkeley events//EN", "BEGIN:VEVENT",
-    `UID:${e.id}@bearly`, `DTSTAMP:${icsDate(Date.now())}`,
+    `UID:${e.id}@lo-cal`, `DTSTAMP:${icsDate(Date.now())}`,
     `DTSTART:${icsDate(e._start)}`, `DTEND:${icsDate(end)}`,
     `SUMMARY:${icsEscape(e.title)}`,
     `LOCATION:${icsEscape(e.address || e.venue || "")}`,

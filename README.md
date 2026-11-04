@@ -7,6 +7,8 @@ page lets students filter it.
 
 Live: https://vitgruib.github.io/bearly/
 
+Open data: the whole list is one public file, [`data/events.json`](https://vitgruib.github.io/bearly/data/events.json), free to read or scrape.
+
 ## Sources
 
 | Source | How | Needs |
@@ -27,6 +29,10 @@ First, every Luma, Partiful, Eventbrite, Cerebral Valley or Meetup link in the t
 fetched as a full event; a Luma *calendar* link expands to all of its upcoming events.
 Second, a rule-based parser (`scraper/textparse.py`) reads announcements with no link
 ("GBM Thursday 10/29 7pm in Soda 306, pizza!"): dates, times, campus buildings, free food.
+
+Each event also says how to get in when anyone says: Luma's RSVP, host approval, waitlist and
+price, Partiful's RSVP or tickets, the campus calendar's cost, and wording in the description
+(registration required, 21+, Berkeley students only, bring your Cal ID, ...).
 
 The same event reached from several places is merged into one record. The structured
 platform listing wins, and the card shows every source it came from.

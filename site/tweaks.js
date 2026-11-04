@@ -6,8 +6,8 @@
 // Open it once with ?ui in the URL; it stays until closed with ×.
 
 (() => {
-  const KEY = "bearly-ui";
-  const SHOW = "bearly-ui-panel";
+  const KEY = "lo-cal-ui";
+  const SHOW = "lo-cal-ui-panel";
   // [family, weight] for "Lo-" in the wordmark; the first is the default. All checked to load from Google Fonts.
   const WORD_FONTS = [
     ["Oleo Script", 700], ["Courgette", 400], ["Kaushan Script", 400], ["Lobster", 400],

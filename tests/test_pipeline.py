@@ -186,3 +186,34 @@ def test_links_that_are_not_web_pages_never_reach_the_site():
     assert [e.title for e in events] == ["Odd image"]
     assert events[0].image is None
     assert "javascript:x" not in [x["url"] for x in events[0].listings]
+
+
+@pytest.mark.parametrize(("description", "expected"), [
+    ("Doors at 9. 21+ with valid ID.", ["21+"]),
+    ("Open to the public, no RSVP needed.", ["Open to everyone", "No RSVP needed"]),
+    ("Bring your Cal ID to get in.", ["Bring your Cal ID"]),
+    ("For Cal students only. Registration is required: sign up at the link.",
+     ["Registration required", "Berkeley students only"]),
+    ("Members only. Seating is first come, first served.", ["Members only", "First come, first served"]),
+    ("A talk about rust.", []),
+])
+def test_description_wording_says_how_to_get_in(description, expected):
+    [e] = build([ev(source="feeds", description=description)], 30, NOW)
+
+    assert e.access == expected
+
+
+def test_platform_rsvp_is_not_contradicted_by_drop_in_wording():
+    [e] = build([ev(access=["RSVP on Luma"], description="Drop in anytime!")], 30, NOW)
+
+    assert e.access == ["RSVP on Luma"]
+
+
+def test_merged_event_keeps_entry_details_from_every_listing():
+    luma = ev("Hike to the Big C", url="https://luma.com/bigc", access=["RSVP on Luma"])
+    club = ev("Hike to the Big C", url="https://calhiking.test/bigc", source="feeds",
+              description="Members only.")
+
+    [merged] = build([club, luma], 30, NOW)
+
+    assert merged.access == ["RSVP on Luma", "Members only"]
