@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 from . import http
 from .dedupe import collapse_repeats, dedupe
 from .enrich import REGIONS, TOPICS, enrich
+from .ics import write_feeds
 from .models import Event
 from .registry import SOURCES
 from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
@@ -155,6 +156,7 @@ def main(argv: list[str]) -> None:
         "topic_words": TOPICS,
         "events": [e.to_json() for e in final],
     }, ensure_ascii=False, separators=(",", ":")))
+    write_feeds(final, list(TOPICS), EVENTS.parent / "cal", now)
     log.info("wrote %d events (from %d raw); http %s", len(final), len(events), http.stats)
 
 

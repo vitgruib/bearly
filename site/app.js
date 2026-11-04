@@ -15,8 +15,10 @@ const TOPIC_EMOJI = {
 // One filter row per group; a topic missing from both lands in the second row.
 const TOPIC_GROUPS = [
   ["AI & Tech", "Startups", "Hackathons", "Career", "Talks"],
-  ["Social", "Arts & Music", "Sports & Wellness", "Community", "Free food"],
+  ["Social", "Arts & Music", "Sports & Wellness", "Community"],
 ];
+// Its own chip beside "Free only", not in the event type rows.
+const FOOD = "Free food";
 
 const $ = (s) => document.querySelector(s);
 const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
@@ -145,7 +147,8 @@ function renderControls() {
 
   const forTopics = base("topics");
   const grouped = TOPIC_GROUPS.flat();
-  const rows = [TOPIC_GROUPS[0], [...TOPIC_GROUPS[1], ...data.topics.filter((t) => !grouped.includes(t))]];
+  const rows = [TOPIC_GROUPS[0],
+    [...TOPIC_GROUPS[1], ...data.topics.filter((t) => !grouped.includes(t) && t !== FOOD)]];
   rows.forEach((row, i) => {
     $(`#topics-${i}`).replaceChildren(...row.filter((t) => data.topics.includes(t)).map((t) => {
       const n = forTopics.filter((e) => e.tags?.includes(t)).length;
@@ -168,6 +171,7 @@ function renderControls() {
   }));
 
   $("#free").setAttribute("aria-pressed", state.free);
+  $("#food").setAttribute("aria-pressed", state.topics.has(FOOD));
   $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
   renderShowing();
 }
@@ -379,6 +383,24 @@ function relTime(iso) {
   return `${Math.round(mins / 1440)} days ago`;
 }
 
+const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+function renderFeeds() {
+  const rows = [["Everything", "all"], ...data.topics.map((t) => [`${TOPIC_EMOJI[t] || ""} ${t}`, slug(t)])];
+  $("#feeds").replaceChildren(...rows.map(([label, file]) => {
+    const url = new URL(`data/cal/${file}.ics`, location.href).href;
+    const webcal = url.replace(/^https?:/, "webcal:");
+    const row = document.createElement("div");
+    row.className = "feed";
+    row.innerHTML = `<span></span><a target="_blank" rel="noopener">Google</a><a>Apple / Outlook</a>`;
+    row.querySelector("span").textContent = label;
+    const [google, apple] = row.querySelectorAll("a");
+    google.href = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
+    apple.href = webcal;
+    return row;
+  }));
+}
+
 document.addEventListener("click", (ev) => {
   for (const d of document.querySelectorAll("details.addcal[open]")) {
     if (!d.contains(ev.target) || ev.target.closest(".calmenu")) d.open = false;
@@ -394,6 +416,7 @@ async function boot() {
     t = setTimeout(() => { state.q = ev.target.value.trim(); update(); }, 120);
   });
   $("#free").onclick = () => { state.free = !state.free; update(); };
+  $("#food").onclick = () => toggle(state.topics, FOOD);
   $("#from").onchange = (ev) => { state.from = ev.target.value; update(); };
   $("#to").onchange = (ev) => { state.to = ev.target.value; update(); };
   $("#clear").onclick = () => {
@@ -431,6 +454,7 @@ async function boot() {
     if (entries[0].isIntersecting && rendered < filtered.length) renderMore();
   }, { rootMargin: "800px" }).observe($("#sentinel"));
 
+  renderFeeds();
   update();
 }
 

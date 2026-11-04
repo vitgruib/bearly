@@ -5,9 +5,12 @@ list: talks, hackathons, parties, club meetings, free food. A scraper pulls from
 merges duplicates, tags each event by topic and area, and publishes one JSON file. A static
 page lets students filter it.
 
-Live: https://vitgruib.github.io/bearly/
+Live: https://vitgruib.github.io/lo-cal/
 
-Open data: the whole list is one public file, [`data/events.json`](https://vitgruib.github.io/bearly/data/events.json), free to read or scrape.
+Open data: the whole list is one public file, [`data/events.json`](https://vitgruib.github.io/lo-cal/data/events.json), free to read or scrape.
+Calendar feeds: [`data/cal/all.ics`](https://vitgruib.github.io/lo-cal/data/cal/all.ics) and one per event type (`free-food.ics`, `hackathons.ics`, ...), rebuilt every run. Stats: [`stats.html`](https://vitgruib.github.io/lo-cal/stats.html), with visitor counts from GoatCounter (`lo-cal.goatcounter.com`).
+
+Topic tags, regions, Free and Getting in come from deterministic keyword rules: useful for filtering, not ground truth.
 
 ## Sources
 

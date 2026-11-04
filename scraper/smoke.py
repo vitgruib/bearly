@@ -72,6 +72,12 @@ def check_about(page: Page, base: str, size: str, errors: list[str]) -> None:
     no_sideways_scroll(page, f"about ({size})", errors)
 
 
+def check_stats(page: Page, base: str, size: str, errors: list[str]) -> None:
+    open_page(page, f"{base}/stats.html", errors)
+    page.wait_for_selector("#by-source .bar", timeout=10_000)
+    no_sideways_scroll(page, f"stats ({size})", errors)
+
+
 def check_data(previous: Path | None, errors: list[str]) -> int:
     events = json.loads((SITE / "data" / "events.json").read_text())["events"]
     if not events:
@@ -90,7 +96,7 @@ def main(previous: Path | None) -> int:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         for size, (w, h) in VIEWPORTS.items():
-            for check in (check_events, check_about):
+            for check in (check_events, check_about, check_stats):
                 page = browser.new_page(viewport={"width": w, "height": h})
                 try:
                     check(page, base, size, errors)
@@ -101,7 +107,7 @@ def main(previous: Path | None) -> int:
     for e in errors:
         print(f"SMOKE FAIL: {e}")
     if not errors:
-        print(f"smoke ok: {count} events, both pages, desktop and phone")
+        print(f"smoke ok: {count} events, all pages, desktop and phone")
     return 1 if errors else 0
 
 

@@ -231,6 +231,14 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   background: none; border: 0; padding: 7px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap;
 }
 .calmenu a:hover, .calmenu button:hover { background: var(--chip); }
+/* The open menu hangs over the list below: keep the filter area above day headers and cards. */
+.controls { position: relative; z-index: 6; }
+.subscribe { margin-left: 0; }
+.subscribe .calmenu { min-width: 300px; max-width: calc(100vw - 32px); }
+.feed { display: flex; align-items: center; gap: 2px; }
+.feed span { flex: 1; padding: 7px 10px; font-size: 13px; white-space: nowrap; }
+.calmenu .feed a { color: var(--muted); padding: 7px 8px; font-size: 12.5px; }
+.calmenu .feed a:hover { color: var(--ink); }
 .flag {
   position: relative; z-index: 1;
   font: 500 12px var(--body); color: var(--muted); opacity: .7;
@@ -313,3 +321,22 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   .thumb { display: none; }
   .day h2 { font-size: 24px; }
 }
+
+/* ---------- Stats page ---------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+.tile { background: var(--surface); border: 1px solid var(--faint); border-radius: 12px; padding: 14px 16px; }
+.tile strong { display: block; font-size: 28px; font-weight: 700; line-height: 1.1; color: var(--ink); }
+.tile span { color: var(--muted); font-size: 13px; }
+.bars { display: grid; gap: 4px; margin: 8px 0 20px; }
+.bar { display: grid; grid-template-columns: minmax(90px, 160px) 1fr 48px; align-items: center; gap: 10px; padding: 2px 0; font-size: 13px; }
+.bar:hover { background: var(--chip); border-radius: 6px; }
+.bar .label { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar .track { height: 12px; }
+.bar .fill { display: block; height: 100%; min-width: 2px; background: var(--accent); border-radius: 0 4px 4px 0; }
+.bar .value { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; }
+.health { width: 100%; border-collapse: collapse; font-size: 13px; }
+.health th, .health td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--faint); white-space: nowrap; }
+.health th { color: var(--muted); font-weight: 600; }
+.health .num { text-align: right; font-variant-numeric: tabular-nums; }
+.health tr:not([data-health="ok"]) td:nth-child(2) { font-weight: 600; }
