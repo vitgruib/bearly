@@ -2,7 +2,7 @@
 into one record that remembers everywhere it was seen."""
 
 import re
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 from .models import Event, dedupe_key
 
@@ -15,6 +15,18 @@ def _richness(e: Event) -> tuple:
     return (PRIORITY.get(e.source, 2), -bool(e.image), -(e.lat is not None), -len(e.description))
 
 
+# Added by newsletters and share buttons; any other parameter (CampusGroups' ?id=N) names the page.
+TRACKING = re.compile(r"utm_|fbclid$|gclid$|mc_[ce]id$|ref$|ref_src$|igsh$|si$", re.IGNORECASE)
+
+
+def _page(url: str) -> str:
+    """The URL with tracking stripped, so one page's links compare equal."""
+    base, _, query = url.partition("?")
+    kept = [(k, v) for k, v in parse_qsl(query) if not TRACKING.match(k)]
+    base = base.rstrip("/").replace("lu.ma/", "luma.com/")
+    return f"{base}?{urlencode(kept)}" if kept else base
+
+
 def _listing(e: Event) -> dict:
     # Every club calendar is source "feeds"; the club's name is what tells listings apart.
     return {"source": e.source, "url": e.url, **({"name": e.host} if e.source == "feeds" and e.host else {})}
@@ -24,7 +36,7 @@ def _listings(group: list[Event]) -> list[dict]:
     out, seen = [], set()
     for e in group:
         for item in [_listing(e), *e.listings]:
-            url = item["url"].split("?")[0].rstrip("/")
+            url = _page(item["url"])
             if url and url not in seen:
                 seen.add(url)
                 out.append(item)
@@ -95,7 +107,7 @@ def dedupe(events: list[Event]) -> list[Event]:
     by_key: dict[str, list[Event]] = {}
     url_to_key: dict[tuple, str] = {}
     for e in events:
-        url = e.url.split("?")[0].rstrip("/").replace("lu.ma/", "luma.com/")
+        url = _page(e.url)
         # A recurring listing shares one URL across dates; only merge on the same day.
         url_day = (url, e.start.date())
         key = url_to_key.get(url_day) if url else None

@@ -125,6 +125,25 @@ def test_one_source_listing_an_event_from_two_platforms_is_merged():
     assert len(build([luma, meetup], 30, NOW)) == 1
 
 
+def test_events_whose_links_differ_only_by_query_id_stay_separate():
+    # CampusGroups links every event as /rsvp?id=N: the id is the event.
+    summit = ev("Haas Entrepreneurship Summit", NOW + timedelta(hours=1), source="feeds",
+                url="https://haas.campusgroups.com/rsvp?id=2251478")
+    pilates = ev("Sweat & Sip: Pilates + Matcha Social", NOW + timedelta(hours=4), source="feeds",
+                 url="https://haas.campusgroups.com/rsvp?id=2251480")
+
+    titles = {e.title for e in build([summit, pilates], 30, NOW)}
+
+    assert titles == {"Haas Entrepreneurship Summit", "Sweat & Sip: Pilates + Matcha Social"}
+
+
+def test_tracking_parameters_do_not_keep_one_listing_apart():
+    plain = ev("Founder Dinner", url="https://luma.com/abc123")
+    tracked = ev("SF founders dinner, RSVP inside", url="https://luma.com/abc123?utm_source=newsletter", source="email")
+
+    assert len(build([plain, tracked], 30, NOW)) == 1
+
+
 @pytest.mark.parametrize("a, b", [
     ("California Men’s Swimming & Diving vs CSL Wild Card",
      "California Women’s Swimming & Diving vs CSL Wild Card"),
