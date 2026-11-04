@@ -45,10 +45,10 @@ TOPICS: dict[str, list[str]] = {
     "Social": ["party", "mixer", "happy hour", "social", "meetup", "meet-up", "hangout",
                "brunch", "game night", "night out", "halloween", "rave", r"\bdj\b",
                "picnic", "potluck", "karaoke", "trivia", "wine", "billiards"],
-    "Arts & Music": ["concert", "music", r"\bart\b", r"\barts\b", "exhibit", r"\bfilm",
-                     "screening", "theater", "theatre", "dance", "gallery", "poetry",
-                     "comedy", "performance", "jazz", "orchestra", "museum", "choir",
-                     "symphony", "opera", "improv"],
+    "Arts & Music": [r"\bconcerts?\b", "music", r"\bart\b", r"\barts\b", r"\bexhibits?\b", r"\bexhibitions?\b", r"\bfilm",
+                     "screening", "theater", "theatre", r"\bdance", r"\bdancing", "gallery", "poetry",
+                     "comedy", "performance", "jazz", r"\borchestras?\b", "museum", "choir",
+                     "symphony", r"\boperas?\b", r"\bimprov\b"],
     "Sports & Wellness": [r"\brun\b", "running", "yoga", "fitness", r"\bhike", "sports",
                           "basketball", "soccer", "football", "climbing", "meditation",
                           "wellness", "archery", "volleyball", "tennis", "swim", "pilates",
@@ -88,7 +88,7 @@ _SIGN_UP = re.compile(r"rsvp|regist|ticket|waitlist|sold out|request to join", r
 
 def access_for(e: Event) -> list[str]:
     text = f"{e.title} {e.description}"
-    out = list(e.access)
+    out = list(e.source_access)
     for label, rx in _ACCESS_RES:
         if label in out or not rx.search(text):
             continue
@@ -141,7 +141,7 @@ def region_for(e: Event) -> str | None:
 
 
 def topics_for(e: Event) -> list[str]:
-    text = " ".join([e.title, e.description, " ".join(e.tags), e.host or ""])
+    text = " ".join([e.title, e.description, " ".join(e.source_tags), e.host or ""])
     return [t for t, rx in _TOPIC_RES.items() if rx.search(text)]
 
 
@@ -149,6 +149,7 @@ def enrich(e: Event) -> Event | None:
     e.region = region_for(e)
     if e.region is None:
         return None
+    e.source_tags, e.source_access = list(e.tags), list(e.access)
     e.tags = topics_for(e)
     e.access = access_for(e)
     if e.free is None and re.search(r"\bfree (admission|entry|event|to attend)\b|\bno cost\b",

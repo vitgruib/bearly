@@ -25,6 +25,10 @@ class Event:
     free: bool | None = None
     access: list[str] = field(default_factory=list)  # how to get in: RSVP, price, age, ID
     tags: list[str] = field(default_factory=list)
+    # What the source itself said, kept apart from what Lo-Cal derives into tags and access, so
+    # a carried-over event is re-tagged from the same input instead of from its own output.
+    source_tags: list[str] = field(default_factory=list)
+    source_access: list[str] = field(default_factory=list)
     region: str | None = None
     also_on: list[str] = field(default_factory=list)
     # Where a merged event is listed, best first: [{"source", "url", "name"?}]. Single

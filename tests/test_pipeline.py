@@ -236,3 +236,20 @@ def test_merged_event_keeps_entry_details_from_every_listing():
     [merged] = build([club, luma], 30, NOW)
 
     assert merged.access == ["RSVP on Luma", "Members only"]
+
+
+@pytest.mark.parametrize("title, is_arts", [
+    ("Off the Record: Operators Breakfast", False),
+    ("Self-Improving Software Workshop", False),
+    ("Founder dinner, attendance capped at 40", False),
+    ("Orchestrating agents in production", False),
+    ("Exhibitor booths open at the career fair", False),
+    ("Orchestra concert and photo exhibition", True),
+    ("Opera night at Hertz Hall", True),
+    ("Improv show: Jericho!", True),
+    ("Salsa dancing for beginners", True),
+])
+def test_arts_and_music_matches_whole_words_only(title, is_arts):
+    [e] = build([ev(title)], 30, NOW)
+
+    assert ("Arts & Music" in e.tags) is is_arts

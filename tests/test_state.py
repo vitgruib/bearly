@@ -30,3 +30,29 @@ def test_a_source_whose_config_changed_runs_before_its_schedule(tmp_path, monkey
 
     assert not s.due("feeds", 6, an_hour_later, {"list": []})
     assert s.due("feeds", 6, an_hour_later, {"list": [{"name": "ASUC"}]})
+
+
+def test_a_carried_over_event_is_tagged_afresh_from_what_its_source_said(tmp_path, monkeypatch):
+    # Run 1 tags the show from the venue's "Music" category. Run 2 reloads the published
+    # record: it must still get Arts & Music, and its own published tags ("Arts & Music",
+    # "RSVP required") must not be read back as text that re-triggers rules.
+    from scraper.run import build
+
+    now = datetime(2026, 11, 1, tzinfo=UTC)
+    show = Event(title="Las Migas", start=datetime(2026, 11, 2, 4, tzinfo=UTC), url="https://v.test/1",
+                 source="venues", city="Oakland", tags=["Music"], access=["$25 ticket"])
+    stale = Event(title="Operators sync", start=datetime(2026, 11, 2, 16, tzinfo=UTC),
+                  url="https://v.test/2", source="venues", city="Oakland")
+    published = tmp_path / "events.json"
+    first = build([show, stale], 30, now)
+    records = [e.to_json() for e in first]
+    records[1]["tags"] = ["Arts & Music"]  # what an older, looser rule wrote
+    published.write_text(json.dumps({"events": records}))
+    monkeypatch.setattr(state, "EVENTS", published)
+    monkeypatch.setattr(state, "STATE", tmp_path / "state.json")
+
+    again = {e.title: e for e in build(state.State().previous_events("venues"), 30, now)}
+
+    assert again["Las Migas"].tags == ["Arts & Music"]
+    assert again["Las Migas"].access == ["$25 ticket"]
+    assert again["Operators sync"].tags == []

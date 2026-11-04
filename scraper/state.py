@@ -60,7 +60,10 @@ class State:
             if d["source"] != name:
                 continue
             # to_json drops empty fields, so a link-less event comes back without "url".
-            fields = {"url": "", **{k: v for k, v in d.items() if k not in ("id", "start", "end")}}
+            fields = {"url": "", **{k: v for k, v in d.items()
+                                    if k not in ("id", "start", "end", "tags", "access", "source_tags",
+                                                 "source_access")},
+                      "tags": d.get("source_tags", []), "access": d.get("source_access", [])}
             out.append(Event(**fields, start=parse_dt(d["start"]),
                              end=parse_dt(d["end"]) if d.get("end") else None))
         return out

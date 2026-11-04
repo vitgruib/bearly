@@ -16,7 +16,7 @@ Tags (`tags`), area (`region`), `free` and `access` ("getting in") come from det
 
 Top level: `generated_at`, `sources` (id, name, count, health), `topics`, `regions`, `events`.
 
-Each event: `id`, `title`, `start` and `end` (ISO 8601 with offset), `all_day`, `url` (the event's own page), `source` (where it was found), `also_on` and `listings` (other places it's listed), `host`, `venue`, `address`, `city`, `lat`, `lng`, `online`, `description` (trimmed), `image`, `free` (true, false or missing = unknown), `tags` (AI & Tech, Startups, Hackathons, Career, Talks, Social, Arts & Music, Sports & Wellness, Community, Free food), `region` (Campus, Berkeley, East Bay, San Francisco, Peninsula & South Bay, North Bay, Online), `access` (how to get in: "RSVP on Luma", "$20 ticket", "21+", "Berkeley students only", ...), `repeats` (a recurring listing shown once, with its number of dates). Missing fields mean unknown.
+Each event: `id`, `title`, `start` and `end` (ISO 8601 with offset), `all_day`, `url` (the event's own page), `source` (where it was found), `also_on` and `listings` (other places it's listed), `host`, `venue`, `address`, `city`, `lat`, `lng`, `online`, `description` (trimmed), `image`, `free` (true, false or missing = unknown), `tags` (AI & Tech, Startups, Hackathons, Career, Talks, Social, Arts & Music, Sports & Wellness, Community, Free food), `region` (Campus, Berkeley, East Bay, San Francisco, Peninsula & South Bay, North Bay, Online), `access` (how to get in: "RSVP on Luma", "$20 ticket", "21+", "Berkeley students only", ...), `repeats` (a recurring listing shown once, with its number of dates), `source_tags` and `source_access` (what the source itself said, before Lo-Cal's rules). Missing fields mean unknown.
 
 ## Site
 
