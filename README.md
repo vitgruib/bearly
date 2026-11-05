@@ -111,7 +111,7 @@ and `warn()`), register it in `scraper/registry.py`, and give it a section in
 
 ## Reporting an event
 
-Each event's Report link opens a prefilled issue. Once a maintainer adds the `approved` label,
-`.github/workflows/community.yml` puts the event's id in `moderation.toml`, which hides it from
-then on. Without a GitHub account, the Google Form (`[community]` in `sources.toml`) takes
-reports and feedback; every 30 minutes the workflow files new responses as issues.
+Each event's Report link opens the Google Form (`[community]` in `sources.toml`) with the event
+filled in. The same form takes calendars and events to add and feedback. Answers stay in the
+form's response sheet; nothing files them anywhere. To hide a reported event, add its id to
+`moderation.toml` by hand. GitHub issues are for developers' own bug and feature work.
