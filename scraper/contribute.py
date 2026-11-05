@@ -1,14 +1,14 @@
 """Event reports, run from GitHub issues by .github/workflows/community.yml.
 
-New sources come only through pull requests to sources.toml; there is no way for the public to
-add a calendar or an event. What strangers can do is report a listed event: once the maintainer
-adds the `approved` label to a "Report an event" (report) issue, that event is hidden
-(moderation.toml).
+New sources come only through pull requests to sources.toml: a calendar or event suggested
+through the form becomes an issue for the maintainer, never a listing by itself. A report of a
+listed event works directly: once the maintainer adds the `approved` label to a "Report an
+event" (report) issue, that event is hidden (moderation.toml).
 
     python -m scraper.contribute approve   # hide the reported event
     python -m scraper.contribute forms     # turn new Google Form responses into issues
 
-The Google Form is the no-account path for reports and feedback. Forms can't trigger GitHub,
+The Google Form is the no-account path for every request: sources, events, reports, feedback. Forms can't trigger GitHub,
 so a scheduled job reads its published response sheet and files new rows as the same issues.
 
 The issue comes in through ISSUE_TITLE, ISSUE_BODY and ISSUE_NUMBER; the comment to post is
@@ -82,10 +82,19 @@ def _form_body(fields: dict[str, str], stamp: str) -> str:
 
 
 def _form_issue(row: dict[str, str]) -> tuple[str, str, dict[str, str]] | None:
-    """A response row -> (issue title, label, answers), or None for a row that isn't a report or
-    feedback, or has nothing in it. Rows asking to add an event or calendar are dropped:
-    sources come only through pull requests."""
+    """A response row -> (issue title, label, answers), or None for an empty row. A calendar or
+    event request is only a suggestion: the maintainer adds sources by pull request."""
     kind = row.get("what's this about?", "")
+    if kind == "Add a club's calendar":
+        if not (name := row.get("club or calendar name", "") or row.get("calendar link", "")):
+            return None
+        fields = {"Calendar link": row.get("calendar link", ""),
+                  "Where are the events?": row.get("where are the events?", "")}
+        return f"Source: {_quiet(name, 100)}", "new-source", fields
+    if kind == "Add an event":
+        if not (where := row.get("event link", "") or row.get("no link? where was it posted?", "")):
+            return None
+        return f"Event: {_quiet(where, 150)}", "new-event", {}
     if kind == "Report an event":
         if not (event := row.get("event", "")):
             return None

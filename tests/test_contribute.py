@@ -60,7 +60,7 @@ class FakeGitHub:
         return ""
 
 
-def test_reports_and_feedback_from_the_form_become_issues_once(monkeypatch):
+def test_every_kind_of_form_request_becomes_an_issue_once(monkeypatch):
     monkeypatch.setattr(contribute, "get_text", lambda url: SHEET)
     gh = FakeGitHub([])
     config = {"community": {"sheet_csv": "sheet.csv"}}
@@ -68,11 +68,16 @@ def test_reports_and_feedback_from_the_form_become_issues_once(monkeypatch):
     contribute.from_forms(config, gh)
 
     assert [(c["--label"], c["--title"]) for c in gh.created] == [
+        ("new-source", "Source: Cal Hiking Club"),
+        ("new-event", "Event: https://luma.com/abc123"),
         ("report", "Report: Fake party (Oct 30) [0123456789ab]"),
         ("feedback", "Feedback: The map filter is great"),
-    ]  # requests to add an event or calendar, and empty rows, file nothing
-    assert parse_issue(gh.created[0]["--body"])["what's wrong?"] == "Spam or not a real event"
-    assert "@maintainer" not in gh.created[0]["--body"]  # form text can't notify anyone
+    ]  # the empty feedback row files nothing
+    source = parse_issue(gh.created[0]["--body"])
+    assert source["calendar link"] == "https://luma.com/calhiking"
+    assert source["where are the events?"].startswith("On or near campus")
+    assert parse_issue(gh.created[2]["--body"])["what's wrong?"] == "Spam or not a real event"
+    assert "@maintainer" not in gh.created[2]["--body"]  # form text can't notify anyone
 
     gh.existing = [{"title": c["--title"], "body": c["--body"]} for c in gh.created]
     gh.created.clear()

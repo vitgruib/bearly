@@ -940,10 +940,10 @@ folder = "events"  # Gmail label your listserv filter applies
 days_back = 14
 
 [community]
-# The no-account path (contribute.py): one Google Form to report an event or send feedback.
-# Every 30 minutes new rows of its response sheet (File > Share > Publish to web > CSV) are
-# filed as GitHub issues; a report waits for the `approved` label. New sources come only by
-# pull request to this file.
+# The no-account path (contribute.py): one Google Form for every request: suggest a calendar or
+# an event, report an event, or send feedback (bugs, feature requests). Every 30 minutes new rows
+# of its response sheet (File > Share > Publish to web > CSV) are filed as GitHub issues; a report
+# waits for the `approved` label. A suggested source is added only by pull request to this file.
 report_prefill = "https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform?usp=pp_url&entry.983668865=Report+an+event&entry.1140898671=EVENT"  # Get pre-filled link: "Report an event" picked, Event answer set to EVENT
 sheet_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe05uuWxv2swFmXVINuZL82MYKx6dJ8hroyT3kVgDu4TCwrd8QHG3ktN7t7WqNaKNVKCoYJwS29qCZ/pub?output=csv"
 
