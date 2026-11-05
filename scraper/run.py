@@ -25,7 +25,7 @@ from .llms import write_llms_full, write_llms_slices
 from .models import Event
 from .pages import write_pages
 from .registry import SOURCES
-from .reports import parse_reports
+from .reports import attach, parse_reports
 from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
 
 log = logging.getLogger("scraper")
@@ -156,10 +156,9 @@ def main(argv: list[str]) -> None:
 
     list_days = {n: config[n]["list_days"] for n in enabled if "list_days" in config.get(n, {})}
     final = build(events, config.get("days_ahead", 30), now, hidden_ids(), list_days)
-    reports = visitor_reports(config)
+    attach(final, visitor_reports(config), state.data.setdefault("event_links", {}), now.date())
     counts: dict[str, int] = {}
     for e in final:
-        e.reports = reports.get(e.id, [])
         counts[e.source] = counts.get(e.source, 0) + 1
     state.data["last_run"] = now.isoformat(timespec="seconds")
     state.data["http"] = http.stats
