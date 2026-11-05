@@ -449,25 +449,31 @@ function renderControls() {
   $("#food").setAttribute("aria-pressed", state.topics.has(FOOD));
   $("#campus").setAttribute("aria-pressed", state.regions.has(CAMPUS));
   $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
-  renderMoreFilters();
+  renderMenus();
   renderShowing();
   renderQueryChips();
   showPickedWhen();
   markScrollRows();
 }
 
-// Location and Source sit behind "More filters", which only the user opens. While it's shut,
-// their picks show as pills so a narrowed list always says why; Campus has its quick chip.
-function renderMoreFilters() {
-  const open = !$("#more").hidden;
-  const n = state.regions.size + state.src.size;
-  $("#more-toggle").setAttribute("aria-expanded", open);
-  $("#more-n").textContent = n ? ` · ${n}` : "";
+// Category, Location and Source are menus that only the user opens, one at a time. A closed
+// menu's picks show as pills so a narrowed list always says why; Free food and Campus have quick
+// chips instead.
+function renderMenus() {
+  const picks = { cat: state.topics.size, loc: state.regions.size, src: state.src.size };
+  for (const b of document.querySelectorAll("[data-menu]")) {
+    b.setAttribute("aria-expanded", !$(`#menu-${b.dataset.menu}`).hidden);
+    b.querySelector(".menu-n").textContent = picks[b.dataset.menu] ? ` · ${picks[b.dataset.menu]}` : "";
+  }
+  const shut = (k) => $(`#menu-${k}`).hidden;
   const remove = "Remove this filter";
-  $("#pills").replaceChildren(...(open ? [] : [
-    ...[...state.regions].filter((r) => r !== CAMPUS).map((r) => removable(`📍 ${r}`, remove, () => toggle(state.regions, r))),
-    ...[...state.src].map((s) => removable(sourceName(s), remove, () => toggle(state.src, s))),
-  ]));
+  $("#pills").replaceChildren(
+    ...(shut("cat") ? [...state.topics].filter((t) => t !== FOOD)
+      .map((t) => removable(`${TOPIC_EMOJI[t] || ""} ${t}`.trim(), remove, () => toggle(state.topics, t))) : []),
+    ...(shut("loc") ? [...state.regions].filter((r) => r !== CAMPUS)
+      .map((r) => removable(`📍 ${r}`, remove, () => toggle(state.regions, r))) : []),
+    ...(shut("src") ? [...state.src].map((x) => removable(sourceName(x), remove, () => toggle(state.src, x))) : []),
+  );
 }
 
 // On a phone the When row scrolls sideways; bring the picked option clear of the edge fade
@@ -839,11 +845,14 @@ async function boot() {
   $("#free").onclick = () => { state.free = !state.free; update(); };
   $("#food").onclick = () => toggle(state.topics, FOOD);
   $("#campus").onclick = () => toggle(state.regions, CAMPUS);
-  $("#more-toggle").onclick = () => {
-    $("#more").hidden = !$("#more").hidden;
-    renderMoreFilters();
-    markScrollRows();
-  };
+  for (const b of document.querySelectorAll("[data-menu]")) {
+    b.onclick = () => {
+      for (const m of document.querySelectorAll(".more")) {
+        m.hidden = m.id === `menu-${b.dataset.menu}` ? !m.hidden : true;
+      }
+      renderMenus();
+    };
+  }
   // Scroll events don't bubble, so one capturing listener covers every chip row.
   document.addEventListener("scroll", (ev) => {
     if (ev.target.classList?.contains("fchips")) markScrollRows([ev.target]);

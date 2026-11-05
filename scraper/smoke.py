@@ -52,21 +52,34 @@ def check_events(page: Page, base: str, size: str, errors: list[str]) -> None:
     open_page(page, f"{base}/#when=all", errors)
     # The first cards in the list may sit in a day's folded "All day & ongoing" line.
     page.wait_for_selector(".card >> visible=true", timeout=10_000)
-    if page.locator("#more").is_visible():
-        errors.append(f"index ({size}): More filters starts open")
-    page.locator("#more-toggle").click()
-    for row in ("#when button", "#topics-0 .chip", "#topics-1 .chip", "#regions .chip", "#sources .chip"):
-        if not page.locator(row).count():
-            errors.append(f"index ({size}): no filters in {row.split()[0]}")
+    if not page.locator("#when button").count():
+        errors.append(f"index ({size}): no When filters")
+    # Category, Location and Source are menus: shut on load, one open at a time.
+    for menu, chips in (("cat", "#topics-0 .chip"), ("loc", "#regions .chip"), ("src", "#sources .chip")):
+        if page.locator(f"#menu-{menu}").is_visible():
+            errors.append(f"index ({size}): the {menu} menu starts open")
+        page.locator(f"[data-menu={menu}]").click()
+        if not page.locator(chips).first.is_visible():
+            errors.append(f"index ({size}): opening the {menu} menu shows no filters")
+        if page.locator(".more:not([hidden])").count() != 1:
+            errors.append(f"index ({size}): more than one filter menu is open")
+    page.locator("[data-menu=src]").click()
+    if page.locator(".more:not([hidden])").count():
+        errors.append(f"index ({size}): clicking an open menu's button did not close it")
+    page.locator("[data-menu=cat]").click()
     if not page.locator(".card .flag:not([hidden])").count():
         errors.append(f"index ({size}): events have no Report link")
     before = page.locator("#count").inner_text()
     page.locator("#topics-0 .chip").first.click()
     if page.locator("#count").inner_text() == before:
         errors.append(f"index ({size}): clicking a topic did not change the list")
+    page.locator("[data-menu=cat]").click()
+    if not page.locator("#pills .qchip").count():
+        errors.append(f"index ({size}): a pick in a closed menu shows no pill")
     page.locator("#clear").click()
     if page.locator("#count").inner_text() != before:
         errors.append(f"index ({size}): Clear filters did not restore the list")
+    page.locator("[data-menu=loc]").click()
     campus = int(page.locator("#regions .chip", has_text="Campus").locator(".n").inner_text())
     page.locator("#campus").click()
     if page.locator("#count").inner_text().replace(",", "") != f"{campus} event{'' if campus == 1 else 's'}":

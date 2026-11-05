@@ -130,15 +130,10 @@ body {
 
 .filters { margin-top: 12px; display: grid; gap: 8px; }
 .types > div { display: contents; }  /* both topic groups flow in the one row */
+.quick .morebtn { padding: 8px 13px; }
 .more { margin-top: 10px; display: grid; gap: 8px; border-top: 1px solid var(--faint); padding-top: 10px; }
 .more[hidden] { display: none; }
-.frow { display: grid; grid-template-columns: 104px 1fr; align-items: start; gap: 10px; }
-.flabel {
-  font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--muted); padding-top: 9px; white-space: nowrap;
-}
 .fchips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
-.frow + .frow { border-top: 1px solid var(--faint); padding-top: 8px; }
 .fchips.more-right {
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
   mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
@@ -189,7 +184,7 @@ body {
 .morebtn::after { transform: translateY(-2px) rotate(45deg); }
 .morebtn[aria-expanded="true"]::after { transform: translateY(1px) rotate(-135deg); }
 .morebtn:hover { background: var(--chip); }
-#more-n { font-weight: 600; }
+.menu-n { font-weight: 600; }
 .pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .pills:empty { display: none; }
 .link { font: 500 12.5px var(--body); color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
@@ -385,11 +380,10 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   .facts { grid-template-columns: 1fr; gap: 0; padding-left: 14px; }
   .facts dd { margin-bottom: 8px; }
   .source .status { padding-left: 14px; }
-  /* Labels sit above their row, and each row scrolls sideways instead of wrapping. */
-  .frow { grid-template-columns: 1fr; gap: 4px; }
-  .flabel { padding-top: 0; }
   .fchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .fchips::-webkit-scrollbar { display: none; }
+  /* The When row scrolls sideways; the menu buttons and an open menu's choices wrap, so none hide off-screen. */
+  .fchips.quick, .more .fchips { flex-wrap: wrap; overflow-x: visible; }
   .wordmark { font-size: 34px; }
   /* Thumb-sized tap targets; the 12px text stays as it is. */
   .foot .actions { margin: -8px -10px -10px auto; }

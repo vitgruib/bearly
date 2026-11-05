@@ -54,22 +54,26 @@
       <div class="qchips" id="qchips" aria-label="Filters read from your search" hidden></div>
       <div class="filters">
         <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><span class="range" id="range" hidden><input type="date" id="from" aria-label="From"><span>to</span><input type="date" id="to" aria-label="To"></span></div>
-        <div class="fchips types" role="group" aria-label="Event type">
+        <div class="fchips quick" role="group" aria-label="Quick filters">
           <button class="chip" id="food" type="button" aria-pressed="false">🍕 Free food</button>
           <button class="chip" id="free" type="button" aria-pressed="false">Free only</button>
           <button class="chip" id="campus" type="button" aria-pressed="false" title="On or right next to campus">📍 On campus</button>
+          <button class="morebtn" type="button" data-menu="cat" aria-expanded="false" aria-controls="menu-cat">Category<span class="menu-n"></span></button>
+          <button class="morebtn" type="button" data-menu="loc" aria-expanded="false" aria-controls="menu-loc">Location<span class="menu-n"></span></button>
+          <button class="morebtn" type="button" data-menu="src" aria-expanded="false" aria-controls="menu-src">Source<span class="menu-n"></span></button>
+        </div>
+      </div>
+      <div class="more" id="menu-cat" hidden>
+        <div class="fchips types" role="group" aria-label="Category">
           <div id="topics-0" aria-label="Tech and career event types"></div>
           <div id="topics-1" aria-label="Fun event types"></div>
         </div>
       </div>
+      <div class="more" id="menu-loc" hidden><div class="fchips" id="regions" aria-label="Location"></div></div>
+      <div class="more" id="menu-src" hidden><div class="fchips" id="sources" aria-label="Source"></div></div>
       <div class="meta-row">
-        <button class="morebtn" id="more-toggle" type="button" aria-expanded="false" aria-controls="more">More filters<span id="more-n"></span></button>
-        <div class="pills" id="pills" aria-label="Filters set under More filters"></div>
+        <div class="pills" id="pills" aria-label="Filters set in closed menus"></div>
         <p class="showing"><span id="showing"></span><span class="count" id="count"></span><button class="link" id="clear" type="button" hidden>Clear filters</button></p>
-      </div>
-      <div class="more" id="more" hidden>
-        <div class="frow"><span class="flabel">Location</span><div class="fchips" id="regions" aria-label="Location"></div></div>
-        <div class="frow"><span class="flabel">Source</span><div class="fchips" id="sources" aria-label="Source"></div></div>
       </div>
     </div>
   </div>
