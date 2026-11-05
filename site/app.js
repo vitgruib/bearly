@@ -3,7 +3,7 @@
 const TZ = "America/Los_Angeles";
 const PAGE = 60;
 const WHEN = [
-  ["today", "Today (not started)"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"],
+  ["today", "Today"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"],
   ["week", "Next 7 days"], ["all", "Everything"], ["custom", "Custom"],
 ];
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -19,6 +19,8 @@ const TOPIC_GROUPS = [
 ];
 // Its own chip beside "Free only", not in the event type rows.
 const FOOD = "Free food";
+// A Location filter with its own quick chip, so the most asked-for place is one tap away.
+const CAMPUS = "Campus";
 
 const $ = (s) => document.querySelector(s);
 const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
@@ -33,6 +35,7 @@ let state = { q: "", when: "week", from: "", to: "", topics: new Set(), regions:
 let filtered = [];
 let rendered = 0;
 let lastDay = null;
+let fold = null;
 
 /* ---------- URL state ---------- */
 
@@ -365,20 +368,23 @@ function setQuery(q) {
   update();
 }
 
+function removable(label, title, onClick) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "qchip";
+  b.textContent = label;
+  b.append(Object.assign(document.createElement("span"), { textContent: "✕", ariaHidden: "true" }));
+  b.title = title;
+  b.setAttribute("aria-label", `Remove filter ${label}`);
+  b.onclick = onClick;
+  return b;
+}
+
 function renderQueryChips() {
   const q = parseQuery();
   const el = $("#qchips");
-  const chips = [...q.chips.values()].map(({ label, spans }) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "qchip";
-    b.textContent = label;
-    b.append(Object.assign(document.createElement("span"), { textContent: "✕", ariaHidden: "true" }));
-    b.title = `Search the word${spans.length > 1 ? "s" : ""} as typed instead`;
-    b.setAttribute("aria-label", `Remove filter ${label}`);
-    b.onclick = () => unfilter(spans);
-    return b;
-  });
+  const chips = [...q.chips.values()].map(({ label, spans }) =>
+    removable(label, `Search the word${spans.length > 1 ? "s" : ""} as typed instead`, () => unfilter(spans)));
   const fixes = q.fixes.map(([typed, near]) =>
     Object.assign(document.createElement("span"), { className: "qnote", textContent: `“${typed}” → ${near.join(", ")}` }));
   el.replaceChildren(...chips, ...fixes);
@@ -428,8 +434,8 @@ function renderControls() {
   const forRegions = base("regions");
   $("#regions").replaceChildren(...data.regions.map((r) => {
     const n = forRegions.filter((e) => e.region === r).length;
-    const title = r === "Campus" ? "On or right next to campus" : "";
-    return chip(r === "Campus" ? "📍 Campus" : r, state.regions.has(r), n, () => toggle(state.regions, r), title);
+    const title = r === CAMPUS ? "On or right next to campus" : "";
+    return chip(r === CAMPUS ? "📍 Campus" : r, state.regions.has(r), n, () => toggle(state.regions, r), title);
   }));
 
   const forSources = base("src");
@@ -441,9 +447,42 @@ function renderControls() {
 
   $("#free").setAttribute("aria-pressed", state.free);
   $("#food").setAttribute("aria-pressed", state.topics.has(FOOD));
+  $("#campus").setAttribute("aria-pressed", state.regions.has(CAMPUS));
   $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
+  renderMoreFilters();
   renderShowing();
   renderQueryChips();
+  showPickedWhen();
+  markScrollRows();
+}
+
+// Location and Source sit behind "More filters", which only the user opens. While it's shut,
+// their picks show as pills so a narrowed list always says why; Campus has its quick chip.
+function renderMoreFilters() {
+  const open = !$("#more").hidden;
+  const n = state.regions.size + state.src.size;
+  $("#more-toggle").setAttribute("aria-expanded", open);
+  $("#more-n").textContent = n ? ` · ${n}` : "";
+  const remove = "Remove this filter";
+  $("#pills").replaceChildren(...(open ? [] : [
+    ...[...state.regions].filter((r) => r !== CAMPUS).map((r) => removable(`📍 ${r}`, remove, () => toggle(state.regions, r))),
+    ...[...state.src].map((s) => removable(sourceName(s), remove, () => toggle(state.src, s))),
+  ]));
+}
+
+// On a phone the When row scrolls sideways; bring the picked option clear of the edge fade
+// without scrollIntoView, which would also scroll the page.
+function showPickedWhen() {
+  const row = $("#when").parentElement;
+  const a = $("#when [aria-checked=\"true\"]").getBoundingClientRect();
+  const r = row.getBoundingClientRect();
+  if (a.right > r.right - 36) row.scrollLeft += a.right - r.right + 36;
+  else if (a.left < r.left) row.scrollLeft -= r.left - a.left;
+}
+
+// A chip row cut off at the right edge fades there, so it reads as scrollable.
+function markScrollRows(rows = document.querySelectorAll(".fchips")) {
+  for (const row of rows) row.classList.toggle("more-right", row.scrollLeft + row.clientWidth < row.scrollWidth - 1);
 }
 
 // Spells out how the picks combine: any chip within a row, every row that has one.
@@ -493,12 +532,14 @@ function dayLabel(key) {
 function card(e) {
   const node = $("#card").content.firstElementChild.cloneNode(true);
   const started = e._start < Date.now();
+  const clock = (ms) => fmtTime.format(new Date(ms)).replace(":00", "");
+  // A midnight-to-midnight listing would read "12 AM – 12 AM".
+  const endClock = e.end && clock(e._end) !== clock(e._start) ? clock(e._end) : "";
   node.querySelector(".time").innerHTML = e.all_day
     ? "All day"
     : started && e._day < dayKey.format(new Date())
       ? `Ongoing<small>until ${e.end ? fmtDate.format(new Date(e._end)) : ""}</small>`
-      : `${fmtTime.format(new Date(e._start)).replace(":00", "")}${
-        e.end ? `<small>– ${fmtTime.format(new Date(e._end)).replace(":00", "")}</small>` : ""}`;
+      : `${clock(e._start)}${endClock ? `<small>– ${endClock}</small>` : ""}`;
   const a = node.querySelector(".title");
   a.textContent = e.title;
   if (e.url) a.href = e.url;
@@ -538,16 +579,19 @@ function card(e) {
   if (e.tags?.includes("Free food")) add("🍕 Free food", "food");
   if (e.free === true) add("Free", "free");
   if (e.repeats) add(`Repeats · ${e.repeats} dates`);
-  e.tags?.filter((t) => t !== "Free food").slice(0, 2).forEach((t) => add(t));
+  const topics = e.tags?.filter((t) => t !== "Free food").slice(0, 2) || [];
+  topics.forEach((t) => add(t));
   // One badge per place the event is listed, each linking there; sources seen without a
-  // link of their own (an email, a Slack post) get a plain badge.
+  // link of their own (an email, a Slack post) get a plain badge. A badge that only repeats
+  // the host or a topic shown just above is dropped, unless it leads somewhere the title doesn't.
   const listings = e.listings?.length ? e.listings
     : [{ source: e.source, url: e.url, name: e.source === "feeds" ? e.host : null }];
   const linked = new Set(listings.map((l) => l.source));
   const named = new Set();
+  const repeats = (label) => label === e.host || topics.includes(label);
   for (const l of listings) {
     const label = l.name || sourceName(l.source);
-    if (named.has(label)) continue;
+    if (named.has(label) || (repeats(label) && (!l.url || l.url === e.url))) continue;
     named.add(label);
     const a = document.createElement("a");
     a.className = "badge src";
@@ -556,7 +600,7 @@ function card(e) {
     if (l.url) Object.assign(a, { href: l.url, target: "_blank", rel: "noopener" });
     badges.append(a);
   }
-  (e.also_on || []).filter((s) => !linked.has(s)).forEach((s) => add(sourceName(s), "src"));
+  (e.also_on || []).filter((s) => !linked.has(s) && !repeats(sourceName(s))).forEach((s) => add(sourceName(s), "src"));
   const img = node.querySelector(".thumb");
   if (e.image) img.src = e.image; else img.remove();
   img.onerror = () => img.remove();
@@ -601,39 +645,75 @@ function card(e) {
   return node;
 }
 
+// Something already under way is listed under today, whatever day it began.
+const dayOf = (e, today) => (e._start < Date.now() ? today : e._day);
+
+// All-day events, and multi-day ones already under way, have no time to plan around.
+function untimed(e, today) {
+  return e.all_day || (e._start < Date.now() && (e._day < today || (e._endDay || e._day) > e._day));
+}
+
+// Each day lists its untimed events first, so they can fold into one line above the timed ones.
+function byDay(events) {
+  const today = dayKey.format(new Date());
+  const keyed = events.map((e) => [dayOf(e, today), untimed(e, today) ? 0 : 1, e]);
+  keyed.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+  return keyed.map(([, , e]) => e);
+}
+
 function renderMore() {
   const list = $("#list");
   const frag = document.createDocumentFragment();
-  for (const e of filtered.slice(rendered, rendered + PAGE)) {
-    const day = e._start < Date.now() ? dayKey.format(new Date()) : e._day;
+  const today = dayKey.format(new Date());
+  // Folded cards don't count toward a page: a page of only those would leave the sentinel in
+  // view with nothing new to trigger the next one.
+  let shown = 0;
+  while (rendered < filtered.length && shown < PAGE) {
+    const e = filtered[rendered++];
+    const day = dayOf(e, today);
     if (day !== lastDay) {
       lastDay = day;
+      const events = filtered.filter((x) => dayOf(x, today) === day);
+      const n = events.length;
       const [big, small] = dayLabel(day);
-      const n = filtered.filter((x) => (x._start < Date.now() ? dayKey.format(new Date()) : x._day) === day).length;
       const h = document.createElement("div");
       h.className = "day";
       h.innerHTML = `<h2>${big}</h2><span>${small} · ${n} event${n === 1 ? "" : "s"}</span>`;
       frag.append(h);
+      // A day of only untimed events shows them as they are; folding them would hide the day.
+      const k = events.filter((x) => untimed(x, today)).length;
+      fold = null;
+      if (k && k < n) {
+        fold = document.createElement("details");
+        fold.className = "fold";
+        fold.innerHTML = `<summary>All day &amp; ongoing (${k})</summary>`;
+        frag.append(fold);
+      }
     }
     // One malformed event from a scraper must not take the rest of the list down with it.
     try {
-      frag.append(card(e));
+      if (fold && untimed(e, today)) {
+        fold.append(card(e));
+      } else {
+        frag.append(card(e));
+        shown++;
+      }
     } catch (err) {
       console.warn("skipped event", e.id, err);
     }
   }
-  rendered += PAGE;
   list.append(frag);
 }
 
 function update() {
   writeHash();
   renderControls();
-  filtered = base();
+  filtered = byDay(base());
   $("#count").textContent = `${filtered.length.toLocaleString()} event${filtered.length === 1 ? "" : "s"}`;
   $("#list").replaceChildren();
   rendered = 0;
   lastDay = null;
+  fold = null;
   if (state.event) {
     const back = document.createElement("div");
     back.className = "shared";
@@ -754,6 +834,17 @@ async function boot() {
   });
   $("#free").onclick = () => { state.free = !state.free; update(); };
   $("#food").onclick = () => toggle(state.topics, FOOD);
+  $("#campus").onclick = () => toggle(state.regions, CAMPUS);
+  $("#more-toggle").onclick = () => {
+    $("#more").hidden = !$("#more").hidden;
+    renderMoreFilters();
+    markScrollRows();
+  };
+  // Scroll events don't bubble, so one capturing listener covers every chip row.
+  document.addEventListener("scroll", (ev) => {
+    if (ev.target.classList?.contains("fchips")) markScrollRows([ev.target]);
+  }, { capture: true, passive: true });
+  addEventListener("resize", () => markScrollRows());
   $("#from").onchange = (ev) => { state.from = ev.target.value; update(); };
   $("#to").onchange = (ev) => { state.to = ev.target.value; update(); };
   $("#clear").onclick = () => {

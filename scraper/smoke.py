@@ -50,7 +50,11 @@ def no_sideways_scroll(page: Page, where: str, errors: list[str]) -> None:
 
 def check_events(page: Page, base: str, size: str, errors: list[str]) -> None:
     open_page(page, f"{base}/#when=all", errors)
-    page.wait_for_selector(".card", timeout=10_000)
+    # The first cards in the list may sit in a day's folded "All day & ongoing" line.
+    page.wait_for_selector(".card >> visible=true", timeout=10_000)
+    if page.locator("#more").is_visible():
+        errors.append(f"index ({size}): More filters starts open")
+    page.locator("#more-toggle").click()
     for row in ("#when button", "#topics-0 .chip", "#topics-1 .chip", "#regions .chip", "#sources .chip"):
         if not page.locator(row).count():
             errors.append(f"index ({size}): no filters in {row.split()[0]}")
@@ -63,6 +67,13 @@ def check_events(page: Page, base: str, size: str, errors: list[str]) -> None:
     page.locator("#clear").click()
     if page.locator("#count").inner_text() != before:
         errors.append(f"index ({size}): Clear filters did not restore the list")
+    campus = int(page.locator("#regions .chip", has_text="Campus").locator(".n").inner_text())
+    page.locator("#campus").click()
+    if page.locator("#count").inner_text().replace(",", "") != f"{campus} event{'' if campus == 1 else 's'}":
+        errors.append(f"index ({size}): the On campus chip did not filter to Campus events")
+    page.locator("#campus").click()
+    if page.locator("#count").inner_text() != before:
+        errors.append(f"index ({size}): turning On campus off did not restore the list")
     no_sideways_scroll(page, f"index ({size})", errors)
 
 

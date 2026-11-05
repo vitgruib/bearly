@@ -32,38 +32,40 @@
         <a href="stats.html">Stats</a>
       </nav>
       <h1 class="wordmark" aria-label="Lo-Cal">Lo-<svg class="cal" viewBox="0 0 125.75 100.56" role="img" aria-hidden="true"><path transform="matrix(1.25 0 0 -1.25 -499.65 801.74)" d="m449.24 588.18c-0.395-0.943-2.048-3.62-3.937-3.62-2.282 0-2.361 1.26-2.361 2.833 0 4.487 5.274 15.113 9.997 15.113 1.415 0 1.889-0.71 1.889-1.338 0-0.236-2.914-6.218-5.588-12.988m44.553 37.782c0.155 0 0.236-0.315 0.236-0.55 0-2.204-7.242-15.899-14.484-25.74 2.44 14.72 12.987 26.29 14.248 26.29m-4.173-47.148c-4.723 1.416-9.997 3.858-10.469 13.381 8.579 10.152 19.758 28.966 19.758 36.523 0 1.967-0.393 4.172-3.229 4.172-6.689 0-26.684-18.42-26.684-39.435 0-1.891 0.236-3.7 0.631-5.039-4.094-3.778-7.165-5.509-10.233-5.509-1.022 0-1.258 0.393-1.258 2.205 0 2.596 7.79 18.732 7.79 19.756 0 1.496-0.629 1.889-1.81 1.889h-6.218c-0.472 0-0.944-0.393-1.337-1.338-0.238 0.314-1.497 1.338-3.543 1.338-6.771 0-15.271-5.196-20.15-15.349-1.103-2.361-3.15-7.95-8.739-7.95-4.801 0-6.375 5.116-6.375 11.019 0 16.293 19.284 40.854 29.833 40.854 1.73 0 2.519-0.866 2.519-2.52 0-3.069-2.756-4.958-4.803-5.194-2.991-0.317-5.431-1.655-5.431-4.252 0-2.204 1.732-3.149 4.015-3.149 3.305 0 10.941 7.243 10.941 13.854 0 3.936-2.281 6.062-6.297 6.062-16.609 0-45.182-23.615-45.182-46.127 0-11.098 6.061-16.529 17.002-16.529 5.273 0 10.39 4.014 11.886 5.431 0.315-1.653 2.283-5.431 8.816-5.431 4.329 0 7.241 2.834 8.187 4.171 0.315-1.417 1.259-4.171 6.061-4.171 5.667 0 10.783 2.045 15.977 6.689 2.364-4.248 6.455-6.769 10.628-7.633 1.339-0.237 3.071-0.55 3.071-0.946 0-0.629-2.598-1.968-7.952-1.968-11.571 0-30.305 1.732-46.363 1.732-22.354 0-29.675-10.153-29.675-12.045 0-0.785 0.551-0.943 1.181-0.943 1.258 0 5.668 3.383 22.826 3.383 18.893 0 31.801-1.415 42.033-1.415 20.39 0 26.53 10.391 26.53 11.652 0 1.967-1.732 2.202-3.937 2.832"/></svg></h1>
-      <p class="tagline">Berkeley's open source event calendar</p>
     </div>
   </header>
 
   <div class="controls" id="controls">
     <div class="wrap">
-      <label class="search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" placeholder="Try “food tonight” or “hackathon sf”" autocomplete="off">
-      </label>
-      <div class="qchips" id="qchips" aria-label="Filters read from your search" hidden></div>
-      <div class="filters">
-        <div class="frow"><span class="flabel">When</span>
-          <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><span class="range" id="range" hidden><input type="date" id="from" aria-label="From"><span>to</span><input type="date" id="to" aria-label="To"></span><button class="chip" id="free" type="button" aria-pressed="false">Free only</button><button class="chip" id="food" type="button" aria-pressed="false">🍕 Free food</button></div>
-        </div>
-        <div class="frow"><span class="flabel">Event type</span>
-          <div class="fsubs">
-            <div class="fchips" id="topics-0" aria-label="Tech and career event types"></div>
-            <div class="fchips" id="topics-1" aria-label="Fun event types"></div>
-          </div>
-        </div>
-        <div class="frow"><span class="flabel">Location</span><div class="fchips" id="regions" aria-label="Location"></div></div>
-        <div class="frow"><span class="flabel">Source</span><div class="fchips" id="sources" aria-label="Source"></div></div>
-      </div>
-      <div class="meta-row">
-        <p class="showing" id="showing"></p>
-        <button class="link" id="clear" type="button" hidden>Clear filters</button>
+      <div class="searchrow">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Try “food tonight” or “hackathon sf”" autocomplete="off">
+        </label>
         <details class="addcal subscribe">
-          <summary class="ical" title="Subscribe to a calendar that updates itself">📅 Subscribe</summary>
+          <summary class="ical" title="Subscribe to a calendar that updates itself" aria-label="Subscribe to a calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4m8-4v4"/></svg></summary>
           <div class="calmenu" id="feeds"></div>
         </details>
-        <span class="count" id="count"></span>
+      </div>
+      <div class="qchips" id="qchips" aria-label="Filters read from your search" hidden></div>
+      <div class="filters">
+        <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><span class="range" id="range" hidden><input type="date" id="from" aria-label="From"><span>to</span><input type="date" id="to" aria-label="To"></span></div>
+        <div class="fchips types" role="group" aria-label="Event type">
+          <button class="chip" id="food" type="button" aria-pressed="false">🍕 Free food</button>
+          <button class="chip" id="free" type="button" aria-pressed="false">Free only</button>
+          <button class="chip" id="campus" type="button" aria-pressed="false" title="On or right next to campus">📍 On campus</button>
+          <div id="topics-0" aria-label="Tech and career event types"></div>
+          <div id="topics-1" aria-label="Fun event types"></div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <button class="morebtn" id="more-toggle" type="button" aria-expanded="false" aria-controls="more">More filters<span id="more-n"></span></button>
+        <div class="pills" id="pills" aria-label="Filters set under More filters"></div>
+        <p class="showing"><span id="showing"></span><span class="count" id="count"></span><button class="link" id="clear" type="button" hidden>Clear filters</button></p>
+      </div>
+      <div class="more" id="more" hidden>
+        <div class="frow"><span class="flabel">Location</span><div class="fchips" id="regions" aria-label="Location"></div></div>
+        <div class="frow"><span class="flabel">Source</span><div class="fchips" id="sources" aria-label="Source"></div></div>
       </div>
     </div>
   </div>
@@ -93,16 +95,18 @@
       </div>
       <div class="foot">
         <span class="badges"></span>
-        <details class="addcal">
-          <summary class="ical" title="Add to calendar">+ Calendar</summary>
-          <div class="calmenu">
-            <a class="gcal" target="_blank" rel="noopener">Google Calendar</a>
-            <a class="ocal" target="_blank" rel="noopener">Outlook</a>
-            <button class="ics" type="button">Apple &amp; others (.ics)</button>
-          </div>
-        </details>
-        <button class="share" type="button" title="Copy a link to this event">Share</button>
-        <a class="flag" target="_blank" rel="noopener" title="Spam, cancelled or wrong? Report it" hidden>Report</a>
+        <div class="actions">
+          <details class="addcal">
+            <summary class="ical" title="Add to calendar">+ Calendar</summary>
+            <div class="calmenu">
+              <a class="gcal" target="_blank" rel="noopener">Google Calendar</a>
+              <a class="ocal" target="_blank" rel="noopener">Outlook</a>
+              <button class="ics" type="button">Apple &amp; others (.ics)</button>
+            </div>
+          </details>
+          <button class="share" type="button" title="Copy a link to this event">Share</button>
+          <a class="flag" target="_blank" rel="noopener" title="Spam, cancelled or wrong? Report it" hidden>Report</a>
+        </div>
       </div>
       <img class="thumb" alt="" loading="lazy" decoding="async">
     </article>

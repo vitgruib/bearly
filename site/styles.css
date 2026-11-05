@@ -64,8 +64,11 @@ body {
 .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
 
 /* Masthead */
-.masthead { padding: 18px 0 18px; }
-.nav { display: flex; justify-content: flex-end; gap: 4px; margin-bottom: 30px; }
+/* One row: wordmark left, nav right (the nav comes first in the markup). */
+.masthead { padding: 14px 0 12px; }
+.masthead .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.masthead .wordmark { order: -1; }
+.nav { display: flex; justify-content: flex-end; gap: 4px; }
 .nav a {
   font-size: 13.5px; font-weight: 500; color: var(--muted); text-decoration: none;
   padding: 6px 11px; border-radius: 999px;
@@ -73,7 +76,7 @@ body {
 .nav a:hover { color: var(--ink); background: var(--chip); }
 .nav a[aria-current="page"] { color: var(--ink); background: var(--chip); }
 .wordmark {
-  font: var(--wordmark-weight, 700) clamp(46px, 8vw, 72px)/1 var(--wordmark-font, "Oleo Script"), var(--display);
+  font: var(--wordmark-weight, 700) 36px/1 var(--wordmark-font, "Oleo Script"), var(--display);
   margin: 0;
   color: var(--blue);
 }
@@ -84,12 +87,12 @@ body {
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.day h2, .time) { color: var(--gold); } }
 :root[data-theme="dark"] :is(.day h2, .time) { color: var(--gold); }
 .day h2 { color: var(--blue); }
-.tagline { margin: 10px 0 0; color: var(--muted); font-size: 17px; }
-.tagline em { font: italic 400 20px var(--display); color: var(--ink); }
 
-/* Controls: every filter is always on screen, one labeled row per group. Too tall to pin,
-   so the bar scrolls away and the day headers stick instead. */
+/* Controls: When, then the quick chips and event types; Location and Source wait behind
+   "More filters". Too tall to pin, so the bar scrolls away and the day headers stick instead. */
 .controls { border-bottom: 1px solid var(--faint); padding: 4px 0 12px; }
+.searchrow { display: flex; gap: 8px; }
+.searchrow .search { flex: 1; min-width: 0; }
 .search {
   display: flex; align-items: center; gap: 10px;
   background: var(--surface);
@@ -102,7 +105,7 @@ body {
 .search svg { width: 18px; height: 18px; fill: none; stroke: var(--muted); stroke-width: 2; flex: none; }
 .search input {
   flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink);
-  font: inherit; font-size: 16px; padding: 12px 0;
+  font: inherit; font-size: 16px; padding: 12px 0; text-overflow: ellipsis;
 }
 
 /* Words the search read as filters; they wrap rather than scroll so every ✕ stays reachable. */
@@ -122,6 +125,9 @@ body {
 }
 
 .filters { margin-top: 12px; display: grid; gap: 8px; }
+.types > div { display: contents; }  /* both topic groups flow in the one row */
+.more { margin-top: 10px; display: grid; gap: 8px; border-top: 1px solid var(--faint); padding-top: 10px; }
+.more[hidden] { display: none; }
 .frow { display: grid; grid-template-columns: 104px 1fr; align-items: start; gap: 10px; }
 .flabel {
   font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
@@ -129,17 +135,14 @@ body {
 }
 .fchips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .frow + .frow { border-top: 1px solid var(--faint); padding-top: 8px; }
-.fsubs { display: grid; gap: 6px; min-width: 0; }
-/* At full width every row fits on one line, so its chips stretch edge to edge. Narrower, rows
-   wrap, and a stretched chip alone on the last line looks broken, so they keep their size. */
-.fchips > .chip:not(#free) { flex: 1 0 auto; }
-@media (max-width: 1180px) { .fchips > .chip:not(#free) { flex: none; } }
-.showing { margin: 0 auto 0 0; color: var(--muted); font-size: 13px; min-width: 0; }
+.fchips.more-right {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+}
+.showing { margin: 0 0 0 auto; color: var(--muted); font-size: 13px; min-width: 0; }
 .showing b { color: var(--ink); font-weight: 600; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
 .pick-group { color: var(--ink); }
-.fchips > #when { margin-right: auto; }
-.fchips:has(> .range:not([hidden])) > #when { margin-right: 0; }
-.range { display: flex; align-items: center; gap: 6px; margin-right: auto; color: var(--muted); font-size: 13px; }
+.range { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
 .range[hidden] { display: none; }
 .range input {
   font: 500 13px var(--body); color: var(--ink); background: var(--surface);
@@ -169,10 +172,27 @@ body {
 #regions .chip, #sources .chip { background: transparent; border-color: var(--faint); padding: 6px 10px; font-size: 12.5px; }
 #regions .chip[aria-pressed="true"], #sources .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
 
-.meta-row { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 8px; }
+.meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.morebtn {
+  font: 500 13px/1 var(--body); color: var(--ink); background: transparent;
+  border: 1px solid var(--faint); border-radius: 999px; padding: 7px 12px; cursor: pointer; white-space: nowrap;
+}
+/* A drawn chevron: the arrow glyphs come out as dots at this size. */
+.morebtn::after, .fold > summary::after {
+  content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 7px;
+  border: solid currentColor; border-width: 0 1.5px 1.5px 0; opacity: .7; transition: transform .15s;
+}
+.morebtn::after { transform: translateY(-2px) rotate(45deg); }
+.morebtn[aria-expanded="true"]::after { transform: translateY(1px) rotate(-135deg); }
+.morebtn:hover { background: var(--chip); }
+#more-n { font-weight: 600; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pills:empty { display: none; }
 .link { font: 500 12.5px var(--body); color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
 .link[hidden] { display: none; }
 .count { color: var(--muted); font-size: 13px; white-space: nowrap; }
+#showing:not(:empty) + .count::before { content: " · "; }
+.showing .link { margin-left: 8px; }
 
 /* List */
 #list { padding-top: 8px; padding-bottom: 40px; min-height: 50vh; }
@@ -217,16 +237,22 @@ body {
 .desc:empty { display: none; }
 /* The foot spans under the image too, so Calendar and Report sit at the card's right edge
    whether or not the event has an image. */
-.foot { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.foot { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.foot .actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
 .badges { display: flex; flex-wrap: wrap; gap: 5px; }
 .badge {
   font-size: 11.5px; font-weight: 500; padding: 3px 8px; border-radius: 6px;
-  background: var(--chip); color: var(--muted);
+  background: var(--chip); color: color-mix(in srgb, var(--ink) 72%, var(--muted));
 }
 .badge.food { background: #fff1d0; color: #7a5200; }
 .badge.free { background: #e3f3e8; color: #1d6b3a; }
-.badge.src { background: transparent; border: 1px solid var(--faint); }
+/* Where it's listed, not what it is: a light outlined pill, apart from the filled topic tags. */
+.badge.src {
+  background: transparent; color: var(--muted); font-weight: 400;
+  border: 1px solid var(--faint); border-radius: 999px; padding: 2px 9px;
+}
 a.badge.src { position: relative; z-index: 1; text-decoration: none; }
+a.badge.src[href]::after { content: " ↗"; font-size: .9em; }
 a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .badge.food { background: #4a3a0c; color: #ffd978; }
@@ -234,7 +260,7 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 }
 :root[data-theme="dark"] .badge.food { background: #4a3a0c; color: #ffd978; }
 :root[data-theme="dark"] .badge.free { background: #0f3d3a; color: #8fe0c4; }
-.addcal { margin-left: auto; position: relative; z-index: 2; }
+.addcal { position: relative; z-index: 2; }
 .ical {
   list-style: none; display: block;
   position: relative; z-index: 1;
@@ -255,7 +281,12 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
 .calmenu a:hover, .calmenu button:hover { background: var(--chip); }
 /* The open menu hangs over the list below: keep the filter area above day headers and cards. */
 .controls { position: relative; z-index: 6; }
-.subscribe { margin-left: 0; }
+.subscribe .ical {
+  display: grid; place-items: center; width: 50px; height: 50px; padding: 0;
+  background: var(--surface); border: 1px solid var(--faint); border-radius: 999px; box-shadow: var(--shadow);
+}
+.subscribe .ical svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.subscribe .ical:hover, .subscribe[open] .ical { border-color: var(--accent); }
 .subscribe .calmenu { min-width: 300px; max-width: calc(100vw - 32px); }
 .feed { display: flex; align-items: center; gap: 2px; }
 .feed span { flex: 1; padding: 7px 10px; font-size: 13px; white-space: nowrap; }
@@ -267,6 +298,18 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   padding: 4px 6px; border-radius: 6px; cursor: pointer; white-space: nowrap;
 }
 .share:hover { color: var(--ink); background: var(--chip); }
+/* All-day and ongoing events, folded into one line at the top of their day. */
+.fold { margin-bottom: 10px; }
+.fold > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  font: 500 13.5px var(--body); color: var(--muted);
+  border: 1px dashed var(--faint); border-radius: var(--radius); padding: 10px 16px;
+}
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::after { margin-left: 0; transform: rotate(-45deg); }
+.fold[open] > summary { margin-bottom: 10px; }
+.fold[open] > summary::after { transform: rotate(45deg); }
+.fold > summary:hover { color: var(--ink); border-color: var(--muted); }
 .shared { display: flex; align-items: center; gap: 10px; margin: 18px 0 0; color: var(--muted); font-size: 14px; }
 .flag {
   position: relative; z-index: 1;
@@ -342,10 +385,10 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   .flabel { padding-top: 0; }
   .fchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .fchips::-webkit-scrollbar { display: none; }
-  .fchips > #when { margin-right: 0; }
-  .meta-row { flex-wrap: wrap; }
-  .showing { flex-basis: 100%; }
-  .masthead { padding-top: 36px; }
+  .wordmark { font-size: 34px; }
+  /* Thumb-sized tap targets; the 12px text stays as it is. */
+  .foot .actions { margin: -8px -10px -10px auto; }
+  .foot .actions :is(.ical, .share, .flag) { padding: 12px 10px; line-height: 16px; }
   .card { grid-template-columns: 58px 1fr; gap: 9px 12px; padding: 13px; }
   .thumb { display: none; }
   .day h2 { font-size: 24px; }
