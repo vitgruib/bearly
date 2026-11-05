@@ -241,6 +241,9 @@ def test_merged_event_keeps_entry_details_from_every_listing():
 @pytest.mark.parametrize("title, is_arts", [
     ("Off the Record: Operators Breakfast", False),
     ("Self-Improving Software Workshop", False),
+    ("Self-improvement workshop: habits that stick", False),
+    ("Self-Improv Club weekly check-in", False),
+    ("Improve your public speaking", False),
     ("Founder dinner, attendance capped at 40", False),
     ("Orchestrating agents in production", False),
     ("Exhibitor booths open at the career fair", False),

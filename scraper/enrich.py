@@ -49,7 +49,7 @@ TOPICS: dict[str, list[str]] = {
     "Arts & Music": [r"\bconcerts?\b", "music", r"\bart\b", r"\barts\b", r"\bexhibits?\b", r"\bexhibitions?\b", r"\bfilm",
                      "screening", "theater", "theatre", r"\bdance", r"\bdancing", "gallery", "poetry",
                      "comedy", "performance", "jazz", r"\borchestras?\b", "museum", "choir",
-                     "symphony", r"\boperas?\b", r"\bimprov\b"],
+                     "symphony", r"\boperas?\b", r"(?<!self-)(?<!self )\bimprov\b"],  # "self-improv" is self-help
     "Sports & Wellness": [r"\brun\b", "running", "yoga", "fitness", r"\bhike", "sports",
                           "basketball", "soccer", "football", "climbing", "meditation",
                           "wellness", "archery", "volleyball", "tennis", "swim", "pilates",
