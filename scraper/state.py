@@ -117,10 +117,21 @@ class Context:
     """What a source gets besides its config: its own persistent memory, a place to report
     problems with individual feeds without failing the whole source, and the run clock."""
 
-    def __init__(self, memory: dict, now: datetime) -> None:
+    def __init__(self, memory: dict, now: datetime, previous: list[Event] = ()) -> None:
         self.memory = memory
         self.now = now
+        self.previous = previous  # what this source published last run
         self.warnings: list[str] = []
+
+    def good(self, feed: str, events: list[Event]) -> list[Event]:
+        """Remember which events one feed of a many-feed source gave, so that a later run where
+        only that feed fails can still list them (see last_good)."""
+        self.memory.setdefault("feed_ids", {})[feed] = [e.id for e in events]
+        return events
+
+    def last_good(self, feed: str) -> list[Event]:
+        ids = set(self.memory.get("feed_ids", {}).get(feed, []))
+        return [e for e in self.previous if e.id in ids]
 
     def warn(self, msg: str) -> None:
         log.warning(msg)

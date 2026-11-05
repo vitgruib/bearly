@@ -107,7 +107,7 @@ def main(argv: list[str]) -> None:
         to_run = [n for n in enabled
                   if state.due(n, config.get(n, {}).get("every_hours", SOURCES[n].every_hours),
                                now, config.get(n, {}))]
-    contexts = {n: Context(state.memory(n), now) for n in to_run}
+    contexts = {n: Context(state.memory(n), now, state.previous_events(n)) for n in to_run}
 
     def run(name: str):
         t0 = time.monotonic()

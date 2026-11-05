@@ -360,6 +360,7 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
             found = fetch_feed(feed, now, end)
         except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
             ctx.warn(f"{feed.get('name', feed['type'])}: {type(exc).__name__}: {exc}")
+            events += ctx.last_good(feed.get("name", feed["type"]))
             continue
-        events += [e for e in found if keep(e, now, end)]
+        events += ctx.good(feed.get("name", feed["type"]), [e for e in found if keep(e, now, end)])
     return dedupe(events)

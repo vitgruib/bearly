@@ -102,12 +102,12 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
             found = fetch_venue(v, end)
         except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
             ctx.warn(f"{v['name']}: {type(exc).__name__}: {exc}")
+            events += ctx.last_good(v["name"])
             continue
-        for e in found:
-            if not (now <= e.start <= end and is_concert(e)):
-                continue
+        shows = [e for e in found if now <= e.start <= end and is_concert(e)]
+        for e in shows:
             # The venue's own name and coordinates, so every listing of it reads and maps alike.
             e.source, e.big_show, e.transit = "big_shows", True, v["transit"]
             e.venue, e.city, e.lat, e.lng = v["name"], v["city"], v["lat"], v["lng"]
-            events.append(e)
+        events += ctx.good(v["name"], shows)
     return events

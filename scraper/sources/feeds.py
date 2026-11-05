@@ -193,6 +193,7 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
             found = fetch_feed(feed, cfg.get("days_ahead", 30), ctx.now)
         except (httpx.HTTPError, ValueError, KeyError, ElementTree.ParseError) as exc:
             ctx.warn(f"{feed['name']}: {type(exc).__name__}: {exc}")
+            events += ctx.last_good(feed["name"])
             continue
         if feed.get("match"):  # e.g. only home games from an athletics calendar
             rx = re.compile(feed["match"], re.IGNORECASE)
@@ -207,5 +208,5 @@ def fetch(cfg: dict, ctx: Context) -> list[Event]:
         if city := feed.get("city") or ("Berkeley" if feed.get("campus") else None):
             for e in found:
                 e.city = e.city or city
-        events += found
+        events += ctx.good(feed["name"], found)
     return events

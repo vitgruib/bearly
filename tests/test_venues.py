@@ -154,3 +154,21 @@ def test_fetch_warns_about_a_failing_feed_and_keeps_the_rest(monkeypatch):
 
     assert [e.city for e in events] == ["Alameda", "Berkeley"]
     assert len(ctx.warnings) == 1 and ctx.warnings[0].startswith("Ivy Room: ConnectError")
+
+
+def test_a_feed_that_fails_keeps_its_last_good_shows(monkeypatch):
+    # The Fox and the Greek sometimes refuse GitHub's servers (403): their shows must not
+    # vanish from the site for that run.
+    cfg = {"list": [{"type": "venuepilot", "name": "Ivy Room", "account": 992,
+                     "url": "https://www.ivyroom.com/"},
+                    {"type": "resident_advisor", "name": "RA"}]}
+    memory = {}
+    _offline(monkeypatch)
+    first = venues.fetch(cfg, Context(memory, NOW.astimezone(UTC)))
+
+    _offline(monkeypatch, fail_venuepilot=True)
+    ctx = Context(memory, NOW.astimezone(UTC), previous=first)
+    again = venues.fetch(cfg, ctx)
+
+    assert sorted(e.title for e in again) == sorted(e.title for e in first)
+    assert len(ctx.warnings) == 1
