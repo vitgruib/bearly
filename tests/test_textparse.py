@@ -149,3 +149,10 @@ def test_off_campus_city_named_in_the_post_wins_over_the_berkeley_default():
     [e] = parse_announcement(text, TUESDAY, "instagram")
 
     assert e.city == "San Francisco"
+
+
+def test_a_street_sharing_a_building_name_is_not_campus():
+    [e] = parse_announcement("Halloween party Friday, October 30 at 9 PM. Location: 2400 Hearst Ave",
+                             TUESDAY, "instagram")
+
+    assert (e.venue, e.lat) == ("2400 Hearst Ave", None)

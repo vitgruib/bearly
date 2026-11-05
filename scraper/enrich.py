@@ -3,6 +3,7 @@
 import math
 import re
 
+from . import campus
 from .models import Event
 
 CAMPUS = (37.8719, -122.2585)
@@ -120,7 +121,9 @@ def far_region(lat: float, lng: float) -> str | None:
 def region_for(e: Event) -> str | None:
     """None means "too far away to list". Only big-venue concerts are listed beyond the Bay
     Area; any other event that far away is not."""
-    if e.online:
+    named_campus = campus.named(f"{e.venue or ''} {e.address or ''}", e.url or "")
+    # A hybrid event in a campus room is still an event on campus.
+    if e.online and not named_campus:
         return "Online"
     # Sacramento is just inside the 110 km below, and its city in no Bay Area list.
     if e.big_show and e.lat is not None and (far := far_region(e.lat, e.lng)):
@@ -128,12 +131,15 @@ def region_for(e: Event) -> str | None:
     city = (e.city or "").strip().lower()
     if e.lat is not None and e.lng is not None:
         km = haversine_km(CAMPUS, (e.lat, e.lng))
-        if km <= 1.3:
-            return "Campus"
         if km > 110:
             return None
+        # A geocoder can put a building at its street address, just outside the line.
+        if campus.inside(e.lat, e.lng) or (named_campus and km <= 2):
+            return "Campus"
         if city == "berkeley" or km <= 4:
             return "Berkeley"
+    elif named_campus:
+        return "Campus"
     if city == "berkeley":
         return "Berkeley"
     if city in EAST_BAY:

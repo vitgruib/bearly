@@ -10,6 +10,7 @@ import re
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
+from . import campus
 from .models import Event, clean_text
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
@@ -276,7 +277,7 @@ def parse_announcement(text: str, sent: datetime, source: str, url: str = "",
             continue
         seen.add(key)
         place = find_location(block)
-        on_campus = bool(place and CAMPUS_PLACES.search(place))
+        on_campus = bool(place and campus.named(place))
         elsewhere = next((c for rx, c in OTHER_CITIES if rx.search(block)), None)
         desc = clean_text(URL.sub("", block))
         events.append(Event(

@@ -204,11 +204,19 @@
     <h3>Location</h3>
     <p>The first rule that fits decides:</p>
     <ol>
-      <li>Marked online: <b>Online</b>.</li>
+      <li>Marked online, with no campus room named: <b>Online</b>. A hybrid event in a campus room
+        is Campus.</li>
       <li>A concert at one of the big venues above, outside the Bay Area: <b>Sacramento</b>,
         <b>Los Angeles</b> or <b>San Diego</b>. These are the only events listed that far away.</li>
-      <li>Has map coordinates: within 1.3 km of the center of campus is <b>Campus</b>; within 4 km,
-        or the city is Berkeley, is <b>Berkeley</b>. More than 110 km away is not listed.</li>
+      <li><b>Campus</b> means on UC Berkeley's own land. That's its map coordinates inside the
+        university's boundary as <a href="https://www.openstreetmap.org/relation/2814221">OpenStreetMap</a> (© OpenStreetMap contributors, ODbL)
+        draws it (the main campus and hill, Clark Kerr, the residence halls, BAMPFA, Berkeley Way
+        West, ...). Or, for a listing with no coordinates, a venue that names a campus building
+        ("241 Giannini Hall", "Wheeler 124", "MLK Student Union"), a Haas room on the campus
+        calendar ("C250"), or UC Berkeley's own ZIP code, 94720. Downtown and Southside are
+        <b>Berkeley</b>, however close: The Freight, Shattuck Ave and Telegraph Ave are not on campus.</li>
+      <li>Has map coordinates: within 4 km of campus, or the city is Berkeley, is <b>Berkeley</b>.
+        More than 110 km away is not listed.</li>
       <li>Has a city: Berkeley; Oakland, Emeryville, Albany, Richmond, Alameda, Walnut Creek and 19
         other East Bay cities are <b>East Bay</b>; <b>San Francisco</b>; Palo Alto, Stanford, Mountain
         View, San Jose and 18 other cities are <b>Peninsula &amp; South Bay</b>.</li>
