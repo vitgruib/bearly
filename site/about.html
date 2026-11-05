@@ -217,9 +217,21 @@
         <b>Berkeley</b>, however close: The Freight, Shattuck Ave and Telegraph Ave are not on campus.</li>
       <li>Has map coordinates: within 4 km of campus, or the city is Berkeley, is <b>Berkeley</b>.
         More than 110 km away is not listed.</li>
-      <li>Has a city: Berkeley; Oakland, Emeryville, Albany, Richmond, Alameda, Walnut Creek and 19
-        other East Bay cities are <b>East Bay</b>; <b>San Francisco</b>; Palo Alto, Stanford, Mountain
-        View, San Jose and 18 other cities are <b>Peninsula &amp; South Bay</b>.</li>
+      <li>Has a city (the listing's own city field, matched exactly, ignoring case):
+        <ul>
+          <li>Berkeley is <b>Berkeley</b>.</li>
+          <li>These 25 are <b>East Bay</b>: Alameda, Albany, Castro Valley, Concord, Danville,
+            Dublin, El Cerrito, El Sobrante, Emeryville, Fremont, Hayward, Kensington, Lafayette,
+            Livermore, Moraga, Oakland, Orinda, Piedmont, Pleasant Hill, Pleasanton, Richmond,
+            San Leandro, San Ramon, Union City and Walnut Creek.</li>
+          <li>San Francisco (or "SF") is <b>San Francisco</b>.</li>
+          <li>These 22 are <b>Peninsula &amp; South Bay</b>: Belmont, Burlingame, Cupertino, Daly
+            City, Foster City, Half Moon Bay, Hillsborough, Los Altos, Menlo Park, Millbrae,
+            Milpitas, Mountain View, Palo Alto, Redwood City, San Bruno, San Carlos, San Jose,
+            San Mateo, Santa Clara, South San Francisco, Stanford and Sunnyvale.</li>
+          <li>Any other city falls through to the next rules, so an event in, say, Marin or
+            Vallejo is placed by its coordinates.</li>
+        </ul></li>
       <li>Coordinates but an unknown city: west of longitude −122.36 between latitudes 37.70 and 37.82
         is San Francisco; north of 37.95 is <b>North Bay</b>; south of 37.70 is Peninsula &amp; South
         Bay; anything else is East Bay.</li>
