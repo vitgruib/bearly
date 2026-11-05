@@ -656,7 +656,8 @@ area = 218
 [[venues.list]]
 name = "DoTheBay"
 type = "dothebay"
-venues = ["yoshi-s-oakland", "the-freight", "thee-stork-club", "quinn-s-lighthouse", "crybaby",
+# fox-theater and greek-theatre back up the venues' own sites, which sometimes refuse GitHub (403).
+venues = ["fox-theater", "greek-theatre", "yoshi-s-oakland", "the-freight", "thee-stork-club", "quinn-s-lighthouse", "crybaby",
   "paramount-theatre", "oakland-arena", "fluid510", "the-starry-plough", "cornerstone",
   "berkeley-repertory-theatre", "oakland-museum-of-california", "all-out-comedy-theater",
   "uss-hornet-museum", "the-crucible", "piedmont-piano-company", "east-brother-beer-company-taproom"]
@@ -741,8 +742,9 @@ city = "Oakland"
 transit = "19th St Oakland BART, 2 min walk"
 lat = 37.8078
 lng = -122.2702
-type = "anotherplanet"
-url = "https://thefoxoakland.com/"
+# DoTheBay, not thefoxoakland.com: the Another Planet sites refuse GitHub's servers (403).
+type = "dothebay"
+slug = "fox-theater"
 
 [[big_shows.venues]]
 name = "Greek Theatre"  # 8,500
@@ -750,8 +752,8 @@ city = "Berkeley"
 transit = "Downtown Berkeley BART, 15–20 min walk uphill"
 lat = 37.8736
 lng = -122.2543
-type = "anotherplanet"
-url = "https://thegreekberkeley.com/event-listing/"
+type = "dothebay"
+slug = "greek-theatre"
 
 [[big_shows.venues]]
 name = "Toyota Pavilion at Concord"  # 12,500
