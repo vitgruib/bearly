@@ -259,9 +259,11 @@
       open source on <a href="https://github.com/vitgruib/lo-cal">GitHub</a>, and events are
       sorted by time only.</p>
     <p id="agents"><b>For AI assistants:</b> <a href="llms.txt">llms.txt</a> explains the data and
-      the URL filters, and <a href="data/llms-full.txt">llms-full.txt</a> lists every upcoming event
-      as plain text in one file, so a chatbot can answer "what's on at Berkeley tonight?" from
-      real listings. Each event also has its own page, <code>e/&lt;id&gt;.html</code>, listed in <a href="sitemap.xml">sitemap.xml</a>.</p>
+      the URL filters. <a href="data/llms/index.txt">data/llms/</a> splits upcoming events into
+      small plain-text files (today, tomorrow, this weekend, each day, each topic) that a chatbot
+      can read in one fetch, so you can point your own assistant at Lo-Cal and ask "what's on at
+      Berkeley tonight?" and get real listings. <a href="data/llms-full.txt">llms-full.txt</a> has
+      every event in one file. Each event also has its own page, <code>e/&lt;id&gt;.html</code>, listed in <a href="sitemap.xml">sitemap.xml</a>.</p>
 
     <h2 id="suggest-source">Suggest a source</h2>
     <p>Know a calendar we should read? Open a pull request that adds it to

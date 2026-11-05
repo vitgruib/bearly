@@ -19,7 +19,7 @@ from . import http
 from .dedupe import collapse_repeats, dedupe
 from .enrich import REGIONS, TOPICS, enrich
 from .ics import write_feeds
-from .llms import write_llms_full
+from .llms import write_llms_full, write_llms_slices
 from .models import Event
 from .pages import write_pages
 from .registry import SOURCES
@@ -167,6 +167,7 @@ def main(argv: list[str]) -> None:
     owner, name = config["repo"].split("/")
     site_url = f"https://{owner}.github.io/{name}/"
     write_llms_full(final, site_url, EVENTS.parent / "llms-full.txt", now)
+    write_llms_slices(final, site_url, EVENTS.parent / "llms", now)
     write_pages(final, site_url, EVENTS.parent.parent, now)
     log.info("wrote %d events (from %d raw); http %s", len(final), len(events), http.stats)
 
