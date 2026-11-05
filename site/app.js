@@ -851,6 +851,16 @@ async function boot() {
   addEventListener("resize", () => markScrollRows());
   $("#from").onchange = (ev) => { state.from = ev.target.value; update(); };
   $("#to").onchange = (ev) => { state.to = ev.target.value; update(); };
+  $("#copy-llms").onclick = async (ev) => {
+    const btn = ev.currentTarget;
+    try {
+      await navigator.clipboard.writeText(new URL("llms.txt", location.href).href);
+      btn.textContent = "Copied";
+    } catch {
+      btn.textContent = "Right-click the link to copy";  // no clipboard access
+    }
+    setTimeout(() => { btn.textContent = "Copy link"; }, 1800);
+  };
   $("#clear").onclick = () => {
     state.event = "";
     state.topics.clear(); state.regions.clear(); state.src.clear(); state.free = false;

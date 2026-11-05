@@ -91,6 +91,10 @@ body {
 /* Controls: When, then the quick chips and event types; Location and Source wait behind
    "More filters". Too tall to pin, so the bar scrolls away and the day headers stick instead. */
 .controls { border-bottom: 1px solid var(--faint); padding: 4px 0 12px; }
+.aihint { margin: 2px auto 8px; color: var(--muted); font-size: 13px; }
+.aihint b { color: var(--ink); font-weight: 600; }
+.aihint a { color: var(--ink); text-underline-offset: 2px; }
+.aihint .link { margin-left: 4px; }
 .searchrow { display: flex; gap: 8px; }
 .searchrow .search { flex: 1; min-width: 0; }
 .search {
