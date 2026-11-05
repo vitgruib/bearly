@@ -568,6 +568,12 @@ function card(e) {
     access.textContent = `Getting in: ${e.access.join(" · ")}`;
     access.hidden = false;
   }
+  if (e.reports?.length) {
+    const reported = node.querySelector(".reported");
+    reported.textContent = "⚠ Reported by visitors (unverified): " + e.reports
+      .map((r) => (r.details ? `${r.kind}: ${r.details}` : r.kind)).join(" · ");
+    reported.hidden = false;
+  }
   node.querySelector(".desc").textContent = e.description || "";
   const badges = node.querySelector(".badges");
   const add = (text, cls = "") => {
@@ -633,14 +639,12 @@ function card(e) {
   };
   if (data.repo) {
     const flag = node.querySelector(".flag");
-    // The bot finds the event by the [id] at the end. GitHub's issue page drops prefilled form
-    // fields but keeps the title, so on GitHub the id rides there.
+    // The build attaches the report to its event by the [id] at the end.
     const label = `${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]`;
-    const q = new URLSearchParams({ template: "report-event.yml", title: `Report: ${label}` });
-    flag.href = data.forms?.report_prefill
-      ? data.forms.report_prefill.replace("EVENT", encodeURIComponent(label))
-      : `https://github.com/${data.repo}/issues/new?${q}`;
-    flag.hidden = false;
+    if (data.forms?.report_prefill) {
+      flag.href = data.forms.report_prefill.replace("EVENT", encodeURIComponent(label));
+      flag.hidden = false;
+    }
   }
   return node;
 }

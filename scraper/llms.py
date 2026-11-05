@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from .enrich import TOPICS
 from .ics import slug
 from .models import Event
+from .reports import describe
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
 
@@ -25,6 +26,7 @@ def _line(e: Event, site_url: str) -> str:
     facts = [time_range(e), e.title, e.venue or e.address or ("Online" if e.online else ""), e.host or "",
              e.region or "", ", ".join(e.tags), "Free" if e.free else "",
              f"Getting in: {'; '.join(e.access)}" if e.access else "",
+             *(f"Reported by a visitor (unverified): {describe(r)}" for r in e.reports),
              e.url, f"{site_url}e/{e.id}.html"]
     return "- " + " | ".join(f for f in facts if f)
 

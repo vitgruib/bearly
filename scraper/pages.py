@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 from .llms import time_range
 from .models import Event
+from .reports import describe
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
 STATIC = ["", "about.html", "stats.html"]
@@ -71,6 +72,9 @@ def event_page(e: Event, site_url: str) -> str:
         facts.append(f"<p>Hosted by {h(e.host)}</p>")
     if e.access:
         facts.append(f"<p class=\"access\">Getting in: {h(' · '.join(e.access))}</p>")
+    for r in e.reports:
+        facts.append(f"<p class=\"reported\">⚠ Reported by a visitor ({h(r['date'])}, unverified): "
+                     f"{h(describe(r))}</p>")
     if e.tags:
         facts.append(f"<p class=\"tags\">{h(' · '.join(e.tags))}</p>")
     return f"""<!doctype html>

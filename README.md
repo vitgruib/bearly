@@ -112,6 +112,8 @@ and `warn()`), register it in `scraper/registry.py`, and give it a section in
 ## Reporting an event
 
 Each event's Report link opens the Google Form (`[community]` in `sources.toml`) with the event
-filled in. The same form takes calendars and events to add and feedback. Answers stay in the
-form's response sheet; nothing files them anywhere. To hide a reported event, add its id to
-`moderation.toml` by hand. GitHub issues are for developers' own bug and feature work.
+filled in. The same form takes calendars and events to add and feedback. Its response sheet is
+the review database: every build reads it and shows each report publicly on its event, marked
+unverified, on the card, the event's page and the LLM files (`scraper/reports.py`). Delete a row
+to withdraw a report; add an event's id to `moderation.toml` to hide the event. GitHub issues are
+for developers' own bug and feature work.

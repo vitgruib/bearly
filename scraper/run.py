@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import httpx
+
 from . import http
 from .dedupe import collapse_repeats, dedupe
 from .enrich import REGIONS, TOPICS, enrich
@@ -23,6 +25,7 @@ from .llms import write_llms_full, write_llms_slices
 from .models import Event
 from .pages import write_pages
 from .registry import SOURCES
+from .reports import parse_reports
 from .state import EVENTS, ROOT, Context, NotConfigured, State, now_utc
 
 log = logging.getLogger("scraper")
@@ -51,6 +54,17 @@ def hidden_ids(root: Path = ROOT) -> set[str]:
     """Events taken down after an approved report."""
     path = root / "moderation.toml"
     return {h["id"] for h in tomllib.loads(path.read_text()).get("hidden", [])} if path.exists() else set()
+
+
+def visitor_reports(config: dict) -> dict[str, list[dict]]:
+    """Reports from the form's response sheet; an unreachable sheet leaves events unreported."""
+    if not (sheet := config.get("community", {}).get("sheet_csv")):
+        return {}
+    try:
+        return parse_reports(http.get_text(sheet))
+    except httpx.HTTPError as exc:
+        log.warning("report sheet unreachable: %s", exc)
+        return {}
 
 
 # Any scheme but http(s): javascript:, data:, vbscript:... Relative paths have none.
@@ -142,8 +156,10 @@ def main(argv: list[str]) -> None:
 
     list_days = {n: config[n]["list_days"] for n in enabled if "list_days" in config.get(n, {})}
     final = build(events, config.get("days_ahead", 30), now, hidden_ids(), list_days)
+    reports = visitor_reports(config)
     counts: dict[str, int] = {}
     for e in final:
+        e.reports = reports.get(e.id, [])
         counts[e.source] = counts.get(e.source, 0) + 1
     state.data["last_run"] = now.isoformat(timespec="seconds")
     state.data["http"] = http.stats

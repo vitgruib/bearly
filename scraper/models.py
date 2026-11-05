@@ -39,6 +39,7 @@ class Event:
     # None rather than False keeps the key out of every other event's JSON.
     big_show: bool | None = None
     transit: str | None = None  # how to get there by train: "Coliseum BART, 5 min walk"
+    reports: list[dict] = field(default_factory=list)  # visitors' unverified reports (reports.py)
 
     @property
     def id(self) -> str:

@@ -941,9 +941,12 @@ days_back = 14
 
 [community]
 # One Google Form takes every request: a calendar or event to add, a report, feedback. Answers stay
-# in its response sheet for the maintainer to read; nothing reads them automatically. A source is
-# added by editing this file, a reported event is hidden by adding it to moderation.toml.
+# in its response sheet for the maintainer to read. Each build reads that sheet (File > Share >
+# Publish to web > CSV) and shows every "Report an event" answer publicly on its event, marked
+# unverified (reports.py). Deleting a row withdraws a report; moderation.toml hides an event; a
+# source is added by editing this file.
 report_prefill = "https://docs.google.com/forms/d/e/1FAIpQLSeltgT0d8IheCnsmDhdECZ347hpWNquj5A_GO-cifRQ0kldig/viewform?usp=pp_url&entry.983668865=Report+an+event&entry.1140898671=EVENT"  # Get pre-filled link: "Report an event" picked, Event answer set to EVENT
+sheet_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTe05uuWxv2swFmXVINuZL82MYKx6dJ8hroyT3kVgDu4TCwrd8QHG3ktN7t7WqNaKNVKCoYJwS29qCZ/pub?output=csv"
 
 [slack]
 days_back = 14
