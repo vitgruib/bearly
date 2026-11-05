@@ -23,7 +23,7 @@ PENINSULA = {
 LOCAL_SOURCES = {"email", "slack", "feeds", "instagram", "berkeley_calendar"}
 
 REGIONS = ["Campus", "Berkeley", "East Bay", "San Francisco", "Peninsula & South Bay",
-           "North Bay", "Online"]
+           "North Bay", "Sacramento", "Los Angeles", "San Diego", "Online"]
 
 # Ordered: the frontend shows chips in this order.
 TOPICS: dict[str, list[str]] = {
@@ -106,10 +106,25 @@ def haversine_km(a: tuple[float, float], b: tuple[float, float]) -> float:
     return 6371 * 2 * math.asin(math.sqrt(h))
 
 
+def far_region(lat: float, lng: float) -> str | None:
+    """A big show beyond the Bay Area: each of these is a train ride from Berkeley."""
+    if 38.3 < lat < 38.9 and lng > -121.8:  # east of the Delta, so never the North Bay
+        return "Sacramento"
+    if 33.5 < lat < 34.5 and lng > -119:
+        return "Los Angeles"  # Anaheim and Inglewood included
+    if 32.5 < lat < 33.3 and lng > -117.5:
+        return "San Diego"
+    return None
+
+
 def region_for(e: Event) -> str | None:
-    """None means "too far away to list"."""
+    """None means "too far away to list". Only big-venue concerts are listed beyond the Bay
+    Area; any other event that far away is not."""
     if e.online:
         return "Online"
+    # Sacramento is just inside the 110 km below, and its city in no Bay Area list.
+    if e.big_show and e.lat is not None and (far := far_region(e.lat, e.lng)):
+        return far
     city = (e.city or "").strip().lower()
     if e.lat is not None and e.lng is not None:
         km = haversine_km(CAMPUS, (e.lat, e.lng))

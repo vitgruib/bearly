@@ -9,6 +9,8 @@
   --accent: #002676;
   --accent-ink: #ffffff;
   --chip: #e7e1d4;
+  --big: #c4361b;  /* big-venue concerts' own accent, a stage light against Berkeley blue */
+  --big-ink: #ffffff;
   --shadow: none;
   --radius: 14px;
   --wrap: 1160px;
@@ -28,6 +30,8 @@
     --accent: #fdb515;
     --accent-ink: #002676;
     --chip: #0c3183;
+    --big: #ff8f66;
+    --big-ink: #2a0e04;
     --shadow: 0 4px 18px rgb(0 0 0 / 25%);
     color-scheme: dark;
   }
@@ -41,6 +45,8 @@
   --accent: #fdb515;
   --accent-ink: #002676;
   --chip: #0c3183;
+  --big: #ff8f66;
+  --big-ink: #2a0e04;
   --shadow: 0 4px 18px rgb(0 0 0 / 25%);
   color-scheme: dark;
 }
@@ -343,6 +349,40 @@ a.badge.src[href]:hover { color: var(--ink); border-color: var(--muted); }
   .card { grid-template-columns: 58px 1fr; gap: 9px 12px; padding: 13px; }
   .thumb { display: none; }
   .day h2 { font-size: 24px; }
+}
+
+/* Big-venue concerts (sources/big_shows.py): a poster, a display-size title and the train line
+   up front, so a show worth the trip stands out from the list around it. */
+.card.big {
+  padding: 18px 20px; border: 1.5px solid var(--big);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--big) 11%, var(--surface)), var(--surface) 62%);
+  box-shadow: inset 5px 0 0 var(--big), var(--shadow);
+}
+.card.big .time { color: var(--big); font-size: 16px; font-weight: 700; }
+.kicker {
+  display: block; margin-bottom: 6px; color: var(--big);
+  font: 700 11.5px/1.2 var(--body); letter-spacing: .08em; text-transform: uppercase;
+}
+.card.big .title {
+  font: 800 clamp(22px, 2.6vw, 31px)/1.1 var(--display); letter-spacing: -0.025em;
+  -webkit-line-clamp: 3; text-decoration-color: color-mix(in srgb, var(--big) 40%, transparent);
+}
+.card.big .title[href]:hover { text-decoration-color: var(--big); }
+.card.big .where { margin-top: 8px; color: var(--ink); font-size: 15px; font-weight: 500; white-space: normal; }
+.transit {
+  display: inline-block; margin: 8px 0 0; padding: 5px 12px; border-radius: 999px;
+  font: 600 14px/1.35 var(--body); color: var(--big-ink); background: var(--big);
+}
+.card.big .thumb { grid-row: 1 / 3; width: clamp(200px, 30vw, 340px); height: auto; aspect-ratio: 16 / 9; border-radius: 12px; }
+.card.big .foot { grid-column: 2; }
+@media (max-width: 600px) {
+  /* The poster goes edge to edge on top; everything else keeps the card's padding. */
+  .card.big { padding: 0 0 13px; }
+  .card.big:not(:has(.thumb)) { padding-top: 13px; }
+  .card.big .thumb { display: block; grid-row: 1; grid-column: 1 / -1; width: 100%; border-radius: 12px 12px 0 0; }
+  .card.big .time { grid-row: 2; padding-left: 13px; }
+  .card.big .body { grid-row: 2; padding-right: 13px; }
+  .card.big .foot { grid-row: 3; grid-column: 1 / -1; padding: 0 13px; }
 }
 
 /* ---------- Stats page ---------- */

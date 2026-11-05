@@ -41,7 +41,7 @@ def read(path):
 
 def test_event_page_gives_link_previews_and_search_engines_the_event(tmp_path):
     e = ev("Founder Dinner", venue="Spieker Forum", host="BEGIN", image="https://img.test/a.png",
-           description="Pizza and pitches.")
+           description="Pizza and pitches.", transit="Downtown Berkeley BART, 10 min walk")
     write_pages([e], SITE, tmp_path, NOW)
 
     head = read(tmp_path / "e" / f"{e.id}.html")
@@ -51,6 +51,7 @@ def test_event_page_gives_link_previews_and_search_engines_the_event(tmp_path):
     assert head.meta["og:image"] == "https://img.test/a.png"
     assert head.meta["og:url"] == f"{SITE}e/{e.id}.html"
     assert "Spieker Forum" in head.meta["og:description"]
+    assert "Downtown Berkeley BART, 10 min walk" in (tmp_path / "e" / f"{e.id}.html").read_text()
     assert (ld["@type"], ld["name"], ld["location"]["name"]) == ("Event", "Founder Dinner", "Spieker Forum")
 
 

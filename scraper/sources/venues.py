@@ -77,6 +77,7 @@ def parse_dothebay(data: dict) -> list[Event]:
                 city=(v.get("city") or "").strip() or None,
                 lat=v.get("latitude"),
                 lng=v.get("longitude"),
+                image=((ev.get("imagery") or {}).get("aws") or {}).get("cover_image_h_630_w_1200"),
                 description=" · ".join(x for x in (doors, info,
                                                    clean_text(ev.get("excerpt"))) if x),
                 free=True if ev.get("is_free") else _price_free(info),
@@ -210,6 +211,7 @@ def parse_anotherplanet(page: str, venue: str, city: str) -> list[Event]:
         start = datetime.strptime(re.sub(r"\s+", " ", when.group(1)).replace(" pm", "pm")
                                   .replace(" am", "am"), "%B %d, %Y %I:%M%p")
         support = re.search(r'<div class="support">(.*?)</div>', block, re.DOTALL)
+        img = re.search(r'<img src="([^"]+)" class="wp-post-image', block)
         events.append(Event(
             title=clean_text(name.group(1), 200),
             start=start.replace(tzinfo=PACIFIC),
@@ -217,6 +219,8 @@ def parse_anotherplanet(page: str, venue: str, city: str) -> list[Event]:
             source="venues",
             venue=venue,
             city=city,
+            # The listing shows a 353x192 crop; without the size suffix it's the full poster.
+            image=re.sub(r"-\d+x\d+(?=\.\w+$)", "", img.group(1)) if img else None,
             description=clean_text(support.group(1).replace("<br>", " · ")) if support
             else "",
             free=False if "ticketmaster.com" in block else None,

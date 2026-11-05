@@ -58,13 +58,17 @@ UNSAFE_LINK = re.compile(r"\s*(?!https?:)[a-z][a-z0-9+.-]*:", re.IGNORECASE)
 
 
 def build(events: list[Event], days_ahead: int, now: datetime,
-          hidden: set[str] = frozenset()) -> list[Event]:
+          hidden: set[str] = frozenset(), list_days: dict[str, int] | None = None) -> list[Event]:
+    """`list_days` lets a source list further ahead than `days_ahead`: big concerts sell out
+    months before."""
     horizon = now + timedelta(days=days_ahead)
+    horizons = {n: now + timedelta(days=d) for n, d in (list_days or {}).items()}
     upcoming = []
     for e in events:
         ends = e.end or e.start + timedelta(hours=2)
         # Multi-week "events" (programs, exhibits, month-long hackathons) aren't plans.
-        if ends < now or e.start > horizon or (ends - e.start) > timedelta(days=12):
+        if (ends < now or e.start > horizons.get(e.source, horizon)
+                or (ends - e.start) > timedelta(days=12)):
             continue
         if PLACEHOLDER.search(e.title):
             continue
@@ -136,7 +140,8 @@ def main(argv: list[str]) -> None:
             events += state.previous_events(name)
             statuses[name] = {"health": state.source(name).get("health", "ok"), "cached": True}
 
-    final = build(events, config.get("days_ahead", 30), now, hidden_ids())
+    list_days = {n: config[n]["list_days"] for n in enabled if "list_days" in config.get(n, {})}
+    final = build(events, config.get("days_ahead", 30), now, hidden_ids(), list_days)
     counts: dict[str, int] = {}
     for e in final:
         counts[e.source] = counts.get(e.source, 0) + 1

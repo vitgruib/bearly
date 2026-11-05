@@ -7,6 +7,7 @@ from types import ModuleType
 
 from .sources import (
     berkeley_calendar,
+    big_shows,
     cerebral_valley,
     email_inbox,
     feeds,
@@ -36,5 +37,6 @@ SOURCES = {
     "slack": Source("Slack", slack, 3),
     "hackathons": Source("Hackathons", hackathons, 24),
     "venues": Source("Music & venues", venues, 12),
+    "big_shows": Source("Big shows", big_shows, 12),
     "instagram": Source("Instagram", instagram, 24),
 }

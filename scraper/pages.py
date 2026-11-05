@@ -65,6 +65,8 @@ def event_page(e: Event, site_url: str) -> str:
     preview = " ".join(x for x in [summary + ".", blurb] if x)[:300]
     image = e.image or f"{site_url}og.png"
     facts = [f"<p class=\"when\">{h(summary)}</p>"]
+    if e.transit:
+        facts.append(f"<p class=\"when\">🚆 {h(e.transit)}</p>")
     if e.host:
         facts.append(f"<p>Hosted by {h(e.host)}</p>")
     if e.access:

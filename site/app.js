@@ -163,6 +163,9 @@ const PLACE_ALIASES = [
   [["San Francisco"], ["sf", "san francisco"]],
   [["Peninsula & South Bay"], ["peninsula", "south bay", "palo alto", "san jose"]],
   [["North Bay"], ["north bay"]],
+  [["Sacramento"], ["sacramento"]],
+  [["Los Angeles"], ["los angeles", "hollywood", "anaheim"]],
+  [["San Diego"], ["san diego"]],
   [["Online"], ["online", "virtual", "zoom"]],
 ];
 // Words close enough in meaning to search alongside, for words left as plain text.
@@ -512,6 +515,13 @@ function card(e) {
   }
   const rest = [e.online ? "Online" : "", e.host].filter(Boolean).join(" · ");
   if (rest) whereEl.append(`${place ? " · " : ""}${rest}`);
+  // A concert at a big venue a train gets you to: a poster card that leads with the way there.
+  if (e.big_show) {
+    node.classList.add("big");
+    const kicker = Object.assign(document.createElement("span"), { className: "kicker", textContent: `🎤 Big show${e.city ? ` · ${e.city}` : ""}` });
+    a.before(kicker);
+    if (e.transit) whereEl.after(Object.assign(document.createElement("p"), { className: "transit", textContent: `🚆 ${e.transit}` }));
+  }
   if (e.access?.length) {
     const access = node.querySelector(".access");
     access.textContent = `Getting in: ${e.access.join(" · ")}`;

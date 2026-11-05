@@ -35,6 +35,10 @@ class Event:
     # listings leave it empty; the event's own url and source say the same thing.
     listings: list[dict] = field(default_factory=list)
     repeats: int | None = None  # this listing recurs; the record is its next occurrence
+    # A concert at a big train-reachable venue (sources/big_shows.py), drawn as a poster card.
+    # None rather than False keeps the key out of every other event's JSON.
+    big_show: bool | None = None
+    transit: str | None = None  # how to get there by train: "Coliseum BART, 5 min walk"
 
     @property
     def id(self) -> str:

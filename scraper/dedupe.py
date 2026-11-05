@@ -8,7 +8,7 @@ from .models import Event, dedupe_key
 
 # Platform listings carry structured data; message-derived records are best-effort.
 PRIORITY = {"luma": 0, "partiful": 0, "cerebral_valley": 1,
-            "berkeley_calendar": 1, "hackathons": 1, "venues": 1, "feeds": 2, "instagram": 3, "email": 3, "slack": 3}
+            "berkeley_calendar": 1, "hackathons": 1, "venues": 1, "big_shows": 1, "feeds": 2, "instagram": 3, "email": 3, "slack": 3}
 
 
 def _richness(e: Event) -> tuple:
@@ -49,7 +49,7 @@ def _merge(group: list[Event]) -> Event:
     listings = _listings(group)
     for other in group[1:]:
         for field in ("end", "host", "venue", "address", "city", "lat", "lng", "image",
-                      "free", "region"):
+                      "free", "region", "big_show", "transit"):
             if getattr(best, field) is None:
                 setattr(best, field, getattr(other, field))
         if not best.description:

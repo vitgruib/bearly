@@ -175,6 +175,23 @@
       </dl>
     </details>
 
+    <details class="source" data-source="big_shows">
+      <summary><span class="name">Big shows</span></summary>
+      <dl class="facts">
+        <dt>Site</dt><dd><a class="site" href="https://www.livenation.com/">Live Nation</a>, <a class="site" href="https://dothebay.com">DoTheBay</a>, <a class="site" href="https://thefoxoakland.com/">The Fox</a>, <a class="site" href="https://thegreekberkeley.com/event-listing/">The Greek</a></dd>
+        <dt>Checked</dt><dd>Every 12 hours</dd>
+        <dt class="tech">How</dt><dd class="tech">Live Nation: a GET request for each venue's page, which
+          carries Ticketmaster's own event data, so comedy, ballet, games and parking passes can be
+          left out. DoTheBay: each venue's page as JSON. The Fox and the Greek: their events pages.</dd>
+        <dt>Gets</dt><dd>Concerts only, up to 90 days ahead: show name, time, venue, poster, supporting
+          acts, and the way there by train.</dd>
+        <dt class="tech">Found by</dt><dd class="tech">California venues of about 2,500 seats and up
+          within a 15 minute walk of a train station (BART, Caltrain, Muni Metro, VTA, Amtrak, SacRT,
+          LA Metro, Metrolink, the San Diego Trolley) or on the venue's own shuttle from one, listed by
+          hand: 13 in the Bay Area, plus Sacramento, Los Angeles and San Diego.</dd>
+      </dl>
+    </details>
+
     </div>
 
     <h2 id="tags">How events are tagged</h2>
@@ -188,6 +205,8 @@
     <p>The first rule that fits decides:</p>
     <ol>
       <li>Marked online: <b>Online</b>.</li>
+      <li>A concert at one of the big venues above, outside the Bay Area: <b>Sacramento</b>,
+        <b>Los Angeles</b> or <b>San Diego</b>. These are the only events listed that far away.</li>
       <li>Has map coordinates: within 1.3 km of the center of campus is <b>Campus</b>; within 4 km,
         or the city is Berkeley, is <b>Berkeley</b>. More than 110 km away is not listed.</li>
       <li>Has a city: Berkeley; Oakland, Emeryville, Albany, Richmond, Alameda, Walnut Creek and 19

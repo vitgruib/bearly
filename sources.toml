@@ -661,6 +661,269 @@ venues = ["yoshi-s-oakland", "the-freight", "thee-stork-club", "quinn-s-lighthou
   "berkeley-repertory-theatre", "oakland-museum-of-california", "all-out-comedy-theater",
   "uss-hornet-museum", "the-crucible", "piedmont-piano-company", "east-brother-beer-company-taproom"]
 
+[big_shows]
+# Concerts at California's big venues (about 2,500 capacity and up) within a ~15 minute walk
+# of a rail station, or on the venue's official shuttle from one; capacity is in each comment.
+# Each [[big_shows.venues]] entry has a type:
+#   livenation (url: the venue's livenation.com/venue/<id>/<slug>-events page; the slug matters)
+#   dothebay (slug) | anotherplanet (url)
+# Venues the venues source also reads (Oakland Arena, Paramount, Fox, Greek) use the same feed
+# here, so the two listings of a show merge into one. lat/lng put a venue outside the Bay Area
+# in its region (enrich.far_region). Checked 2026-11-04; left out and why: README.md.
+list_days = 90  # tours go on sale months ahead, so these list further out than days_ahead
+
+[[big_shows.venues]]
+name = "Chase Center"  # 18,064
+city = "San Francisco"
+transit = "Chase Center/UCSF (Muni T Third), 2 min walk"
+lat = 37.768
+lng = -122.3877
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZ917Ah1H/chase-center-events"
+
+[[big_shows.venues]]
+name = "Bill Graham Civic Auditorium"  # 8,500
+city = "San Francisco"
+transit = "Civic Center BART/Muni, 3 min walk"
+lat = 37.7785
+lng = -122.4177
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpaKope/bill-graham-civic-auditorium-events"
+
+[[big_shows.venues]]
+name = "The Warfield"  # 2,300
+city = "San Francisco"
+transit = "Powell St BART/Muni, 2 min walk"
+lat = 37.7826
+lng = -122.4101
+type = "dothebay"
+slug = "the-warfield"
+
+[[big_shows.venues]]
+name = "Davies Symphony Hall"  # 2,743
+city = "San Francisco"
+transit = "Van Ness Muni Metro, 3 min walk; Civic Center BART, 8 min"
+lat = 37.7777
+lng = -122.4205
+type = "dothebay"
+slug = "davies-symphony-hall"
+
+[[big_shows.venues]]
+name = "Oracle Park"  # 41,915
+city = "San Francisco"
+transit = "4th & King Caltrain or 2nd & King Muni, 3 min walk"
+lat = 37.7786
+lng = -122.3893
+type = "dothebay"
+slug = "oracle-park"
+
+[[big_shows.venues]]
+name = "Oakland Arena"  # 19,596
+city = "Oakland"
+transit = "Coliseum BART, 5 min walk over the bridge"
+lat = 37.7503
+lng = -122.203
+type = "dothebay"
+slug = "oakland-arena"
+
+[[big_shows.venues]]
+name = "Paramount Theatre"  # 3,040
+city = "Oakland"
+transit = "19th St Oakland BART, 1 min walk"
+lat = 37.8098
+lng = -122.2683
+type = "dothebay"
+slug = "paramount-theatre"
+
+[[big_shows.venues]]
+name = "Fox Theater"  # 2,800
+city = "Oakland"
+transit = "19th St Oakland BART, 2 min walk"
+lat = 37.8078
+lng = -122.2702
+type = "anotherplanet"
+url = "https://thefoxoakland.com/"
+
+[[big_shows.venues]]
+name = "Greek Theatre"  # 8,500
+city = "Berkeley"
+transit = "Downtown Berkeley BART, 15–20 min walk uphill"
+lat = 37.8736
+lng = -122.2543
+type = "anotherplanet"
+url = "https://thegreekberkeley.com/event-listing/"
+
+[[big_shows.venues]]
+name = "Toyota Pavilion at Concord"  # 12,500
+city = "Concord"
+transit = "Concord BART, then the free concert shuttle"
+lat = 37.9594
+lng = -121.9406
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZA7kdlA/toyota-pavilion-at-concord-events"
+
+[[big_shows.venues]]
+name = "SAP Center"  # 17,562
+city = "San Jose"
+transit = "San Jose Diridon (Caltrain, Capitol Corridor, ACE, VTA), 5 min walk"
+lat = 37.3327
+lng = -121.9012
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAJelvA/sap-center-at-san-jose-events"
+
+[[big_shows.venues]]
+name = "San Jose Civic"  # 3,000
+city = "San Jose"
+transit = "Convention Center VTA light rail, 3 min walk"
+lat = 37.3305
+lng = -121.8888
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAJk71A/san-jose-civic-events"
+
+[[big_shows.venues]]
+name = "Levi's Stadium"  # 68,500
+city = "Santa Clara"
+transit = "Great America VTA light rail, 5 min walk; Santa Clara–Great America (Capitol Corridor, ACE), 10 min"
+lat = 37.403
+lng = -121.97
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAJaFkA/levi-s-r-stadium-events"
+
+[[big_shows.venues]]
+name = "Golden 1 Center"  # 17,608
+city = "Sacramento"
+transit = "St Rose of Lima Park (SacRT light rail), 2 min walk; Sacramento Valley Station (Amtrak), 10 min"
+lat = 38.5802
+lng = -121.4997
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAEF76A/golden-1-center-events"
+
+[[big_shows.venues]]
+name = "Crypto.com Arena"  # 20,000
+city = "Los Angeles"
+transit = "Pico (Metro A/E Line), 3 min walk"
+lat = 34.043
+lng = -118.2673
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAEdntA/crypto-com-arena-events"
+
+[[big_shows.venues]]
+name = "Hollywood Bowl"  # 17,500
+city = "Los Angeles"
+transit = "Hollywood/Highland (Metro B Line), then the Bowl Shuttle"
+lat = 34.1122
+lng = -118.3391
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAFFvJA/hollywood-bowl-events"
+
+[[big_shows.venues]]
+name = "Dolby Theatre"  # 3,400
+city = "Los Angeles"
+transit = "Hollywood/Highland (Metro B Line), 1 min walk"
+lat = 34.1027
+lng = -118.3404
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAdtaEA/dolby-theatre-events"
+
+[[big_shows.venues]]
+name = "Hollywood Palladium"  # 3,700
+city = "Los Angeles"
+transit = "Hollywood/Vine (Metro B Line), 5 min walk"
+lat = 34.098
+lng = -118.3243
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAEAlaA/hollywood-palladium-events"
+
+[[big_shows.venues]]
+name = "The Wiltern"  # 2,300
+city = "Los Angeles"
+transit = "Wilshire/Western (Metro D Line), 1 min walk"
+lat = 34.0617
+lng = -118.3089
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAEAl6A/the-wiltern-events"
+
+[[big_shows.venues]]
+name = "BMO Stadium"  # 22,000
+city = "Los Angeles"
+transit = "Expo Park/USC (Metro E Line), 5 min walk"
+lat = 34.0128
+lng = -118.2851
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZ917A3c0/bmo-stadium-events"
+
+[[big_shows.venues]]
+name = "Los Angeles Memorial Coliseum"  # 77,500
+city = "Los Angeles"
+transit = "Expo Park/USC (Metro E Line), 5 min walk"
+lat = 34.0141
+lng = -118.2879
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAIF7aA/los-angeles-memorial-coliseum-events"
+
+[[big_shows.venues]]
+name = "Rose Bowl"  # 89,000
+city = "Pasadena"
+transit = "Memorial Park (Metro A Line), then the Rose Bowl shuttle on select event days"
+lat = 34.1613
+lng = -118.1676
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAEA66A/rose-bowl-events"
+
+[[big_shows.venues]]
+name = "Honda Center"  # 18,000
+city = "Anaheim"
+transit = "Anaheim ARTIC (Metrolink, Pacific Surfliner), 10 min walk"
+lat = 33.8078
+lng = -117.8765
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpakTme/honda-center-events"
+
+[[big_shows.venues]]
+name = "Angel Stadium"  # 45,000
+city = "Anaheim"
+transit = "Anaheim ARTIC (Metrolink, Pacific Surfliner), 10 min walk"
+lat = 33.8003
+lng = -117.8827
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZA7dkIA/angel-stadium-of-anaheim-events"
+
+[[big_shows.venues]]
+name = "Petco Park"  # 40,000
+city = "San Diego"
+transit = "Gaslamp Quarter or 12th & Imperial (Trolley), 2 min walk"
+lat = 32.7073
+lng = -117.1566
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpa4cFe/petco-park-events"
+
+[[big_shows.venues]]
+name = "Snapdragon Stadium"  # 35,000
+city = "San Diego"
+transit = "Stadium (Trolley Green Line), 2 min walk"
+lat = 32.7831
+lng = -117.1196
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZ917AIoi/snapdragon-stadium-events"
+
+[[big_shows.venues]]
+name = "Viejas Arena"  # 12,400
+city = "San Diego"
+transit = "SDSU Transit Center (Trolley Green Line), 5 min walk"
+lat = 32.7733
+lng = -117.0726
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZA6AEdA/viejas-arena-at-aztec-bowl-san-diego-state-university-events"
+
+[[big_shows.venues]]
+name = "Cal Coast Credit Union Open Air Theatre"  # 4,600
+city = "San Diego"
+transit = "SDSU Transit Center (Trolley Green Line), 5 min walk"
+lat = 32.7745
+lng = -117.0717
+type = "livenation"
+url = "https://www.livenation.com/venue/KovZpZAJA6IA/cal-coast-credit-union-open-air-theatre-at-sdsu-events"
+
 [instagram]
 # Needs APIFY_TOKEN. The one paid source: Apify bills ~$0.0017 per post read.
 accounts_file = "clubs/instagram.txt"
