@@ -117,3 +117,7 @@ the review database: every build reads it and shows each report publicly on its 
 unverified, on the card, the event's page and the LLM files (`scraper/reports.py`). Delete a row
 to withdraw a report; add an event's id to `moderation.toml` to hide the event. GitHub issues are
 for developers' own bug and feature work.
+
+## Credits
+
+Collaborators: [JoshLee08](https://github.com/JoshLee08) and [vitgruib](https://github.com/vitgruib).
