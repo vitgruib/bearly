@@ -120,6 +120,9 @@ function base(skip, wide) {
   const fresh = !wide && range[0] === today && range[1] === today && (state.when === "today" || q.days);
   const evening = !wide && q.evening;
   const free = state.free || q.free;
+  // Free food is a condition on top of the categories, not one more category to OR in.
+  const food = state.topics.has(FOOD);
+  const cats = [...state.topics].filter((t) => t !== FOOD);
   const now = Date.now();
   return data.events.filter((e) =>
     (e._end || e._start + 2 * 3600e3) > now &&
@@ -132,7 +135,8 @@ function base(skip, wide) {
     (!q.regions.size || q.regions.has(e.region)) &&
     q.topics.every((t) => e.tags?.includes(t)) &&
     (skip === "regions" || !state.regions.size || state.regions.has(e.region)) &&
-    (skip === "topics" || !state.topics.size || e.tags?.some((t) => state.topics.has(t))));
+    (!food || e.tags?.includes(FOOD)) &&
+    (skip === "topics" || !cats.length || cats.some((t) => e.tags?.includes(t))));
 }
 
 /* ---------- Search words ---------- */
@@ -460,7 +464,7 @@ function renderControls() {
 // menu's picks show as pills so a narrowed list always says why; Free food and Campus have quick
 // chips instead.
 function renderMenus() {
-  const picks = { cat: state.topics.size, loc: state.regions.size, src: state.src.size };
+  const picks = { cat: state.topics.size - state.topics.has(FOOD), loc: state.regions.size, src: state.src.size };
   for (const b of document.querySelectorAll("[data-menu]")) {
     b.setAttribute("aria-expanded", !$(`#menu-${b.dataset.menu}`).hidden);
     b.querySelector(".menu-n").textContent = picks[b.dataset.menu] ? ` · ${picks[b.dataset.menu]}` : "";
@@ -494,7 +498,8 @@ function markScrollRows(rows = document.querySelectorAll(".fchips")) {
 // Spells out how the picks combine: any chip within a row, every row that has one.
 function renderShowing() {
   const groups = [
-    [...state.topics],
+    state.topics.has(FOOD) ? [FOOD] : [],
+    [...state.topics].filter((t) => t !== FOOD),
     [...state.regions],
     [...state.src].map(sourceName),
     state.free ? ["Free"] : [],

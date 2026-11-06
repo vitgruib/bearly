@@ -79,6 +79,15 @@ def check_events(page: Page, base: str, size: str, errors: list[str]) -> None:
     page.locator("#clear").click()
     if page.locator("#count").inner_text() != before:
         errors.append(f"index ({size}): Clear filters did not restore the list")
+    # Free food narrows whatever category is picked: a chip's count is what clicking it shows.
+    page.locator("#food").click()
+    page.locator("[data-menu=cat]").click()
+    talks = page.locator("#menu-cat .chip", has_text="Talks")
+    n = int(talks.locator(".n").inner_text())
+    talks.click()
+    if page.locator("#count").inner_text().replace(",", "") != f"{n} event{'' if n == 1 else 's'}":
+        errors.append(f"index ({size}): Free food plus a category did not show only events that are both")
+    page.locator("#clear").click()
     page.locator("[data-menu=loc]").click()
     campus = int(page.locator("#regions .chip", has_text="Campus").locator(".n").inner_text())
     page.locator("#campus").click()
