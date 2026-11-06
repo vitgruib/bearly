@@ -92,15 +92,30 @@ def event_page(e: Event, site_url: str) -> str:
   <meta property="og:url" content="{h(page)}">
   <meta property="og:image" content="{h(image)}">
   <meta name="twitter:card" content="summary_large_image">
-  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="../event.css">
   <script type="application/ld+json">{_json_ld(e, page)}</script>
   <script data-goatcounter="https://lo-cal.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
+  <header class="masthead">
+      <div class="wrap mast">
+        <a class="logo" href="../" aria-label="Lo-Cal home">
+          <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg></span>
+          <span class="logo-word">Lo-<span>Cal</span></span>
+        </a>
+        <nav class="nav" aria-label="Site">
+          <a href="../">Events</a>
+          <a href="../about.html">How it works</a>
+          <a href="../stats.html">Stats</a>
+        </nav>
+        <a class="saved-link" href="../#saved=1" title="Events you saved in this browser">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>Saved
+        </a>
+      </div>
+    </header>
   <main class="wrap event-page">
-    <nav class="nav" aria-label="Site"><a href="../">All events</a><a href="../about.html">How it works</a></nav>
     <h1>{h(e.title)}</h1>
     {chr(10).join(facts)}
     <p class="desc-full">{h(e.description)}</p>

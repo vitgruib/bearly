@@ -48,55 +48,95 @@ def no_sideways_scroll(page: Page, where: str, errors: list[str]) -> None:
         errors.append(f"{where}: page scrolls sideways")
 
 
+def count(page: Page) -> str:
+    return page.locator("#count").inner_text().replace(",", "")
+
+
+def events(n: int) -> str:
+    return f"{n} event{'' if n == 1 else 's'}"
+
+
+def show_filters(page: Page) -> None:
+    """On a phone the filters are a drawer behind the Filters button."""
+    if page.locator("#open-filters").is_visible() and not page.locator("#sidebar.open").count():
+        page.locator("#open-filters").click()
+        page.wait_for_selector("#sidebar.open #when", state="visible")
+
+
+def pick(page: Page, menu: str, label: str):
+    """Open a sidebar dropdown and return the row with this label."""
+    show_filters(page)
+    if not page.locator(f"#{menu}[open]").count():
+        page.locator(f"#{menu} > summary").click()
+    return page.locator(f"#{menu} .check", has_text=label)
+
+
+def reset(page: Page) -> None:
+    """Reset clears every filter, When included; the checks run on All."""
+    page.locator("#reset").click()
+    page.locator("#when button", has_text="All").click()
+
+
 def check_events(page: Page, base: str, size: str, errors: list[str]) -> None:
+    where = f"index ({size})"
     open_page(page, f"{base}/#when=all", errors)
-    # The first cards in the list may sit in a day's folded "All day & ongoing" line.
     page.wait_for_selector(".card >> visible=true", timeout=10_000)
-    if not page.locator("#when button").count():
-        errors.append(f"index ({size}): no When filters")
-    # Category, Location and Source are menus: shut on load, one open at a time.
-    for menu, chips in (("cat", "#topics-0 .chip"), ("loc", "#regions .chip"), ("src", "#sources .chip")):
-        if page.locator(f"#menu-{menu}").is_visible():
-            errors.append(f"index ({size}): the {menu} menu starts open")
-        page.locator(f"[data-menu={menu}]").click()
-        if not page.locator(chips).first.is_visible():
-            errors.append(f"index ({size}): opening the {menu} menu shows no filters")
-        if page.locator(".more:not([hidden])").count() != 1:
-            errors.append(f"index ({size}): more than one filter menu is open")
-    page.locator("[data-menu=src]").click()
-    if page.locator(".more:not([hidden])").count():
-        errors.append(f"index ({size}): clicking an open menu's button did not close it")
-    page.locator("[data-menu=cat]").click()
+    labels = page.locator("#when button").all_inner_texts()
+    if [x.strip() for x in labels[:5]] != ["Today", "Tomorrow", "This weekend", "This week", "All"]:
+        errors.append(f"{where}: When choices are {labels}")
+    if page.locator("#sources").count():
+        errors.append(f"{where}: the source filter is back")
     if not page.locator(".card .flag:not([hidden])").count():
-        errors.append(f"index ({size}): events have no Report link")
-    before = page.locator("#count").inner_text()
-    page.locator("#topics-0 .chip").first.click()
-    if page.locator("#count").inner_text() == before:
-        errors.append(f"index ({size}): clicking a topic did not change the list")
-    page.locator("[data-menu=cat]").click()
-    if not page.locator("#pills .qchip").count():
-        errors.append(f"index ({size}): a pick in a closed menu shows no pill")
-    page.locator("#clear").click()
-    if page.locator("#count").inner_text() != before:
-        errors.append(f"index ({size}): Clear filters did not restore the list")
-    # Free food narrows whatever category is picked: a chip's count is what clicking it shows.
-    page.locator("#food").click()
-    page.locator("[data-menu=cat]").click()
-    talks = page.locator("#menu-cat .chip", has_text="Talks")
+        errors.append(f"{where}: events have no Report link")
+    before = count(page)
+
+    talks = pick(page, "dd-type", "Talks")
     n = int(talks.locator(".n").inner_text())
-    talks.click()
-    if page.locator("#count").inner_text().replace(",", "") != f"{n} event{'' if n == 1 else 's'}":
-        errors.append(f"index ({size}): Free food plus a category did not show only events that are both")
-    page.locator("#clear").click()
-    page.locator("[data-menu=loc]").click()
-    campus = int(page.locator("#regions .chip", has_text="Campus").locator(".n").inner_text())
-    page.locator("#campus").click()
-    if page.locator("#count").inner_text().replace(",", "") != f"{campus} event{'' if campus == 1 else 's'}":
-        errors.append(f"index ({size}): the On campus chip did not filter to Campus events")
-    page.locator("#campus").click()
-    if page.locator("#count").inner_text() != before:
-        errors.append(f"index ({size}): turning On campus off did not restore the list")
-    no_sideways_scroll(page, f"index ({size})", errors)
+    talks.locator("input").check()
+    if count(page) != events(n):
+        errors.append(f"{where}: picking an event type shows {count(page)}, its menu said {n}")
+    if not page.locator("#pills .qchip", has_text="Talks").count():
+        errors.append(f"{where}: a picked event type shows no pill")
+    reset(page)
+    if count(page) != before:
+        errors.append(f"{where}: Reset did not restore the list")
+
+    # Free food narrows whatever type is picked: a row's count is what checking it shows.
+    page.locator("#food").check()
+    talks = pick(page, "dd-type", "Talks")
+    n = int(talks.locator(".n").inner_text())
+    talks.locator("input").check()
+    if count(page) != events(n):
+        errors.append(f"{where}: Free food plus an event type did not show only events that are both")
+    reset(page)
+
+    page.locator("#campus").check()
+    if count(page) in (before, events(0)) or page.locator("#loc-label").inner_text() != "On campus":
+        errors.append(f"{where}: On campus only did not narrow to campus events")
+    page.locator("#campus").uncheck()
+    if count(page) != before:
+        errors.append(f"{where}: turning On campus off did not restore the list")
+    if page.locator("#side-close").is_visible():
+        page.locator("#side-close").click()
+
+    # Saving puts the event in the Saved view and in the bundled calendar file.
+    page.locator(".card .save >> visible=true").first.click()
+    if page.locator("#saved-n").inner_text() != "1":
+        errors.append(f"{where}: saving an event did not count it in the header")
+    page.locator("#mycal").click()
+    if not page.locator("#cal-dlg[open]").count() or not page.locator("#saved-sum").inner_text().startswith("1 event"):
+        errors.append(f"{where}: My calendar does not offer the saved event")
+    page.keyboard.press("Escape")
+    page.locator("#saved-link").click()
+    page.wait_for_function("document.querySelector('#count').textContent === '1 event'", timeout=5_000)
+
+    page.goto(f"{base}/#when=all", wait_until="networkidle")
+    show_filters(page)
+    page.locator("#when .custom").click()
+    if not page.locator("#dates-dlg[open] #cal-grid button").count():
+        errors.append(f"{where}: Custom dates does not open a calendar")
+    page.keyboard.press("Escape")
+    no_sideways_scroll(page, where, errors)
 
 
 def check_about(page: Page, base: str, size: str, errors: list[str]) -> None:

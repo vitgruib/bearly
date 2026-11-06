@@ -1,4 +1,6 @@
-"""Subscribable calendar feeds: everything, plus one per topic, rebuilt every run.
+"""Subscribable calendar feeds, rebuilt every run: everything, one per topic, and one per
+combination of the site's filters (event type, location, cost), so a calendar built from
+filters keeps updating without a server.
 
 Calendar apps poll a subscribed URL on their own schedule (Apple: as often as every few
 minutes; Google: every several hours), so these follow the site within a few hours."""
@@ -67,9 +69,25 @@ def calendar(name: str, events: list[Event], now: datetime) -> str:
     return "\r\n".join(part for line in lines for part in _fold(line)) + "\r\n"
 
 
-def write_feeds(events: list[Event], topics: list[str], out: Path, now: datetime) -> None:
+FOOD = "Free food"
+COSTS = {"any": lambda e: True, "free": lambda e: e.free is True, "food": lambda e: FOOD in e.tags,
+         "free-food": lambda e: e.free is True and FOOD in e.tags}
+
+
+def write_feeds(events: list[Event], topics: list[str], out: Path, now: datetime,
+                regions: list[str] = ()) -> None:
     out.mkdir(parents=True, exist_ok=True)
     (out / "all.ics").write_text(calendar("Lo-Cal: all Berkeley events", events, now))
     for t in topics:
         chosen = [e for e in events if t in e.tags]
         (out / f"{slug(t)}.ics").write_text(calendar(f"Lo-Cal: {t}", chosen, now))
+    # f/<type>.<location>.<cost>.ics, "all" for any type or location. Free food is a cost.
+    (out / "f").mkdir(exist_ok=True)
+    for t in [None, *(t for t in topics if t != FOOD)]:
+        for r in [None, *regions]:
+            for cost, ok in COSTS.items():
+                chosen = [e for e in events if (not t or t in e.tags) and (not r or e.region == r) and ok(e)]
+                name = " · ".join(x for x in [t, r, {"any": "", "free": "Free", "food": "Free food",
+                                                    "free-food": "Free, with food"}[cost]] if x)
+                (out / "f" / f"{slug(t) if t else 'all'}.{slug(r) if r else 'all'}.{cost}.ics").write_text(
+                    calendar(f"Lo-Cal: {name or 'all Berkeley events'}", chosen, now))

@@ -51,6 +51,15 @@ def test_past_far_future_and_month_long_events_are_dropped():
     assert [e.title for e in events] == ["Happening now"]
 
 
+def test_events_that_ended_earlier_today_stay_for_the_earlier_today_section():
+    # NOW is 11 AM Pacific: a breakfast that ended at 10 is still today's.
+    events = build([ev("Breakfast talk", start=NOW - timedelta(hours=3), end=NOW - timedelta(hours=1)),
+                    ev("Last night's party", start=NOW - timedelta(hours=16), end=NOW - timedelta(hours=13))],
+                   30, NOW)
+
+    assert [e.title for e in events] == ["Breakfast talk"]
+
+
 def test_merged_event_keeps_a_link_to_every_listing():
     luma = ev("Hike to the Big C", url="https://luma.com/bigc", image="img.png")
     club = ev("Hike to the Big C", url="https://calhiking.test/bigc", source="feeds",

@@ -4,59 +4,83 @@ const TZ = "America/Los_Angeles";
 const PAGE = 60;
 const WHEN = [
   ["today", "Today"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"],
-  ["week", "Next 7 days"], ["all", "Everything"], ["custom", "Custom"],
+  ["week", "This week"], ["all", "All"], ["custom", "Custom dates"],
 ];
+const DEFAULT_WHEN = "today";
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const TOPIC_EMOJI = {
   "AI & Tech": "🤖", "Startups": "🚀", "Hackathons": "🛠️", "Career": "💼", "Talks": "🎤",
   "Social": "🎉", "Arts & Music": "🎨", "Sports & Wellness": "🏃", "Community": "🤝",
   "Free food": "🍕",
 };
-// One filter row per group; a topic missing from both lands in the second row.
-const TOPIC_GROUPS = [
-  ["AI & Tech", "Startups", "Hackathons", "Career", "Talks"],
-  ["Social", "Arts & Music", "Sports & Wellness", "Community"],
-];
-// Its own chip beside "Free only", not in the event type rows.
+// A cost filter beside "Free admission", not an event type: it narrows whatever types are picked.
 const FOOD = "Free food";
-// A Location filter with its own quick chip, so the most asked-for place is one tap away.
+// "On campus only" picks this location on its own; the Where menu lists the rest.
 const CAMPUS = "Campus";
+const STATUS = { now: "Happening now", soon: "Still to come", done: "Already finished" };
+const SAVED_KEY = "lo-cal-saved";
+const PREFS_KEY = "lo-cal-prefs";
+const SORT_KEY = "lo-cal-sort";
 
 const $ = (s) => document.querySelector(s);
 const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
 const weekdayOf = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "short" });
 const fmtTime = new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
+const fmtLong = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long", month: "long", day: "numeric" });
 const fmtDay = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long" });
 const fmtDate = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
+const fmtYear = new Intl.DateTimeFormat("en-US", { timeZone: TZ, year: "numeric" });
+const fmtMonth = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "long", year: "numeric" });
 const hourOf = new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", hourCycle: "h23" });
 
 let data = { events: [], sources: [], topics: [], regions: [] };
-let state = { q: "", when: "week", from: "", to: "", topics: new Set(), regions: new Set(), free: false, src: new Set(), event: "" };
+let state = { q: "", when: DEFAULT_WHEN, from: "", to: "", topics: new Set(), regions: new Set(), free: false, status: "", saved: false, event: "" };
 let filtered = [];
+let items = [];
 let rendered = 0;
-let lastDay = null;
-let fold = null;
+
+/* ---------- Kept in this browser: saves, preferences, sort ---------- */
+
+// Storage can be missing or throw (private windows, blocked site data); the page works without it.
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+function store(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* not kept, still works this visit */ }
+}
+const saved = new Set(load(SAVED_KEY, []));
+const prefs = new Set(load(PREFS_KEY, []));
+let sort = load(SORT_KEY, "time");
+
+function toggleSave(id) {
+  saved.has(id) ? saved.delete(id) : saved.add(id);
+  store(SAVED_KEY, [...saved]);
+  renderSavedCount();
+}
 
 /* ---------- URL state ---------- */
 
 function readHash() {
   const p = new URLSearchParams(location.hash.slice(1));
   state.q = p.get("q") || "";
-  state.when = WHEN.some(([k]) => k === p.get("when")) ? p.get("when") : "week";
+  // Links from before the redesign: "Everything" is now All, "Next 7 days" is This week.
+  state.when = WHEN.some(([k]) => k === p.get("when")) ? p.get("when") : DEFAULT_WHEN;
   state.from = DAY.test(p.get("from")) ? p.get("from") : "";
   state.to = DAY.test(p.get("to")) ? p.get("to") : "";
   state.topics = new Set((p.get("t") || "").split(",").filter(Boolean));
   state.regions = new Set((p.get("r") || "").split(",").filter(Boolean));
   state.free = p.get("free") === "1";
-  state.src = new Set((p.get("src") || "").split(",").filter(Boolean));
+  state.status = STATUS[p.get("status")] ? p.get("status") : "";
+  state.saved = p.get("saved") === "1";
   state.event = p.get("event") || "";
 }
 
 function writeHash() {
   const p = new URLSearchParams();
   if (state.event) p.set("event", state.event);
+  if (state.saved) p.set("saved", "1");
   if (state.q) p.set("q", state.q);
-  if (state.when !== "week") p.set("when", state.when);
+  if (state.when !== DEFAULT_WHEN) p.set("when", state.when);
   if (state.when === "custom") {
     if (state.from) p.set("from", state.from);
     if (state.to) p.set("to", state.to);
@@ -64,7 +88,7 @@ function writeHash() {
   if (state.topics.size) p.set("t", [...state.topics].join(","));
   if (state.regions.size) p.set("r", [...state.regions].join(","));
   if (state.free) p.set("free", "1");
-  if (state.src.size) p.set("src", [...state.src].join(","));
+  if (state.status) p.set("status", state.status);
   const h = p.toString();
   history.replaceState(null, "", h ? `#${h}` : location.pathname + location.search);
 }
@@ -76,6 +100,8 @@ function addDays(key, n) {
   const dt = new Date(Date.UTC(y, m - 1, d + n, 12));
   return dt.toISOString().slice(0, 10);
 }
+
+const daysBetween = (a, b) => Math.round((Date.parse(`${b}T12:00:00Z`) - Date.parse(`${a}T12:00:00Z`)) / 864e5);
 
 function whenRange(when) {
   const today = dayKey.format(new Date());
@@ -107,28 +133,34 @@ function termMatches(e, t) {
   return t.alts.some((a) => e._norm.includes(` ${a}`)) || t.tags.some((g) => e.tags?.includes(g));
 }
 
+const endOf = (e) => e._end || e._start + 2 * 3600e3;
+function statusOf(e, now = Date.now()) {
+  if (endOf(e) <= now) return "done";
+  return e._start <= now ? "now" : "soon";
+}
+
 function base(skip, wide) {
   // A shared link shows just that event, whatever filters the viewer had.
   if (state.event) return data.events.filter((e) => e.id === state.event);
   const q = parseQuery();
-  const today = dayKey.format(new Date());
-  // Typed dates narrow the When row rather than replace it; "wide" is every upcoming date.
+  // Saved shows every saved event still on the calendar; other filters don't hide a plan.
+  if (state.saved) return data.events.filter((e) => saved.has(e.id) && statusOf(e) !== "done");
+  // Typed dates narrow the When choice rather than replace it; "wide" is every upcoming date.
   let range = wide ? ["0000", "9999"] : whenRange(state.when);
   if (q.days && !wide) range = [q.days[0] > range[0] ? q.days[0] : range[0], q.days[1] < range[1] ? q.days[1] : range[1]];
   if (range[0] > range[1]) return [];
-  // Today means what you can still go to; all-day events count as not started.
-  const fresh = !wide && range[0] === today && range[1] === today && (state.when === "today" || q.days);
   const evening = !wide && q.evening;
   const free = state.free || q.free;
-  // Free food is a condition on top of the categories, not one more category to OR in.
+  // Free food is a condition on top of the event types, not one more type to OR in.
   const food = state.topics.has(FOOD);
   const cats = [...state.topics].filter((t) => t !== FOOD);
   const now = Date.now();
+  const today = dayKey.format(new Date(now));
   return data.events.filter((e) =>
-    (e._end || e._start + 2 * 3600e3) > now &&
-    (skip === "src" || !state.src.size || state.src.has(e.source) || e.also_on?.some((s) => state.src.has(s))) &&
+    // Ended events only count on their own day, folded into "Earlier today".
+    (statusOf(e, now) !== "done" || (e._endDay || e._day) === today) &&
     matchesWhen(e, range) &&
-    (!fresh || e._start > now || (e.all_day && e._day === today)) &&
+    (skip === "status" || !state.status || statusOf(e, now) === state.status) &&
     (!evening || (!e.all_day && e._hour >= EVENING && e._day >= range[0])) &&
     q.terms.every((t) => termMatches(e, t)) &&
     (!free || e.free === true) &&
@@ -395,132 +427,100 @@ function renderQueryChips() {
   el.hidden = state.event || !(chips.length || fixes.length);
 }
 
-/* ---------- Controls ---------- */
+/* ---------- Sidebar filters ---------- */
 
-function chip(label, pressed, count, onClick, title) {
-  const b = document.createElement("button");
-  b.className = "chip";
-  b.type = "button";
-  b.setAttribute("aria-pressed", pressed);
-  b.innerHTML = `${label}<span class="n">${count}</span>`;
-  b.classList.toggle("zero", !count);
-  if (title) b.title = title;
-  b.onclick = onClick;
-  return b;
+const typesOf = () => data.topics.filter((t) => t !== FOOD);
+const otherRegions = () => data.regions.filter((r) => r !== CAMPUS);
+const plural = (n, word) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
+
+function checkRow(label, checked, count, onChange) {
+  const row = document.createElement("label");
+  row.className = "check";
+  row.classList.toggle("zero", !count && !checked);
+  const box = Object.assign(document.createElement("input"), { type: "checkbox", checked });
+  box.onchange = onChange;
+  row.append(box, ` ${label}`, Object.assign(document.createElement("span"), { className: "n", textContent: count }));
+  return row;
 }
 
 function renderControls() {
-  const when = $("#when");
-  when.replaceChildren(...WHEN.map(([k, label]) => {
+  $("#when").replaceChildren(...WHEN.map(([k, label]) => {
     const b = document.createElement("button");
     b.type = "button";
     b.setAttribute("role", "radio");
-    b.setAttribute("aria-checked", state.when === k);
-    b.textContent = label;
-    b.onclick = () => { state.when = k; update(); };
+    b.setAttribute("aria-checked", !state.saved && state.when === k);
+    if (k === "custom") {
+      b.className = "custom";
+      b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg>`;
+      b.append(label);
+      if (state.when === "custom" && state.from) b.append(Object.assign(document.createElement("small"), { textContent: rangeLabel(...whenRange("custom")) }));
+      b.onclick = openDates;
+    } else {
+      b.append(label);
+      b.onclick = () => { state.when = k; state.saved = false; update(); };
+    }
     return b;
   }));
-  $("#range").hidden = state.when !== "custom";
-  $("#from").value = state.from || dayKey.format(new Date());
-  $("#to").value = state.to;
-
-  const forTopics = base("topics");
-  const grouped = TOPIC_GROUPS.flat();
-  const rows = [TOPIC_GROUPS[0],
-    [...TOPIC_GROUPS[1], ...data.topics.filter((t) => !grouped.includes(t) && t !== FOOD)]];
-  rows.forEach((row, i) => {
-    $(`#topics-${i}`).replaceChildren(...row.filter((t) => data.topics.includes(t)).map((t) => {
-      const n = forTopics.filter((e) => e.tags?.includes(t)).length;
-      return chip(`${TOPIC_EMOJI[t] || ""} ${t}`, state.topics.has(t), n, () => toggle(state.topics, t));
-    }));
-  });
 
   const forRegions = base("regions");
-  $("#regions").replaceChildren(...data.regions.map((r) => {
-    const n = forRegions.filter((e) => e.region === r).length;
-    const title = r === CAMPUS ? "On or right next to campus" : "";
-    return chip(r === CAMPUS ? "📍 Campus" : r, state.regions.has(r), n, () => toggle(state.regions, r), title);
-  }));
+  $("#regions").replaceChildren(...otherRegions().map((r) => checkRow(r, state.regions.has(r),
+    forRegions.filter((e) => e.region === r).length, () => {
+      state.regions.delete(CAMPUS);
+      toggle(state.regions, r);
+    })));
+  const regionPicks = [...state.regions].filter((r) => r !== CAMPUS);
+  $("#loc-label").textContent = state.regions.has(CAMPUS) ? "On campus"
+    : regionPicks.length === 1 ? regionPicks[0] : regionPicks.length ? `${regionPicks.length} locations` : "All Berkeley locations";
+  $("#dd-loc").classList.toggle("on", state.regions.size > 0);
+  $("#campus").checked = state.regions.has(CAMPUS);
 
-  const forSources = base("src");
-  // Sources with no events at all (not connected yet) are left out; the rest always show.
-  $("#sources").replaceChildren(...data.sources.filter((s) => s.count).map((s) => {
-    const n = forSources.filter((e) => e.source === s.id || e.also_on?.includes(s.id)).length;
-    return chip(s.name, state.src.has(s.id), n, () => toggle(state.src, s.id));
-  }));
+  const forTypes = base("topics");
+  $("#types").replaceChildren(...typesOf().map((t) => checkRow(`${TOPIC_EMOJI[t] || ""} ${t}`.trim(), state.topics.has(t),
+    forTypes.filter((e) => e.tags?.includes(t)).length, () => toggle(state.topics, t))));
+  const typePicks = [...state.topics].filter((t) => t !== FOOD);
+  $("#type-label").textContent = typePicks.length === 1 ? typePicks[0] : typePicks.length ? `${typePicks.length} event types` : "All event types";
+  $("#dd-type").classList.toggle("on", typePicks.length > 0);
 
-  $("#free").setAttribute("aria-pressed", state.free);
-  $("#food").setAttribute("aria-pressed", state.topics.has(FOOD));
-  $("#campus").setAttribute("aria-pressed", state.regions.has(CAMPUS));
-  $("#clear").hidden = !(state.topics.size || state.regions.size || state.src.size || state.free);
-  renderMenus();
-  renderShowing();
+  $("#free").checked = state.free;
+  $("#food").checked = state.topics.has(FOOD);
+  $("#event-status").value = state.status;
+  $("#event-status").parentElement.classList.toggle("on", !!state.status);
+  const n = activeFilters().length;
+  $("#filters-n").textContent = n;
+  $("#filters-n").hidden = !n;
+  renderPills();
   renderQueryChips();
-  showPickedWhen();
-  markScrollRows();
 }
 
-// Category, Location and Source are menus that only the user opens, one at a time. A closed
-// menu's picks show as pills so a narrowed list always says why; Free food and Campus have quick
-// chips instead.
-function renderMenus() {
-  const picks = { cat: state.topics.size - state.topics.has(FOOD), loc: state.regions.size, src: state.src.size };
-  for (const b of document.querySelectorAll("[data-menu]")) {
-    b.setAttribute("aria-expanded", !$(`#menu-${b.dataset.menu}`).hidden);
-    b.querySelector(".menu-n").textContent = picks[b.dataset.menu] ? ` · ${picks[b.dataset.menu]}` : "";
+// Every filter in use, each with a way to drop it: the pills above the list and the Reset count.
+function activeFilters() {
+  const out = [];
+  if (state.regions.has(CAMPUS)) out.push(["📍 On campus", () => toggle(state.regions, CAMPUS)]);
+  for (const r of state.regions) if (r !== CAMPUS) out.push([`📍 ${r}`, () => toggle(state.regions, r)]);
+  for (const t of state.topics) if (t !== FOOD) out.push([`${TOPIC_EMOJI[t] || ""} ${t}`.trim(), () => toggle(state.topics, t)]);
+  if (state.free) out.push(["Free admission", () => { state.free = false; update(); }]);
+  if (state.topics.has(FOOD)) out.push(["🍴 Free food", () => toggle(state.topics, FOOD)]);
+  if (state.status) out.push([STATUS[state.status], () => { state.status = ""; update(); }]);
+  return out;
+}
+
+function renderPills() {
+  const when = WHEN.find(([k]) => k === state.when)[1];
+  const pills = [];
+  if (!state.saved && !state.event) {
+    const label = state.when === "custom" ? rangeLabel(...whenRange("custom")) : when;
+    pills.push(state.when === DEFAULT_WHEN
+      ? Object.assign(document.createElement("span"), { className: "qchip", textContent: label })
+      : removable(label, "Back to today", () => { state.when = DEFAULT_WHEN; update(); }));
   }
-  const shut = (k) => $(`#menu-${k}`).hidden;
-  const remove = "Remove this filter";
-  $("#pills").replaceChildren(
-    ...(shut("cat") ? [...state.topics].filter((t) => t !== FOOD)
-      .map((t) => removable(`${TOPIC_EMOJI[t] || ""} ${t}`.trim(), remove, () => toggle(state.topics, t))) : []),
-    ...(shut("loc") ? [...state.regions].filter((r) => r !== CAMPUS)
-      .map((r) => removable(`📍 ${r}`, remove, () => toggle(state.regions, r))) : []),
-    ...(shut("src") ? [...state.src].map((x) => removable(sourceName(x), remove, () => toggle(state.src, x))) : []),
-  );
-}
-
-// On a phone the When row scrolls sideways; bring the picked option clear of the edge fade
-// without scrollIntoView, which would also scroll the page.
-function showPickedWhen() {
-  const row = $("#when").parentElement;
-  const a = $("#when [aria-checked=\"true\"]").getBoundingClientRect();
-  const r = row.getBoundingClientRect();
-  if (a.right > r.right - 36) row.scrollLeft += a.right - r.right + 36;
-  else if (a.left < r.left) row.scrollLeft -= r.left - a.left;
-}
-
-// A chip row cut off at the right edge fades there, so it reads as scrollable.
-function markScrollRows(rows = document.querySelectorAll(".fchips")) {
-  for (const row of rows) row.classList.toggle("more-right", row.scrollLeft + row.clientWidth < row.scrollWidth - 1);
-}
-
-// Spells out how the picks combine: any chip within a row, every row that has one.
-function renderShowing() {
-  const groups = [
-    state.topics.has(FOOD) ? [FOOD] : [],
-    [...state.topics].filter((t) => t !== FOOD),
-    [...state.regions],
-    [...state.src].map(sourceName),
-    state.free ? ["Free"] : [],
-  ].filter((g) => g.length);
-  const el = $("#showing");
-  if (!groups.length) {
-    el.replaceChildren();
-    return;
-  }
-  const word = (w) => Object.assign(document.createElement("b"), { textContent: ` ${w} ` });
-  el.replaceChildren("Showing ");
-  groups.forEach((g, i) => {
-    if (i) el.append(word("and"));
-    const span = document.createElement("span");
-    span.className = "pick-group";
-    g.forEach((label, j) => {
-      if (j) span.append(word("or"));
-      span.append(label);
-    });
-    el.append(span);
-  });
+  pills.push(...activeFilters().map(([label, drop]) => removable(label, "Remove this filter", drop)));
+  $("#pills").replaceChildren(...pills);
+  const regions = [...state.regions];
+  const types = [...state.topics].filter((t) => t !== FOOD);
+  $("#scope").textContent = [
+    regions.length ? "" : "All Berkeley",
+    types.length ? "" : "All categories",
+  ].filter(Boolean).join(" · ");
 }
 
 function toggle(set, v) {
@@ -528,207 +528,154 @@ function toggle(set, v) {
   update();
 }
 
+/* ---------- View header ---------- */
+
+const keyDate = (key) => new Date(`${key}T12:00:00Z`);
+function rangeLabel(from, to) {
+  if (to === "9999") return `From ${fmtDate.format(keyDate(from))}`;
+  if (from === to) return fmtDate.format(keyDate(from));
+  return `${fmtDate.format(keyDate(from))} – ${fmtDate.format(keyDate(to))}`;
+}
+
+function renderHead() {
+  const today = dayKey.format(new Date());
+  const [from, to] = whenRange(state.when);
+  let title, date = "";
+  if (state.event) title = "Shared event";
+  else if (state.saved) [title, date] = ["Saved", "Events you saved in this browser"];
+  else if (state.when === "all") [title, date] = ["All upcoming", ""];
+  else if (from === to) {
+    title = from === today ? "Today" : from === addDays(today, 1) ? "Tomorrow" : fmtDay.format(keyDate(from));
+    date = fmtLong.format(keyDate(from));
+  } else {
+    title = WHEN.find(([k]) => k === state.when)[1];
+    date = rangeLabel(from, to);
+  }
+  $("#view-title").textContent = title;
+  $("#view-date").textContent = date;
+  $("#count").textContent = plural(filtered.length, "event");
+  // Arrows step by the length of what's shown: a day at a time, a week at a time.
+  const stepping = !state.event && !state.saved && state.when !== "all" && to !== "9999";
+  $("#prev").hidden = $("#next").hidden = !stepping;
+  $("#prev").disabled = from <= today;
+}
+
+function step(dir) {
+  const [from, to] = whenRange(state.when);
+  const len = daysBetween(from, to) + 1;
+  // A weekend steps to the next weekend, not to the days right after it.
+  const by = len >= 2 && len <= 3 && keyDate(to).getUTCDay() === 0 ? 7 : len;
+  const today = dayKey.format(new Date());
+  let a = addDays(from, dir * by), b = addDays(to, dir * by);
+  if (a < today) [a, b] = [today, addDays(today, len - 1)];
+  const named = ["today", "tomorrow", "weekend", "week"].find((k) => {
+    const [x, y] = whenRange(k);
+    return x === a && y === b;
+  });
+  if (named) state.when = named;
+  else Object.assign(state, { when: "custom", from: a, to: b });
+  update();
+}
+
+function tick() {
+  $("#clock").textContent = `${fmtTime.format(new Date())} · Pacific`;
+}
+
 /* ---------- List ---------- */
 
 const sourceName = (id) => data.sources.find((s) => s.id === id)?.name || id;
-
-function dayLabel(key) {
-  const today = dayKey.format(new Date());
-  const d = new Date(`${key}T12:00:00Z`);
-  if (key === today) return ["Today", fmtDate.format(d)];
-  if (key === addDays(today, 1)) return ["Tomorrow", fmtDate.format(d)];
-  return [fmtDay.format(d), fmtDate.format(d)];
-}
-
-function card(e) {
-  const node = $("#card").content.firstElementChild.cloneNode(true);
-  const started = e._start < Date.now();
-  const clock = (ms) => fmtTime.format(new Date(ms)).replace(":00", "");
-  // A midnight-to-midnight listing would read "12 AM – 12 AM".
-  const endClock = e.end && clock(e._end) !== clock(e._start) ? clock(e._end) : "";
-  node.querySelector(".time").innerHTML = e.all_day
-    ? "All day"
-    : started && e._day < dayKey.format(new Date())
-      ? `Ongoing<small>until ${e.end ? fmtDate.format(new Date(e._end)) : ""}</small>`
-      : `${clock(e._start)}${endClock ? `<small>– ${endClock}</small>` : ""}`;
-  const a = node.querySelector(".title");
-  a.textContent = e.title;
-  if (e.url) a.href = e.url;
-  const whereEl = node.querySelector(".where");
-  const place = e.online ? "" : e.venue || e.address || e.city || "";
-  if (place) {
-    const map = document.createElement("a");
-    map.className = "map";
-    map.textContent = place;
-    map.title = "Open in Google Maps";
-    const query = e.lat != null ? `${e.lat},${e.lng}` : [e.venue, e.address || e.city].filter(Boolean).join(", ");
-    Object.assign(map, { href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, target: "_blank", rel: "noopener" });
-    whereEl.append(map);
-  }
-  const rest = [e.online ? "Online" : "", e.host].filter(Boolean).join(" · ");
-  if (rest) whereEl.append(`${place ? " · " : ""}${rest}`);
-  // A concert at a big venue a train gets you to: a poster card that leads with the way there.
-  if (e.big_show) {
-    node.classList.add("big");
-    const kicker = Object.assign(document.createElement("span"), { className: "kicker", textContent: `🎤 Big show${e.city ? ` · ${e.city}` : ""}` });
-    a.before(kicker);
-    if (e.transit) whereEl.after(Object.assign(document.createElement("p"), { className: "transit", textContent: `🚆 ${e.transit}` }));
-  }
-  if (e.access?.length) {
-    const access = node.querySelector(".access");
-    access.textContent = `Getting in: ${e.access.join(" · ")}`;
-    access.hidden = false;
-  }
-  if (e.reports?.length) {
-    const reported = node.querySelector(".reported");
-    reported.textContent = "⚠ Reported by visitors (unverified): " + e.reports
-      .map((r) => (r.details ? `${r.kind}: ${r.details}` : r.kind)).join(" · ");
-    reported.hidden = false;
-  }
-  node.querySelector(".desc").textContent = e.description || "";
-  const badges = node.querySelector(".badges");
-  const add = (text, cls = "") => {
-    const s = document.createElement("span");
-    s.className = `badge ${cls}`;
-    s.textContent = text;
-    badges.append(s);
-  };
-  if (e.tags?.includes("Free food")) add("🍕 Free food", "food");
-  if (e.free === true) add("Free", "free");
-  if (e.repeats) add(`Repeats · ${e.repeats} dates`);
-  const topics = e.tags?.filter((t) => t !== "Free food").slice(0, 2) || [];
-  topics.forEach((t) => add(t));
-  // One badge per place the event is listed, each linking there; sources seen without a
-  // link of their own (an email, a Slack post) get a plain badge. A badge that only repeats
-  // the host or a topic shown just above is dropped, unless it leads somewhere the title doesn't.
-  const listings = e.listings?.length ? e.listings
-    : [{ source: e.source, url: e.url, name: e.source === "feeds" ? e.host : null }];
-  const linked = new Set(listings.map((l) => l.source));
-  const named = new Set();
-  const repeats = (label) => label === e.host || topics.includes(label);
-  for (const l of listings) {
-    const label = l.name || sourceName(l.source);
-    if (named.has(label) || (repeats(label) && (!l.url || l.url === e.url))) continue;
-    named.add(label);
-    const a = document.createElement("a");
-    a.className = "badge src";
-    a.textContent = label;
-    a.title = `See it on ${a.textContent}`;
-    if (l.url) Object.assign(a, { href: l.url, target: "_blank", rel: "noopener" });
-    badges.append(a);
-  }
-  (e.also_on || []).filter((s) => !linked.has(s) && !repeats(sourceName(s))).forEach((s) => add(sourceName(s), "src"));
-  const img = node.querySelector(".thumb");
-  if (e.image) img.src = e.image; else img.remove();
-  img.onerror = () => img.remove();
-  const end = e._end || e._start + 2 * 3600e3;
-  const calPlace = e.address || e.venue || "";
-  const details = `${e.description || ""}\n\n${e.url || ""}`.trim().slice(0, 1500);
-  node.querySelector(".gcal").href = `https://calendar.google.com/calendar/render?${new URLSearchParams({
-    action: "TEMPLATE", text: e.title, dates: `${icsDate(e._start)}/${icsDate(end)}`, details, location: calPlace })}`;
-  node.querySelector(".ocal").href = `https://outlook.live.com/calendar/0/action/compose?${new URLSearchParams({
-    subject: e.title, startdt: new Date(e._start).toISOString(), enddt: new Date(end).toISOString(),
-    body: details, location: calPlace })}`;
-  node.querySelector(".ics").onclick = () => downloadIcs(e);
-  const share = node.querySelector(".share");
-  share.onclick = async () => {
-    // The event's own page, not #event=: chat apps read that page for the preview card.
-    const url = new URL(`e/${e.id}.html`, location.href).href;
-    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
-      try { await navigator.share({ title: e.title, url }); } catch { /* closed the share sheet */ }
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      share.textContent = "Link copied";
-    } catch {
-      // No clipboard access: put the link in the address bar to copy from there.
-      history.replaceState(null, "", `#event=${e.id}`);
-      share.textContent = "Link in address bar";
-    }
-    setTimeout(() => { share.textContent = "Share"; }, 1800);
-  };
-  if (data.repo) {
-    const flag = node.querySelector(".flag");
-    // The build attaches the report to its event by the [id] at the end.
-    const label = `${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]`;
-    if (data.forms?.report_prefill) {
-      flag.href = data.forms.report_prefill.replace("EVENT", encodeURIComponent(label));
-      flag.hidden = false;
-    }
-  }
-  return node;
-}
-
-// Something already under way is listed under today, whatever day it began.
-const dayOf = (e, today) => (e._start < Date.now() ? today : e._day);
+const prefScore = (e) => (prefs.size ? -(e.tags || []).filter((t) => prefs.has(t)).length : 0);
+const byStart = (a, b) => (sort === "prefs" && prefScore(a) - prefScore(b)) || a._start - b._start;
 
 // All-day events, and multi-day ones already under way, have no time to plan around.
 function untimed(e, today) {
   return e.all_day || (e._start < Date.now() && (e._day < today || (e._endDay || e._day) > e._day));
 }
 
-// Each day lists its untimed events first, so they can fold into one line above the timed ones.
-function byDay(events) {
+// Today splits into what's on now, still to come, all day, and (folded) what already ended.
+// Later days list their timed events, then all day.
+function plan(events) {
   const today = dayKey.format(new Date());
-  const keyed = events.map((e) => [dayOf(e, today), untimed(e, today) ? 0 : 1, e]);
-  keyed.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
-  return keyed.map(([, , e]) => e);
+  const now = Date.now();
+  const dayOf = (e) => (e._start < now ? today : e._day);
+  const days = new Map();
+  for (const e of events) {
+    const k = dayOf(e);
+    if (!days.has(k)) days.set(k, []);
+    days.get(k).push(e);
+  }
+  const keys = [...days.keys()].sort();
+  const single = keys.length <= 1 && !state.saved && whenRange(state.when)[0] === whenRange(state.when)[1];
+  const out = [];
+  for (const k of keys) {
+    const list = days.get(k);
+    if (!single) out.push({ day: k, n: list.length });
+    const done = list.filter((e) => statusOf(e, now) === "done");
+    const allDay = list.filter((e) => !done.includes(e) && untimed(e, today));
+    const timed = list.filter((e) => !done.includes(e) && !allDay.includes(e)).sort(byStart);
+    if (k === today) {
+      const live = timed.filter((e) => e._start <= now);
+      const soon = timed.filter((e) => e._start > now);
+      if (live.length) out.push({ section: "Happening now", n: live.length, cls: "now" }, ...live.map((e) => ({ e })));
+      if (soon.length) out.push({ section: "Still to come", n: soon.length }, ...soon.map((e) => ({ e })));
+    } else {
+      out.push(...timed.map((e) => ({ e })));
+    }
+    if (allDay.length) out.push({ section: "All day", n: allDay.length }, ...allDay.sort(byStart).map((e) => ({ e, row: true })));
+    if (done.length) out.push({ earlier: done.sort(byStart) });
+  }
+  return out;
 }
 
 function renderMore() {
-  const list = $("#list");
   const frag = document.createDocumentFragment();
-  const today = dayKey.format(new Date());
-  // Folded cards don't count toward a page: a page of only those would leave the sentinel in
-  // view with nothing new to trigger the next one.
   let shown = 0;
-  while (rendered < filtered.length && shown < PAGE) {
-    const e = filtered[rendered++];
-    const day = dayOf(e, today);
-    if (day !== lastDay) {
-      lastDay = day;
-      const events = filtered.filter((x) => dayOf(x, today) === day);
-      const n = events.length;
-      const [big, small] = dayLabel(day);
-      const h = document.createElement("div");
-      h.className = "day";
-      h.innerHTML = `<h2>${big}</h2><span>${small} · ${n} event${n === 1 ? "" : "s"}</span>`;
-      frag.append(h);
-      // A day of only untimed events shows them as they are; folding them would hide the day.
-      const k = events.filter((x) => untimed(x, today)).length;
-      fold = null;
-      if (k && k < n) {
-        fold = document.createElement("details");
-        fold.className = "fold";
-        fold.innerHTML = `<summary>All day &amp; ongoing (${k})</summary>`;
-        frag.append(fold);
-      }
-    }
+  while (rendered < items.length && shown < PAGE) {
+    const it = items[rendered++];
     // One malformed event from a scraper must not take the rest of the list down with it.
     try {
-      if (fold && untimed(e, today)) {
-        fold.append(card(e));
+      if (it.day) {
+        const today = dayKey.format(new Date());
+        const big = it.day === today ? "Today" : it.day === addDays(today, 1) ? "Tomorrow" : fmtDay.format(keyDate(it.day));
+        const h = document.createElement("div");
+        h.className = "day";
+        h.innerHTML = `<h2></h2><span></span>`;
+        h.querySelector("h2").textContent = big;
+        h.querySelector("span").textContent = `${fmtDate.format(keyDate(it.day))} · ${plural(it.n, "event")}`;
+        frag.append(h);
+      } else if (it.section) {
+        const h = document.createElement("div");
+        h.className = `section ${it.cls || ""}`;
+        h.innerHTML = `<span></span><span class="n"></span>`;
+        h.firstChild.textContent = it.section;
+        h.lastChild.textContent = it.n;
+        frag.append(h);
+      } else if (it.earlier) {
+        const box = document.createElement("details");
+        box.className = "earlier";
+        box.innerHTML = `<summary><b>Earlier today</b><small></small><small>Past plans, tucked away.</small></summary>`;
+        box.querySelector("small").textContent = plural(it.earlier.length, "ended event");
+        box.append(...it.earlier.map((e) => card(e)));
+        frag.append(box);
       } else {
-        frag.append(card(e));
+        frag.append(card(it.e, it.row));
         shown++;
       }
     } catch (err) {
-      console.warn("skipped event", e.id, err);
+      console.warn("skipped item", it.e?.id, err);
     }
   }
-  list.append(frag);
+  $("#list").append(frag);
 }
 
 function update() {
   writeHash();
   renderControls();
-  filtered = byDay(base());
-  $("#count").textContent = `${filtered.length.toLocaleString()} event${filtered.length === 1 ? "" : "s"}`;
+  filtered = base();
+  items = plan(filtered);
+  renderHead();
   $("#list").replaceChildren();
   rendered = 0;
-  lastDay = null;
-  fold = null;
   if (state.event) {
     const back = document.createElement("div");
     back.className = "shared";
@@ -744,15 +691,21 @@ function update() {
   renderMore();
 }
 
-const WHEN_PHRASE = { today: "today", tomorrow: "tomorrow", weekend: "this weekend", week: "in the next 7 days", custom: "in those dates" };
+const WHEN_PHRASE = { today: "today", tomorrow: "tomorrow", weekend: "this weekend", week: "this week", custom: "in those dates", all: "coming up" };
 
 // Before giving up, check whether the same search finds anything on any upcoming date.
 function renderEmpty() {
-  const wider = state.event ? [] : base(undefined, true);
   const box = document.createElement("div");
   box.className = "empty";
   const strong = document.createElement("strong");
   box.append(strong);
+  if (state.saved) {
+    strong.textContent = "Nothing saved yet.";
+    box.append("Tap Save on any event and it shows up here, ready to add to your calendar.");
+    $("#list").replaceChildren(box);
+    return;
+  }
+  const wider = state.event ? [] : base(undefined, true);
   if (!wider.length) {
     strong.textContent = "No events match.";
     box.append("Try fewer words or filters.");
@@ -778,6 +731,152 @@ function renderEmpty() {
   $("#list").replaceChildren(box);
 }
 
+/* ---------- Cards ---------- */
+
+const clock = (ms) => fmtTime.format(new Date(ms)).replace(":00", "");
+const PIN = `<svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></svg>`;
+
+function card(e, row = false) {
+  const node = $("#card").content.firstElementChild.cloneNode(true);
+  const now = Date.now();
+  const today = dayKey.format(new Date(now));
+  const live = !e.all_day && statusOf(e, now) === "now";
+  node.classList.toggle("row", row);
+  node.classList.toggle("now", live && !untimed(e, today));
+  // A midnight-to-midnight listing would read "12 AM – 12 AM".
+  const endClock = e.end && clock(e._end) !== clock(e._start) ? clock(e._end) : "";
+  const time = node.querySelector(".time");
+  if (e.all_day) time.textContent = "All day";
+  else if (e._start < now && e._day < today) time.innerHTML = `Ongoing<small>until ${e.end ? fmtDate.format(new Date(e._end)) : ""}</small>`;
+  else time.innerHTML = `${fmtTime.format(new Date(e._start))}${endClock ? `<small>– ${fmtTime.format(new Date(e._end))}</small>` : ""}`;
+  if (live && !row && !untimed(e, today)) time.append(Object.assign(document.createElement("span"), { className: "live-pill", textContent: "Happening now" }));
+
+  const a = node.querySelector(".title");
+  a.textContent = e.title;
+  if (e.url) a.href = e.url;
+
+  const whereEl = node.querySelector(".where");
+  const place = e.online ? "" : e.venue || e.address || e.city || "";
+  const at = [e.online ? "Online" : e.region === CAMPUS ? "On campus" : e.region === "Berkeley" ? "" : e.city || e.region];
+  if (place) {
+    whereEl.innerHTML = PIN;
+    const map = document.createElement("a");
+    map.className = "map";
+    map.textContent = place;
+    map.title = "Open in Google Maps";
+    const query = e.lat != null ? `${e.lat},${e.lng}` : [e.venue, e.address || e.city].filter(Boolean).join(", ");
+    Object.assign(map, { href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, target: "_blank", rel: "noopener" });
+    whereEl.append(map);
+  }
+  if (row) {
+    if (e.free === true) at.push("Free admission");
+    if (e._endDay && e._endDay > e._day) at.push(`Through ${fmtDate.format(new Date(e._end - 1))}`);
+  }
+  const rest = at.filter((x) => x && x !== place).join(" · ");
+  if (rest) whereEl.append(`${place ? " · " : ""}${rest}`);
+  if (!whereEl.textContent) whereEl.remove();
+
+  // A concert at a big venue a train gets you to: a poster card that leads with the way there.
+  if (e.big_show) {
+    node.classList.add("big");
+    a.before(Object.assign(document.createElement("span"), { className: "kicker", textContent: `🎤 Big show${e.city ? ` · ${e.city}` : ""}` }));
+    if (e.transit) node.querySelector(".desc").before(Object.assign(document.createElement("p"), { className: "transit", textContent: `🚆 ${e.transit}` }));
+  }
+  if (e.reports?.length) {
+    const reported = node.querySelector(".reported");
+    reported.textContent = "⚠ Reported by visitors (unverified): " + e.reports
+      .map((r) => (r.details ? `${r.kind}: ${r.details}` : r.kind)).join(" · ");
+    reported.hidden = false;
+  }
+  node.querySelector(".desc").textContent = e.description || "";
+
+  const badges = node.querySelector(".badges");
+  const add = (text, cls = "") => badges.append(Object.assign(document.createElement("span"), { className: `badge ${cls}`, textContent: text }));
+  const topics = e.tags?.filter((t) => t !== FOOD).slice(0, 2) || [];
+  topics.forEach((t) => add(t));
+  if (e.free === true) add("Free admission", "free");
+  if (e.tags?.includes(FOOD)) add("🍴 Free food", "food");
+  (e.access || []).filter((x) => !/^free$/i.test(x)).forEach((x) => add(x, "free"));
+  if (e.repeats) add(`Repeats · ${e.repeats} dates`);
+  // "via" the host and every place it's listed, each linking there.
+  const listings = e.listings?.length ? e.listings
+    : [{ source: e.source, url: e.url, name: e.source === "feeds" ? e.host : null }];
+  const via = document.createElement("span");
+  via.className = "via";
+  const names = new Set();
+  const parts = [];
+  if (e.host) {
+    names.add(e.host);
+    parts.push(document.createTextNode(e.host));
+  }
+  for (const l of listings) {
+    const label = l.name || sourceName(l.source);
+    if (names.has(label)) continue;
+    names.add(label);
+    const link = Object.assign(document.createElement("a"), { textContent: label, title: `See it on ${label}` });
+    if (l.url) Object.assign(link, { href: l.url, target: "_blank", rel: "noopener" });
+    parts.push(link);
+  }
+  (e.also_on || []).map(sourceName).filter((n) => !names.has(n)).forEach((n) => { names.add(n); parts.push(document.createTextNode(n)); });
+  if (parts.length) {
+    via.append("via ");
+    parts.forEach((p, i) => via.append(...(i ? [" · ", p] : [p])));
+    badges.append(via);
+  }
+
+  const img = node.querySelector(".thumb");
+  if (e.image && !row) img.src = e.image; else img.remove();
+  img.onerror = () => img.remove();
+
+  const save = node.querySelector(".save");
+  const tomine = node.querySelector(".tomine");
+  const showSaved = () => {
+    const on = saved.has(e.id);
+    save.setAttribute("aria-pressed", on);
+    save.querySelector("span").textContent = on ? "Saved" : "Save";
+    save.title = on ? "Remove from your Lo-Cal calendar" : "Save to your Lo-Cal calendar";
+    tomine.textContent = on ? "✓ In my Lo-Cal calendar" : "Add to my Lo-Cal calendar";
+  };
+  save.onclick = tomine.onclick = () => { toggleSave(e.id); showSaved(); };
+  showSaved();
+
+  const end = endOf(e);
+  const calPlace = e.address || e.venue || "";
+  const details = `${e.description || ""}\n\n${e.url || ""}`.trim().slice(0, 1500);
+  node.querySelector(".gcal").href = `https://calendar.google.com/calendar/render?${new URLSearchParams({
+    action: "TEMPLATE", text: e.title, dates: `${icsDate(e._start)}/${icsDate(end)}`, details, location: calPlace })}`;
+  node.querySelector(".ocal").href = `https://outlook.live.com/calendar/0/action/compose?${new URLSearchParams({
+    subject: e.title, startdt: new Date(e._start).toISOString(), enddt: new Date(end).toISOString(),
+    body: details, location: calPlace })}`;
+  node.querySelector(".ics").onclick = () => downloadIcs([e], e.title);
+  const share = node.querySelector(".share");
+  share.onclick = async () => {
+    // The event's own page, not #event=: chat apps read that page for the preview card.
+    const url = new URL(`e/${e.id}.html`, location.href).href;
+    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      try { await navigator.share({ title: e.title, url }); } catch { /* closed the share sheet */ }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      share.textContent = "Link copied";
+    } catch {
+      // No clipboard access: put the link in the address bar to copy from there.
+      history.replaceState(null, "", `#event=${e.id}`);
+      share.textContent = "Link in address bar";
+    }
+    setTimeout(() => { share.textContent = "Copy link to event"; }, 1800);
+  };
+  if (data.forms?.report_prefill) {
+    const flag = node.querySelector(".flag");
+    // The build attaches the report to its event by the [id] at the end.
+    const label = `${e.title} (${fmtDate.format(new Date(e._start))}) [${e.id}]`;
+    flag.href = data.forms.report_prefill.replace("EVENT", encodeURIComponent(label));
+    flag.hidden = false;
+  }
+  return node;
+}
+
 /* ---------- Calendar export ---------- */
 
 function icsDate(ms) {
@@ -788,22 +887,180 @@ function icsEscape(s) {
   return (s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, (c) => `\\${c}`);
 }
 
-function downloadIcs(e) {
-  const end = e._end || e._start + 2 * 3600e3;
-  const ics = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Lo-Cal//berkeley events//EN", "BEGIN:VEVENT",
-    `UID:${e.id}@lo-cal`, `DTSTAMP:${icsDate(Date.now())}`,
-    `DTSTART:${icsDate(e._start)}`, `DTEND:${icsDate(end)}`,
-    `SUMMARY:${icsEscape(e.title)}`,
-    `LOCATION:${icsEscape(e.address || e.venue || "")}`,
-    `DESCRIPTION:${icsEscape(`${e.description || ""}\n\n${e.url || ""}`)}`,
-    e.url ? `URL:${e.url}` : "", "END:VEVENT", "END:VCALENDAR",
-  ].filter(Boolean).join("\r\n");
+// One file however many events: calendar apps import it in a single step.
+function downloadIcs(events, name) {
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Lo-Cal//berkeley events//EN", "X-WR-CALNAME:Lo-Cal"];
+  for (const e of events) {
+    lines.push("BEGIN:VEVENT", `UID:${e.id}@lo-cal`, `DTSTAMP:${icsDate(Date.now())}`,
+      `DTSTART:${icsDate(e._start)}`, `DTEND:${icsDate(endOf(e))}`, `SUMMARY:${icsEscape(e.title)}`,
+      `LOCATION:${icsEscape(e.address || e.venue || "")}`,
+      `DESCRIPTION:${icsEscape(`${e.description || ""}\n\n${e.url || ""}`)}`,
+      ...(e.url ? [`URL:${e.url}`] : []), "END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
-  a.download = `${e.title.replace(/[^\w]+/g, "-").slice(0, 50)}.ics`;
+  a.href = URL.createObjectURL(new Blob([lines.join("\r\n")], { type: "text/calendar" }));
+  a.download = `${name.replace(/[^\w]+/g, "-").slice(0, 50)}.ics`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- My calendar ---------- */
+
+const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const savedEvents = () => data.events.filter((e) => saved.has(e.id) && statusOf(e) !== "done").sort((a, b) => a._start - b._start);
+
+function renderSavedCount() {
+  $("#saved-n").textContent = savedEvents().length;
+}
+
+// The build writes one feed per filter combination (scraper/ics.py): f/<type>.<location>.<cost>.ics.
+function feedFor() {
+  const types = [...state.topics].filter((t) => t !== FOOD);
+  const regions = [...state.regions];
+  if (types.length > 1 || regions.length > 1) return null;
+  const cost = state.free && state.topics.has(FOOD) ? "free-food" : state.free ? "free" : state.topics.has(FOOD) ? "food" : "any";
+  const name = [types[0], regions[0] === CAMPUS ? "On campus" : regions[0],
+    { any: "", free: "Free admission", food: "Free food", "free-food": "Free admission + free food" }[cost]].filter(Boolean).join(" · ");
+  return { file: `data/cal/f/${types[0] ? slug(types[0]) : "all"}.${regions[0] ? slug(regions[0]) : "all"}.${cost}.ics`, name: name || "Every Berkeley event" };
+}
+
+function renderCalDialog() {
+  const kind = document.querySelector("input[name=calkind]:checked").value;
+  const evs = savedEvents();
+  $("#saved-sum").textContent = `${plural(evs.length, "event")} · one file with all of them`;
+  const feed = feedFor();
+  $("#feed-sum").textContent = feed ? `${feed.name} · new events arrive on their own` : "Built from your filters. New events arrive on their own.";
+  const google = $("#cal-google"), other = $("#cal-other"), note = $("#feed-note");
+  note.hidden = true;
+  google.classList.remove("disabled");
+  other.classList.remove("disabled");
+  google.onclick = other.onclick = null;
+  if (kind === "saved") {
+    google.querySelector("span").textContent = "Add to Google Calendar";
+    // Google can't open a file from a link: download it, then open Google's import page.
+    google.href = "https://calendar.google.com/calendar/u/0/r/settings/export";
+    google.onclick = () => downloadIcs(evs, "lo-cal-saved");
+    other.removeAttribute("href");
+    other.onclick = () => downloadIcs(evs, "lo-cal-saved");
+    other.querySelector("span").textContent = "Apple, Outlook, or another calendar";
+    if (!evs.length) {
+      note.textContent = "Save events first: tap Save on any event.";
+      note.hidden = false;
+      google.classList.add("disabled");
+      other.classList.add("disabled");
+    }
+    $("#cal-privacy span").textContent = "Your saves stay in this browser; nothing is sent anywhere. The file is a one-time copy: add it again after saving more, or subscribe to a custom feed to stay in sync.";
+  } else {
+    google.querySelector("span").textContent = "Connect Google Calendar";
+    other.querySelector("span").textContent = "Apple, Outlook, or another calendar";
+    if (!feed) {
+      note.textContent = "A feed follows one event type and one location. Pick at most one of each in the filters.";
+      note.hidden = false;
+      google.classList.add("disabled");
+      other.classList.add("disabled");
+    } else {
+      const url = new URL(feed.file, location.href).href;
+      const webcal = url.replace(/^https?:/, "webcal:");
+      google.href = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
+      other.href = webcal;
+      if (state.q || state.when !== DEFAULT_WHEN || state.status) {
+        note.textContent = "Search words, dates and status aren't part of a feed: it holds every upcoming event that matches.";
+        note.hidden = false;
+      }
+    }
+    $("#cal-privacy span").textContent = "Feeds are public files, the same for everyone. Subscribing sends nothing about you, and your calendar app checks for new events every few hours.";
+  }
+}
+
+function openCal() {
+  if (!savedEvents().length && feedFor()) document.querySelector("input[name=calkind][value=feed]").checked = true;
+  renderCalDialog();
+  $("#cal-dlg").showModal();
+}
+
+/* ---------- Custom dates ---------- */
+
+let pick = { a: "", b: "", month: "" };
+
+function openDates() {
+  const today = dayKey.format(new Date());
+  pick = state.when === "custom" && state.from
+    ? { a: state.from, b: state.to === "9999" ? "" : state.to, month: state.from.slice(0, 7) }
+    : { a: "", b: "", month: today.slice(0, 7) };
+  renderDates();
+  $("#dates-dlg").showModal();
+}
+
+function renderDates() {
+  const today = dayKey.format(new Date());
+  const [y, m] = pick.month.split("-").map(Number);
+  const first = new Date(Date.UTC(y, m - 1, 1, 12));
+  $("#cal-month").textContent = fmtMonth.format(first);
+  $("#cal-prev").disabled = pick.month <= today.slice(0, 7);
+  const start = addDays(`${pick.month}-01`, -first.getUTCDay());
+  const [lo, hi] = pick.b && pick.b < pick.a ? [pick.b, pick.a] : [pick.a, pick.b || pick.a];
+  const cells = ["S", "M", "T", "W", "T", "F", "S"].map((d) => Object.assign(document.createElement("span"), { className: "dow", textContent: d }));
+  for (let i = 0; i < 42; i++) {
+    const k = addDays(start, i);
+    const b = Object.assign(document.createElement("button"), { type: "button", textContent: Number(k.slice(8)) });
+    b.classList.toggle("out", k.slice(0, 7) !== pick.month);
+    b.disabled = k < today;
+    b.classList.toggle("end", k === lo || k === hi);
+    b.classList.toggle("in", !!lo && k > lo && k < hi);
+    b.setAttribute("aria-label", fmtLong.format(keyDate(k)));
+    b.onclick = () => {
+      if (!pick.a || pick.b) pick = { ...pick, a: k, b: "" };
+      else pick = { ...pick, ...(k < pick.a ? { a: k, b: pick.a } : { b: k }) };
+      renderDates();
+    };
+    cells.push(b);
+  }
+  $("#cal-grid").replaceChildren(...cells);
+  if (!lo) {
+    $("#range-text").textContent = "Pick a start date";
+    $("#range-days").textContent = "Then an end date, or apply for one day";
+  } else {
+    $("#range-text").textContent = `${rangeLabel(lo, hi)}, ${fmtYear.format(keyDate(hi))}`;
+    $("#range-days").textContent = `${plural(daysBetween(lo, hi) + 1, "day")} · Pacific time`;
+  }
+  $("#apply-dates").disabled = !lo;
+}
+
+function shiftMonth(n) {
+  const [y, m] = pick.month.split("-").map(Number);
+  pick.month = new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
+  renderDates();
+}
+
+/* ---------- Preferences ---------- */
+
+function renderPrefs() {
+  const list = [...prefs];
+  $("#pref-summary").textContent = list.length
+    ? `${list.join(", ")}. Make discoveries more you.`
+    : "Pick what you're into and sort by it. Make discoveries more you.";
+  $("#pref-grid").replaceChildren(...data.topics.map((t) => {
+    const row = document.createElement("label");
+    row.className = "check";
+    const box = Object.assign(document.createElement("input"), { type: "checkbox", checked: prefs.has(t) });
+    box.onchange = () => {
+      prefs.has(t) ? prefs.delete(t) : prefs.add(t);
+      store(PREFS_KEY, [...prefs]);
+      if (prefs.size && sort !== "prefs") setSort("prefs");
+      else update();
+      renderPrefs();
+    };
+    row.append(box, ` ${TOPIC_EMOJI[t] || ""} ${t}`);
+    return row;
+  }));
+}
+
+function setSort(v) {
+  sort = v;
+  store(SORT_KEY, v);
+  $("#sort").value = v;
+  update();
 }
 
 /* ---------- Boot ---------- */
@@ -815,26 +1072,13 @@ function relTime(iso) {
   return `${Math.round(mins / 1440)} days ago`;
 }
 
-const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
-function renderFeeds() {
-  const rows = [["Everything", "all"], ...data.topics.map((t) => [`${TOPIC_EMOJI[t] || ""} ${t}`, slug(t)])];
-  $("#feeds").replaceChildren(...rows.map(([label, file]) => {
-    const url = new URL(`data/cal/${file}.ics`, location.href).href;
-    const webcal = url.replace(/^https?:/, "webcal:");
-    const row = document.createElement("div");
-    row.className = "feed";
-    row.innerHTML = `<span></span><a target="_blank" rel="noopener">Google</a><a>Apple / Outlook</a>`;
-    row.querySelector("span").textContent = label;
-    const [google, apple] = row.querySelectorAll("a");
-    google.href = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
-    apple.href = webcal;
-    return row;
-  }));
+function setDrawer(open) {
+  $("#sidebar").classList.toggle("open", open);
+  $("#scrim").hidden = !open;
 }
 
 document.addEventListener("click", (ev) => {
-  for (const d of document.querySelectorAll("details.addcal[open]")) {
+  for (const d of document.querySelectorAll("details.addcal[open], details.dd[open]")) {
     if (!d.contains(ev.target) || ev.target.closest(".calmenu")) d.open = false;
   }
 });
@@ -845,26 +1089,78 @@ async function boot() {
   let t;
   $("#q").addEventListener("input", (ev) => {
     clearTimeout(t);
-    t = setTimeout(() => { state.q = ev.target.value.trim(); update(); }, 120);
+    t = setTimeout(() => { state.q = ev.target.value.trim(); state.saved = false; update(); }, 120);
   });
-  $("#free").onclick = () => { state.free = !state.free; update(); };
-  $("#food").onclick = () => toggle(state.topics, FOOD);
-  $("#campus").onclick = () => toggle(state.regions, CAMPUS);
-  for (const b of document.querySelectorAll("[data-menu]")) {
-    b.onclick = () => {
-      for (const m of document.querySelectorAll(".more")) {
-        m.hidden = m.id === `menu-${b.dataset.menu}` ? !m.hidden : true;
-      }
-      renderMenus();
-    };
+  $("#search").onsubmit = (ev) => {
+    ev.preventDefault();
+    clearTimeout(t);
+    state.q = $("#q").value.trim();
+    state.saved = false;
+    update();
+    if (matchMedia("(pointer: coarse)").matches) $("#q").blur();
+  };
+  addEventListener("keydown", (ev) => {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === "k") {
+      ev.preventDefault();
+      $("#q").focus();
+      $("#q").select();
+    } else if (ev.key === "Escape") setDrawer(false);
+  });
+  $("#free").onchange = () => { state.free = !state.free; update(); };
+  $("#food").onchange = () => toggle(state.topics, FOOD);
+  $("#campus").onchange = () => {
+    // On campus is a location of its own: it replaces the Where picks, and they replace it.
+    const on = !state.regions.has(CAMPUS);
+    state.regions.clear();
+    if (on) state.regions.add(CAMPUS);
+    update();
+  };
+  $("#event-status").onchange = (ev) => { state.status = ev.target.value; update(); };
+  $("#sort").value = sort;
+  $("#sort").onchange = (ev) => {
+    if (ev.target.value === "prefs" && !prefs.size) $("#pref-dlg").showModal();
+    setSort(ev.target.value);
+  };
+  $("#reset").onclick = () => {
+    Object.assign(state, { event: "", saved: false, when: DEFAULT_WHEN, from: "", to: "", free: false, status: "" });
+    state.topics.clear(); state.regions.clear();
+    update();
+  };
+  $("#prev").onclick = () => step(-1);
+  $("#next").onclick = () => step(1);
+  $("#open-filters").onclick = () => setDrawer(true);
+  $("#side-close").onclick = $("#scrim").onclick = () => setDrawer(false);
+  $("#mycal").onclick = $("#setup-cal").onclick = openCal;
+  for (const r of document.querySelectorAll("input[name=calkind]")) r.onchange = renderCalDialog;
+  $("#edit-prefs").onclick = () => $("#pref-dlg").showModal();
+  $("#pref-clear").onclick = () => {
+    prefs.clear();
+    store(PREFS_KEY, []);
+    renderPrefs();
+    setSort("time");
+  };
+  $("#cal-prev").onclick = () => shiftMonth(-1);
+  $("#cal-next").onclick = () => shiftMonth(1);
+  $("#clear-dates").onclick = () => {
+    pick = { ...pick, a: "", b: "" };
+    renderDates();
+    if (state.when === "custom") {
+      state.when = DEFAULT_WHEN;
+      update();
+    }
+  };
+  $("#apply-dates").onclick = () => {
+    const [lo, hi] = pick.b && pick.b < pick.a ? [pick.b, pick.a] : [pick.a, pick.b || pick.a];
+    Object.assign(state, { when: "custom", from: lo, to: hi, saved: false });
+    $("#dates-dlg").close();
+    update();
+  };
+  for (const dlg of document.querySelectorAll("dialog")) {
+    dlg.addEventListener("click", (ev) => {
+      // A click on the backdrop lands on the dialog itself.
+      if (ev.target === dlg || ev.target.closest("[data-close]")) dlg.close();
+    });
   }
-  // Scroll events don't bubble, so one capturing listener covers every chip row.
-  document.addEventListener("scroll", (ev) => {
-    if (ev.target.classList?.contains("fchips")) markScrollRows([ev.target]);
-  }, { capture: true, passive: true });
-  addEventListener("resize", () => markScrollRows());
-  $("#from").onchange = (ev) => { state.from = ev.target.value; update(); };
-  $("#to").onchange = (ev) => { state.to = ev.target.value; update(); };
   $("#copy-llms").onclick = async (ev) => {
     const btn = ev.currentTarget;
     try {
@@ -875,11 +1171,8 @@ async function boot() {
     }
     setTimeout(() => { btn.textContent = "Copy link"; }, 1800);
   };
-  $("#clear").onclick = () => {
-    state.event = "";
-    state.topics.clear(); state.regions.clear(); state.src.clear(); state.free = false;
-    update();
-  };
+  tick();
+  setInterval(tick, 30_000);
 
   try {
     const res = await fetch("data/events.json", { cache: "no-cache" });
@@ -903,19 +1196,19 @@ async function boot() {
       .filter(Boolean).join(" "))} `;
   }
   buildAliases();
+  renderSavedCount();
+  renderPrefs();
 
-  const live = data.sources.filter((s) => s.count > 0).map((s) => `${s.name} (${s.count})`);
-  $("#updated").textContent = `Updated ${relTime(data.generated_at)} · ${data.events.length.toLocaleString()} upcoming events from ${live.join(", ")}.`;
+  $("#updated").textContent = `Updated ${relTime(data.generated_at)}`;
   const notes = data.sources.filter((s) => s.health !== "ok" && !(s.health === "off" && s.count)).map((s) =>
     `${s.name} (${s.health === "off" ? "not connected" : `having trouble; showing results from ${s.last_ok ? relTime(s.last_ok) : "earlier"}`})`);
   $("#status").textContent = notes.length ? `Also: ${notes.join(", ")}.` : "";
 
   new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && rendered < filtered.length) renderMore();
+    if (entries[0].isIntersecting && rendered < items.length) renderMore();
   }, { rootMargin: "800px" }).observe($("#sentinel"));
 
-  renderFeeds();
-  // A shared link pasted into an open tab only changes the hash.
+  // A shared link pasted into an open tab, or the header's Saved link, only changes the hash.
   addEventListener("hashchange", () => { readHash(); $("#q").value = state.q; update(); });
   update();
 }

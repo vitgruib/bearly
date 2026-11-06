@@ -44,3 +44,24 @@ def test_no_line_is_longer_than_75_octets(tmp_path):
 
     lines = (tmp_path / "all.ics").read_bytes().split(b"\r\n")
     assert max(len(x) for x in lines) <= 75
+
+
+def test_filter_feed_holds_only_events_matching_every_filter(tmp_path):
+    match = ev("Free pizza talk on campus", ["Talks", "Free food"], region="Campus", free=True)
+    not_free = ev("Paid talk on campus with pizza", ["Talks", "Free food"], region="Campus", free=False)
+    elsewhere = ev("Free pizza talk in SF", ["Talks", "Free food"], region="San Francisco", free=True)
+    no_food = ev("Free talk on campus", ["Talks"], region="Campus", free=True)
+
+    write_feeds([match, not_free, elsewhere, no_food], ["Talks", "Free food"], tmp_path, NOW,
+                regions=["Campus", "San Francisco"])
+
+    def titles(name):
+        cal = Calendar.from_ical((tmp_path / "f" / name).read_bytes())
+        return sorted(str(v["SUMMARY"]) for v in cal.walk("VEVENT"))
+
+    assert titles("talks.campus.free-food.ics") == ["Free pizza talk on campus"]
+    assert titles("talks.campus.food.ics") == ["Free pizza talk on campus", "Paid talk on campus with pizza"]
+    assert titles("all.all.free.ics") == ["Free pizza talk in SF", "Free pizza talk on campus", "Free talk on campus"]
+    assert len(titles("all.all.any.ics")) == 4
+    # Free food is a cost filter, not an event type, so it gets no type of its own.
+    assert not list((tmp_path / "f").glob("free-food.*"))

@@ -77,11 +77,13 @@ def build(events: list[Event], days_ahead: int, now: datetime,
     months before."""
     horizon = now + timedelta(days=days_ahead)
     horizons = {n: now + timedelta(days=d) for n, d in (list_days or {}).items()}
+    # Today's ended events stay: the site folds them into "Earlier today".
+    today = now.astimezone(PACIFIC).replace(hour=0, minute=0, second=0, microsecond=0)
     upcoming = []
     for e in events:
         ends = e.end or e.start + timedelta(hours=2)
         # Multi-week "events" (programs, exhibits, month-long hackathons) aren't plans.
-        if (ends < now or e.start > horizons.get(e.source, horizon)
+        if (ends < today or e.start > horizons.get(e.source, horizon)
                 or (ends - e.start) > timedelta(days=12)):
             continue
         if PLACEHOLDER.search(e.title):
@@ -178,11 +180,13 @@ def main(argv: list[str]) -> None:
         "topic_words": TOPICS,
         "events": [e.to_json() for e in final],
     }, ensure_ascii=False, separators=(",", ":")))
-    write_feeds(final, list(TOPICS), EVENTS.parent / "cal", now)
+    write_feeds(final, list(TOPICS), EVENTS.parent / "cal", now, REGIONS)
     owner, name = config["repo"].split("/")
     site_url = f"https://{owner}.github.io/{name}/"
-    write_llms_full(final, site_url, EVENTS.parent / "llms-full.txt", now)
-    write_llms_slices(final, site_url, EVENTS.parent / "llms", now)
+    # An assistant asked what's on should never offer something that's over.
+    live = [e for e in final if (e.end or e.start + timedelta(hours=2)) > now]
+    write_llms_full(live, site_url, EVENTS.parent / "llms-full.txt", now)
+    write_llms_slices(live, site_url, EVENTS.parent / "llms", now)
     write_pages(final, site_url, EVENTS.parent.parent, now)
     log.info("wrote %d events (from %d raw); http %s", len(final), len(events), http.stats)
 

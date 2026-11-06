@@ -18,79 +18,174 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-14 -27 154 154'><rect x='-14' y='-27' width='154' height='154' rx='32' fill='%23002676'/><path transform='matrix(1.25 0 0 -1.25 -499.65 801.74)' fill='%23fdb515' d='m449.24 588.18c-0.395-0.943-2.048-3.62-3.937-3.62-2.282 0-2.361 1.26-2.361 2.833 0 4.487 5.274 15.113 9.997 15.113 1.415 0 1.889-0.71 1.889-1.338 0-0.236-2.914-6.218-5.588-12.988m44.553 37.782c0.155 0 0.236-0.315 0.236-0.55 0-2.204-7.242-15.899-14.484-25.74 2.44 14.72 12.987 26.29 14.248 26.29m-4.173-47.148c-4.723 1.416-9.997 3.858-10.469 13.381 8.579 10.152 19.758 28.966 19.758 36.523 0 1.967-0.393 4.172-3.229 4.172-6.689 0-26.684-18.42-26.684-39.435 0-1.891 0.236-3.7 0.631-5.039-4.094-3.778-7.165-5.509-10.233-5.509-1.022 0-1.258 0.393-1.258 2.205 0 2.596 7.79 18.732 7.79 19.756 0 1.496-0.629 1.889-1.81 1.889h-6.218c-0.472 0-0.944-0.393-1.337-1.338-0.238 0.314-1.497 1.338-3.543 1.338-6.771 0-15.271-5.196-20.15-15.349-1.103-2.361-3.15-7.95-8.739-7.95-4.801 0-6.375 5.116-6.375 11.019 0 16.293 19.284 40.854 29.833 40.854 1.73 0 2.519-0.866 2.519-2.52 0-3.069-2.756-4.958-4.803-5.194-2.991-0.317-5.431-1.655-5.431-4.252 0-2.204 1.732-3.149 4.015-3.149 3.305 0 10.941 7.243 10.941 13.854 0 3.936-2.281 6.062-6.297 6.062-16.609 0-45.182-23.615-45.182-46.127 0-11.098 6.061-16.529 17.002-16.529 5.273 0 10.39 4.014 11.886 5.431 0.315-1.653 2.283-5.431 8.816-5.431 4.329 0 7.241 2.834 8.187 4.171 0.315-1.417 1.259-4.171 6.061-4.171 5.667 0 10.783 2.045 15.977 6.689 2.364-4.248 6.455-6.769 10.628-7.633 1.339-0.237 3.071-0.55 3.071-0.946 0-0.629-2.598-1.968-7.952-1.968-11.571 0-30.305 1.732-46.363 1.732-22.354 0-29.675-10.153-29.675-12.045 0-0.785 0.551-0.943 1.181-0.943 1.258 0 5.668 3.383 22.826 3.383 18.893 0 31.801-1.415 42.033-1.415 20.39 0 26.53 10.391 26.53 11.652 0 1.967-1.732 2.202-3.937 2.832'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Oleo+Script:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="tweaks.js"></script>
   <script data-goatcounter="https://lo-cal.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
   <header class="masthead">
-    <div class="wrap">
+    <div class="wrap mast">
+      <a class="logo" href="./" aria-label="Lo-Cal home">
+        <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg></span>
+        <span class="logo-word">Lo-<span>Cal</span></span>
+      </a>
       <nav class="nav" aria-label="Site">
         <a href="./" aria-current="page">Events</a>
         <a href="about.html">How it works</a>
         <a href="stats.html">Stats</a>
       </nav>
-      <h1 class="wordmark" aria-label="Lo-Cal">Lo-<svg class="cal" viewBox="0 0 125.75 100.56" role="img" aria-hidden="true"><path transform="matrix(1.25 0 0 -1.25 -499.65 801.74)" d="m449.24 588.18c-0.395-0.943-2.048-3.62-3.937-3.62-2.282 0-2.361 1.26-2.361 2.833 0 4.487 5.274 15.113 9.997 15.113 1.415 0 1.889-0.71 1.889-1.338 0-0.236-2.914-6.218-5.588-12.988m44.553 37.782c0.155 0 0.236-0.315 0.236-0.55 0-2.204-7.242-15.899-14.484-25.74 2.44 14.72 12.987 26.29 14.248 26.29m-4.173-47.148c-4.723 1.416-9.997 3.858-10.469 13.381 8.579 10.152 19.758 28.966 19.758 36.523 0 1.967-0.393 4.172-3.229 4.172-6.689 0-26.684-18.42-26.684-39.435 0-1.891 0.236-3.7 0.631-5.039-4.094-3.778-7.165-5.509-10.233-5.509-1.022 0-1.258 0.393-1.258 2.205 0 2.596 7.79 18.732 7.79 19.756 0 1.496-0.629 1.889-1.81 1.889h-6.218c-0.472 0-0.944-0.393-1.337-1.338-0.238 0.314-1.497 1.338-3.543 1.338-6.771 0-15.271-5.196-20.15-15.349-1.103-2.361-3.15-7.95-8.739-7.95-4.801 0-6.375 5.116-6.375 11.019 0 16.293 19.284 40.854 29.833 40.854 1.73 0 2.519-0.866 2.519-2.52 0-3.069-2.756-4.958-4.803-5.194-2.991-0.317-5.431-1.655-5.431-4.252 0-2.204 1.732-3.149 4.015-3.149 3.305 0 10.941 7.243 10.941 13.854 0 3.936-2.281 6.062-6.297 6.062-16.609 0-45.182-23.615-45.182-46.127 0-11.098 6.061-16.529 17.002-16.529 5.273 0 10.39 4.014 11.886 5.431 0.315-1.653 2.283-5.431 8.816-5.431 4.329 0 7.241 2.834 8.187 4.171 0.315-1.417 1.259-4.171 6.061-4.171 5.667 0 10.783 2.045 15.977 6.689 2.364-4.248 6.455-6.769 10.628-7.633 1.339-0.237 3.071-0.55 3.071-0.946 0-0.629-2.598-1.968-7.952-1.968-11.571 0-30.305 1.732-46.363 1.732-22.354 0-29.675-10.153-29.675-12.045 0-0.785 0.551-0.943 1.181-0.943 1.258 0 5.668 3.383 22.826 3.383 18.893 0 31.801-1.415 42.033-1.415 20.39 0 26.53 10.391 26.53 11.652 0 1.967-1.732 2.202-3.937 2.832"/></svg></h1>
+      <a class="saved-link" href="./#saved=1" id="saved-link" title="Events you saved in this browser">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>Saved<span class="nbadge" id="saved-n">0</span>
+      </a>
     </div>
   </header>
 
-  <p class="wrap aihint" id="aihint">🤖 <b>Works with your AI.</b> Give ChatGPT, Claude or any assistant
-    <a href="llms.txt">this link</a> and ask "what's on tonight?"
-    <button class="link" id="copy-llms" type="button">Copy link</button></p>
-
-  <div class="controls" id="controls">
-    <div class="wrap">
-      <div class="searchrow">
-        <label class="search">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input id="q" type="search" placeholder="Try “food tonight” or “hackathon sf”" autocomplete="off">
-        </label>
-        <details class="addcal subscribe">
-          <summary class="ical" title="Subscribe to a calendar that updates itself" aria-label="Subscribe to a calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4m8-4v4"/></svg></summary>
-          <div class="calmenu" id="feeds"></div>
-        </details>
-      </div>
-      <div class="qchips" id="qchips" aria-label="Filters read from your search" hidden></div>
-      <div class="filters">
-        <div class="fchips"><div id="when" role="radiogroup" aria-label="When"></div><span class="range" id="range" hidden><input type="date" id="from" aria-label="From"><span>to</span><input type="date" id="to" aria-label="To"></span></div>
-        <div class="fchips quick" role="group" aria-label="Quick filters">
-          <button class="chip" id="food" type="button" aria-pressed="false">🍕 Free food</button>
-          <button class="chip" id="free" type="button" aria-pressed="false">Free only</button>
-          <button class="chip" id="campus" type="button" aria-pressed="false" title="On or right next to campus">📍 On campus</button>
-          <button class="morebtn" type="button" data-menu="cat" aria-expanded="false" aria-controls="menu-cat">Category<span class="menu-n"></span></button>
-          <button class="morebtn" type="button" data-menu="loc" aria-expanded="false" aria-controls="menu-loc">Location<span class="menu-n"></span></button>
-          <button class="morebtn" type="button" data-menu="src" aria-expanded="false" aria-controls="menu-src">Source<span class="menu-n"></span></button>
-        </div>
-      </div>
-      <div class="more" id="menu-cat" hidden>
-        <div class="fchips types" role="group" aria-label="Category">
-          <div id="topics-0" aria-label="Tech and career event types"></div>
-          <div id="topics-1" aria-label="Fun event types"></div>
-        </div>
-      </div>
-      <div class="more" id="menu-loc" hidden><div class="fchips" id="regions" aria-label="Location"></div></div>
-      <div class="more" id="menu-src" hidden><div class="fchips" id="sources" aria-label="Source"></div></div>
-      <div class="meta-row">
-        <div class="pills" id="pills" aria-label="Filters set in closed menus"></div>
-        <p class="showing"><span id="showing"></span><span class="count" id="count"></span><button class="link" id="clear" type="button" hidden>Clear filters</button></p>
-      </div>
+  <div class="subbar">
+    <div class="wrap subbar-in">
+      <p class="place"><b>Berkeley, California</b><span>Your open-source event calendar.</span></p>
+      <form class="search" id="search" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search events, places, or something you're into" autocomplete="off" aria-label="Search events">
+        <kbd class="kbd" aria-hidden="true">⌘ K</kbd>
+        <button class="btn navy" type="submit">Search</button>
+      </form>
+      <button class="btn gold" id="mycal" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg>My calendar
+      </button>
     </div>
+    <div class="wrap"><div class="qchips" id="qchips" aria-label="Filters read from your search" hidden></div></div>
   </div>
 
-  <main class="wrap" id="list" aria-live="polite"></main>
-  <div id="sentinel"></div>
+  <div class="layout wrap">
+    <aside class="sidebar" id="sidebar" aria-label="Filters">
+      <div class="side-head">
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10m4 0h2M4 17h4m4 0h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filters</span>
+        <button class="link" id="reset" type="button">Reset</button>
+        <button class="side-close" id="side-close" type="button" aria-label="Close filters">✕</button>
+      </div>
 
-  <footer class="wrap footer">
-    <p id="updated"></p>
-    <p id="status"></p>
-    <p>Open data: every event here is in one public file,
-      <a href="data/events.json">data/events.json</a>. Read it, scrape it or build on it, no key
-      needed. <a href="about.html#code">How it works</a></p>
-    <p>Event types, locations, "Free" and "Getting in" come from fixed keyword rules, not from
-      people, so they can be wrong. Check the event's own page before you go.
-      <a href="about.html#tags">The rules</a></p>
-  </footer>
+      <section class="fgroup">
+        <h3>When</h3>
+        <div class="whenlist" id="when" role="radiogroup" aria-label="When"></div>
+      </section>
+
+      <section class="fgroup">
+        <h3>Where</h3>
+        <details class="dd" id="dd-loc">
+          <summary><span id="loc-label">All Berkeley locations</span></summary>
+          <div class="ddmenu" id="regions" role="group" aria-label="Location"></div>
+        </details>
+        <label class="check"><input type="checkbox" id="campus"> On campus only</label>
+      </section>
+
+      <section class="fgroup">
+        <h3>Cost &amp; food</h3>
+        <label class="check"><input type="checkbox" id="free"> Free admission</label>
+        <label class="check"><input type="checkbox" id="food"> Free food</label>
+      </section>
+
+      <section class="fgroup">
+        <h3>Event type</h3>
+        <details class="dd" id="dd-type">
+          <summary><span id="type-label">All event types</span></summary>
+          <div class="ddmenu" id="types" role="group" aria-label="Event type"></div>
+        </details>
+      </section>
+
+      <section class="fgroup">
+        <h3>Event status</h3>
+        <div class="select"><select id="event-status" aria-label="Event status">
+          <option value="">All statuses</option>
+          <option value="now">Happening now</option>
+          <option value="soon">Still to come</option>
+          <option value="done">Already finished</option>
+        </select></div>
+      </section>
+
+      <section class="side-box prefs">
+        <div class="box-head"><b>Your preferences</b>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10m4 0h2M4 17h4m4 0h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></div>
+        <p id="pref-summary">Pick what you're into and sort by it. Make discoveries more you.</p>
+        <button class="arrow-link" id="edit-prefs" type="button">Edit preferences</button>
+      </section>
+
+      <section class="side-ai" id="aihint">
+        <a class="arrow-out" href="llms.txt">Ask your AI assistant</a>
+        <p>Bring Lo-Cal's open data to your own assistant: give ChatGPT, Claude or any AI this link and ask "what's on tonight?"
+          <button class="link" id="copy-llms" type="button">Copy link</button></p>
+      </section>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <main class="main" id="main">
+      <div class="view-head">
+        <div class="view-title">
+          <h1 id="view-title">Today</h1>
+          <span class="view-date" id="view-date"></span>
+          <span class="view-count" id="count"></span>
+          <p class="tagline">A little campus, a little city. Find your next good plan.</p>
+        </div>
+        <div class="view-nav">
+          <button class="btn ghost filters-btn" id="open-filters" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10m4 0h2M4 17h4m4 0h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filters<span class="nbadge" id="filters-n" hidden></span>
+          </button>
+          <span class="clock" id="clock"></span>
+          <button class="iconbtn" id="prev" type="button" aria-label="Earlier">‹</button>
+          <button class="iconbtn" id="next" type="button" aria-label="Later">›</button>
+        </div>
+      </div>
+      <div class="active-row">
+        <div class="pills" id="pills" aria-label="Filters in use"></div>
+        <span class="scope" id="scope"></span>
+        <label class="sort">Sort by <select id="sort"><option value="time">Start time</option><option value="prefs">Your preferences</option></select></label>
+      </div>
+
+      <div id="list" aria-live="polite"></div>
+      <div id="sentinel"></div>
+
+      <section class="cal-banner">
+        <span class="banner-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg></span>
+        <div><b>Your plans, in your calendar.</b><span>Save events, then add them all at once, or subscribe to your filters and new events arrive on their own.</span></div>
+        <button class="btn ghost" id="setup-cal" type="button">→ Set up my calendar</button>
+      </section>
+
+      <footer class="footer">
+        <p>Event type, location, Free, and Getting in labels are automatically inferred and may be wrong. Check the original event page before heading out. <a href="about.html#tags">The rules</a></p>
+        <p class="foot-row"><b>Open source. Open to Berkeley.</b> <a class="arrow-out" href="data/events.json">data/events.json</a> <span>Public data · No key needed</span><span class="updated" id="updated"></span></p>
+        <p id="status"></p>
+      </footer>
+    </main>
+  </div>
+
+  <dialog class="modal" id="dates-dlg" aria-labelledby="dates-title">
+    <div class="modal-head"><h2 id="dates-title">Custom dates</h2><button class="iconbtn plain" type="button" data-close aria-label="Close">✕</button></div>
+    <p class="modal-sub">Choose a start and end date to explore.</p>
+    <div class="cal-nav"><button class="iconbtn plain" type="button" id="cal-prev" aria-label="Previous month">‹</button><b id="cal-month"></b><button class="iconbtn plain" type="button" id="cal-next" aria-label="Next month">›</button></div>
+    <div class="cal-grid" id="cal-grid" role="grid"></div>
+    <div class="range-sum"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg><div><b id="range-text">Pick a start date</b><span id="range-days"></span></div></div>
+    <div class="modal-foot"><button class="link" type="button" id="clear-dates">Clear dates</button><button class="btn gold" type="button" id="apply-dates">Apply dates</button></div>
+  </dialog>
+
+  <dialog class="modal" id="cal-dlg" aria-labelledby="cal-title">
+    <div class="modal-head"><h2 id="cal-title">Your Lo-Cal calendar</h2><button class="iconbtn plain" type="button" data-close aria-label="Close">✕</button></div>
+    <p class="modal-sub">One calendar for your plans. Choose what to include, then add it to your calendar.</p>
+    <label class="opt"><input type="radio" name="calkind" value="saved" checked><span><b>My saved events</b><small id="saved-sum"></small></span></label>
+    <label class="opt"><input type="radio" name="calkind" value="feed"><span><b>A custom event feed</b><small id="feed-sum">Built from your filters. New events arrive on their own.</small></span></label>
+    <p class="feed-note" id="feed-note" hidden></p>
+    <div class="modal-actions">
+      <a class="btn gold" id="cal-google" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg><span>Connect Google Calendar</span></a>
+      <a class="btn ghost" id="cal-other"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>Apple, Outlook, or another calendar</span></a>
+    </div>
+    <p class="privacy" id="cal-privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span></span></p>
+  </dialog>
+
+  <dialog class="modal" id="pref-dlg" aria-labelledby="pref-title">
+    <div class="modal-head"><h2 id="pref-title">Your preferences</h2><button class="iconbtn plain" type="button" data-close aria-label="Close">✕</button></div>
+    <p class="modal-sub">Pick what you're into. "Sort by: Your preferences" puts these first. Kept in this browser only.</p>
+    <div class="pref-grid" id="pref-grid"></div>
+    <div class="modal-foot"><button class="link" type="button" id="pref-clear">Clear</button><button class="btn gold" type="button" data-close>Done</button></div>
+  </dialog>
 
   <template id="card">
     <article class="card">
@@ -98,26 +193,25 @@
       <div class="body">
         <a class="title" target="_blank" rel="noopener"></a>
         <p class="where"></p>
-        <p class="access" hidden></p>
         <p class="reported" hidden></p>
         <p class="desc"></p>
-      </div>
-      <div class="foot">
-        <span class="badges"></span>
-        <div class="actions">
-          <details class="addcal">
-            <summary class="ical" title="Add to calendar">+ Calendar</summary>
-            <div class="calmenu">
-              <a class="gcal" target="_blank" rel="noopener">Google Calendar</a>
-              <a class="ocal" target="_blank" rel="noopener">Outlook</a>
-              <button class="ics" type="button">Apple &amp; others (.ics)</button>
-            </div>
-          </details>
-          <button class="share" type="button" title="Copy a link to this event">Share</button>
-          <a class="flag" target="_blank" rel="noopener" title="Spam, cancelled or wrong? Report it. Reports show publicly on the event." hidden>Report</a>
-        </div>
+        <div class="badges"></div>
       </div>
       <img class="thumb" alt="" loading="lazy" decoding="async">
+      <div class="actions">
+        <button class="save" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg><span>Save</span></button>
+        <details class="addcal">
+          <summary class="calbtn" title="Add this event to a calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4m7-4v4"/></svg><span>Calendar</span></summary>
+          <div class="calmenu">
+            <button class="tomine" type="button">Save to my Lo-Cal calendar</button>
+            <a class="gcal" target="_blank" rel="noopener">Google Calendar</a>
+            <a class="ocal" target="_blank" rel="noopener">Outlook</a>
+            <button class="ics" type="button">Apple &amp; others (.ics)</button>
+            <button class="share" type="button">Copy link to event</button>
+          </div>
+        </details>
+        <a class="flag" target="_blank" rel="noopener" title="Spam, cancelled or wrong? Report it. Reports show publicly on the event." hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4m0 0h11l-2 4 2 4H6"/></svg>Report</a>
+      </div>
     </article>
   </template>
 
